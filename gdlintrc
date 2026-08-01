@@ -1,0 +1,17 @@
+# GDScript Toolkit linter configuration.
+# Tool version is pinned in requirements-dev.txt.
+#
+# Only project-specific overrides appear here; everything else inherits the
+# gdtoolkit defaults so upstream improvements are picked up on upgrade.
+#
+# max-line-length 100 matches the AGENTS.md standard: target 80, do not exceed
+# 100 without a strong reason.
+
+max-line-length: 100
+max-file-lines: 1000
+
+excluded_directories: !!set
+  .git: null
+  .godot: null
+  .venv: null
+  addons: null

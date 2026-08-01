@@ -1,0 +1,78 @@
+name: Checks
+
+# Runs the project-owned verification gate. This workflow deliberately contains
+# no check logic of its own -- it provisions the toolchain and calls
+# scripts/check.sh, the same script developers run locally, so CI and local
+# results cannot drift.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Pinned by docs/adr/0001-pin-godot-version.md. Changing this requires a
+  # superseding ADR.
+  GODOT_VERSION: "4.7.1"
+
+jobs:
+  checks:
+    name: Format, lint, import, types
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cache Godot binary
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot-bin
+          key: godot-${{ env.GODOT_VERSION }}-linux-x86_64
+
+      - name: Download Godot ${{ env.GODOT_VERSION }} (standard, non-.NET)
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p ~/godot-bin
+          base="https://github.com/godotengine/godot/releases/download"
+          file="Godot_v${GODOT_VERSION}-stable_linux.x86_64"
+          curl -fsSL -o /tmp/godot.zip "${base}/${GODOT_VERSION}-stable/${file}.zip"
+          curl -fsSL -o /tmp/SHA512-SUMS.txt \
+            "${base}/${GODOT_VERSION}-stable/SHA512-SUMS.txt"
+          # Verify against the published checksum before trusting the binary.
+          grep "${file}.zip" /tmp/SHA512-SUMS.txt > /tmp/expected.txt
+          (cd /tmp && sha512sum -c expected.txt)
+          unzip -q /tmp/godot.zip -d ~/godot-bin
+          mv ~/godot-bin/"${file}" ~/godot-bin/godot
+          chmod +x ~/godot-bin/godot
+
+      - name: Verify pinned engine version
+        run: |
+          set -euo pipefail
+          ~/godot-bin/godot --version
+
+      - name: Install pinned GDScript Toolkit
+        run: |
+          set -euo pipefail
+          python -m venv .venv
+          .venv/bin/pip install --quiet --upgrade pip
+          .venv/bin/pip install --quiet -r requirements-dev.txt
+          .venv/bin/gdlint --version
+
+      - name: Run verification gate
+        env:
+          GODOT_BIN: /home/runner/godot-bin/godot
+        run: ./scripts/check.sh

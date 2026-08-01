@@ -1,0 +1,11 @@
+# Development-only Python dependencies. Not shipped with the game.
+#
+# Pinned per DEC-013. GDScript Toolkit 4.5.0 predates Godot 4.6 and 4.7, so its
+# compatibility with the pinned engine was verified rather than assumed during
+# issue #2: it parses @abstract, typed dictionaries, static vars, StringName
+# literals, and @warning_ignore, and its formatted output is accepted by Godot
+# 4.7.1 and is idempotent.
+#
+# Install:  python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
+
+gdtoolkit==4.5.0

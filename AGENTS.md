@@ -154,18 +154,40 @@ networking code, stop and request an architecture review.
 
 ## Verification
 
-Run every repository-provided check relevant to the change. The bootstrap
-target is:
+Run the project gate. It is one command, and CI runs the identical script:
 
-```text
-gdformat --check .
-gdlint .
-godot --headless --path . --import
-<repository headless test command>
-<repository content-validation command>
+```bash
+./scripts/check.sh
 ```
 
-The exact test commands must be recorded here when the test harness is chosen.
+It exits nonzero if any check fails. It covers, in order: the pinned engine
+version, `gdformat --check`, `gdlint`, headless import, GDScript type and
+warning checks, domain purity, and the test suite.
+
+First-time setup for the linter and formatter:
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements-dev.txt
+```
+
+The engine binary is resolved from `$GODOT_BIN`, then `godot` on `PATH`, then
+the macOS default bundle. The bundle name carries no version, so the gate
+asserts the expected version string rather than trusting the path.
+
+Two Godot behaviours make the wrapper necessary rather than cosmetic, so do not
+substitute the raw commands for it:
+
+- `godot --headless --path . --import` exits 0 and reports nothing when a
+  script has type or warning violations. It verifies import only.
+- `godot --headless --check-only -s <file>` *reports* violations but still
+  exits 0, so its output must be inspected rather than its exit code trusted.
+
+**After changing `project.godot`, open the project in the editor once.** No
+headless invocation validates project configuration. An invalid `config/features`
+tag, for example, imports cleanly and is reported only by the editor GUI. The
+gate cannot cover this; a human must.
+
 Do not invent a passing result or omit a failed check from the handoff.
 
 At minimum:

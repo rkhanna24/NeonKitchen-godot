@@ -117,7 +117,8 @@ Kitchen Lead maintains these artifacts during Phase 1 without pretending to be a
 | Automated correctness is mistaken for fun | Require human playtesting before advancing the design. |
 | Long-term flexibility turns Phase 1 into speculative infrastructure | Build only stable IDs, typed commands/events, deterministic rules, a content repository, and golden tests; defer unused adapters. |
 | A future presentation or networking concern leaks into recipe rules | Keep engine nodes, translated text, scene paths, RPCs, and spatial coordinates outside the domain core. |
-| GDScript Toolkit lags the pinned engine release | gdtoolkit 4.5.0 (2025-10-09) predates Godot 4.6 and 4.7. Issue #2 must demonstrate `gdformat`/`gdlint` working on project code rather than assume it. Prefer avoiding unsupported new syntax over disabling the DEC-013 gate. |
+| ~~GDScript Toolkit lags the pinned engine release~~ | **Resolved 2026-08-01 in #2.** gdtoolkit 4.5.0 parses `@abstract`, typed dictionaries, `static var`, StringName literals, and `@warning_ignore`; its formatted output is accepted by Godot 4.7.1 and is idempotent. Pinned in `requirements-dev.txt`. |
+| Godot's own commands cannot be trusted as CI gates | `--import` exits 0 and reports nothing on script type or warning violations; `--check-only` reports them but also exits 0. `scripts/check.sh` inspects output instead of exit codes. Never substitute the raw commands for the gate. |
 | GitHub tasks and durable design memory drift apart | Keep executable scope and status in GitHub; update the worklog only when a decision, milestone, risk, or durable context changes. |
 | The repository and former Obsidian vault become competing sources of truth | Treat repository `docs/` as canonical after migration verification; keep only a pointer or archive in the former vault. |
 
@@ -681,6 +682,99 @@ accepted ADRs and approved decisions.
 **Next**
 
 Close #15. Proceed to #7, then #2 and #4.
+
+### 2026-08-01 — Session 008: Project bootstrap and verification gate
+
+**Summary**
+
+Selected GUT as the test framework (ADR 0003) and bootstrapped the Godot project
+with a working verification gate. Issue #2 is complete pending a human editor
+check; issue #7 is partially complete and now correctly blocked by #2.
+
+**Human-approved decisions**
+
+- ADR 0003: use GUT v9.7.1 from the `godot_4_7` branch, pinned to commit
+  `aeb5d4f3f7f0a6c9b5e178876d6c99b791fda605`, vendored into `addons/`. Chosen
+  over gdUnit4 because its differentiators — mocking, spying, orphan detection —
+  target problems ADR 0002's dependency injection already avoids.
+
+**Work completed**
+
+- `project.godot` for Godot 4.7.1, with GDScript warning levels enforcing static
+  typing.
+- `scripts/check.sh`, a single verification gate covering engine version,
+  format, lint, headless import, type and warning checks, domain purity, and
+  tests. CI calls the same script.
+- `.github/workflows/checks.yml`, which provisions the toolchain with a checksum
+  -verified Godot download and contains no check logic of its own.
+- `requirements-dev.txt` and `gdlintrc` pinning and configuring gdtoolkit.
+- `AGENTS.md` verification section replaced with executable commands.
+
+**Evidence**
+
+- **Neither Godot command is usable as a CI gate on its own.**
+  `godot --headless --path . --import` exits 0 and reports nothing when a script
+  has type or warning violations. `godot --headless --check-only -s <file>`
+  reports violations but also exits 0. The gate therefore inspects output. The
+  previous `AGENTS.md` bootstrap command list would have passed a codebase full
+  of type violations.
+- gdtoolkit 4.5.0 verified against the pinned engine, resolving the risk ADR
+  0001 recorded. `gdformat --check` exits 1 when reformatting is needed and 0
+  when clean; `gdlint` exits 1 on problems. Both are usable gates.
+- `untyped_declaration=2` is workable: `for i in range(10)` does **not** trip it,
+  because Godot infers loop variable types. This was verified against a probe
+  script, not assumed.
+- `integer_division=2` does trip on intentional truncation, which ADR 0002 rule
+  13 requires. Kept as an error so every truncation must carry a narrow
+  `@warning_ignore("integer_division")` and a reason — truncation direction can
+  move a score across the 40, 65, and 85 band boundaries.
+- The gate was tested in both directions: clean tree exits 0; a file with an
+  untyped variable and a `randi()` call in `core/domain` exits 1 and names both
+  violations.
+
+**Risks or limitations**
+
+- An earlier draft of `scripts/check.sh` used `mapfile`, which macOS bash 3.2
+  lacks, and **reported "All checks passed" while three steps were broken**. The
+  script is now bash 3.2 compatible and traps unexpected errors as failures. The
+  episode is the reason the gate is tested in the failing direction, not only the
+  passing one.
+- CI has not run yet; the workflow is unexercised until the first push.
+- Warning levels are calibrated against a probe, not a real domain. Expect one
+  revision when #9 lands actual evaluator code.
+- `scripts/` is not in the ADR 0002 §6 layout. It was added deliberately so the
+  gate is runnable locally and by CI from one definition. Recorded here rather
+  than silently extending the ratified structure.
+- **The editor catches project-configuration errors that headless mode cannot.**
+  The first `project.godot` listed `"GDScript"` in `config/features`, which is not
+  a valid feature tag — tags describe engine capabilities such as the version, a
+  renderer, or `C#` on .NET builds, not languages. Headless import accepted it
+  silently, and so did `--headless --editor --quit`. Only the editor GUI reported
+  "this project uses the following features not supported by this build".
+  Corrected to `PackedStringArray("4.7")`.
+
+  Consequence: `scripts/check.sh` cannot verify project-configuration validity,
+  because no headless invocation surfaces it. **Opening the editor after changing
+  `project.godot` remains a human step.** This was found only because that step
+  was requested rather than assumed.
+
+- **The editor rewrites `project.godot`,** normalising order and dropping both
+  comments and any value equal to its default. Documentation about project
+  settings therefore belongs in the ADRs, not in that file. The warning levels
+  survived; `unused_parameter` disappeared only because `1` is its default.
+
+- `docs/.gdignore` keeps the documentation vault out of Godot's filesystem scan,
+  as anticipated by architecture §6. Measured effect: cache entries fell from 20
+  to 6. There was **no measurable import-speed gain** — 1.53s before, 1.72s
+  after, both dominated by engine startup. The benefit is a clean FileSystem
+  dock that stays clean as `docs/` grows, not performance. Godot already skips
+  dot-directories, so `.venv/` and `.git/` were never scanned despite `.venv/`
+  holding 876 files.
+
+**Next**
+
+Human opens the project in the editor once to confirm the GUI path. Then #7
+vendors GUT, adds the smoke test, and demonstrates a nonzero failure exit.
 
 ---
 

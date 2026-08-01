@@ -2,6 +2,16 @@
 .godot/
 /android/
 
+# Godot .uid sidecar files are NOT ignored. They are engine-internal reference
+# plumbing and must be committed -- see AGENTS.md rule 11.
+
+# Vendored addons (for example GUT) are NOT ignored. They are pinned
+# dependencies committed for reproducible checkouts -- see docs/adr/0003.
+
+# Python development environment (gdtoolkit). Pinned in requirements-dev.txt.
+.venv/
+__pycache__/
+
 # OS / editor artifacts
 .DS_Store
 *.swp
