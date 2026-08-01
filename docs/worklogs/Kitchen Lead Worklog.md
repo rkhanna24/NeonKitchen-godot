@@ -643,6 +643,45 @@ Phase 1 structural foundation in ADR 0002. DEC-009 now has a final disposition.
 
 Close #14, then #7, #2, and #4.
 
+### 2026-07-31 — Session 007: GDD reconciled with accepted decisions
+
+**Summary**
+
+Resolved issue #15. Corrected one contradiction and four stale references in the
+game design document so the top authority artifact no longer disagrees with
+accepted ADRs and approved decisions.
+
+**Work completed**
+
+- GDD v5. Content format corrected from human-readable JSON to typed `.tres`
+  Resources per DEC-010, with JSON retained for saves, replays, network DTOs, and
+  golden snapshots; "Godot 4.x" replaced with the pinned 4.7.1 and the supported
+  export targets named per ADR 0001; shared definitions moved from `data/` to
+  `content/` per ADR 0002 §6; integer weighting and integer scoring arithmetic
+  stated where weighted targets are defined; a note added to §4.1 recording that
+  only the Kitchen Lead is active during Phase 1 per DEC-004 and DEC-005.
+
+**Evidence**
+
+- The JSON contradiction was material, not cosmetic. The GDD is authority #2 and
+  DEC-010 is human authority, so DEC-010 governed — but an agent citing the GDD
+  could have authored content in the wrong format with a defensible reference.
+  This is the same failure mode #14 corrected in `AGENTS.md`.
+- Grep confirms no remaining stale usage of `JSON` as a content format,
+  `Godot 4.x`, or `data/` outside the v5 revision entry itself.
+
+**Risks or limitations**
+
+- The GDD is a living document; a snapshot was already submitted for grading, so
+  these edits do not affect work already assessed.
+- GDD §5.3 budgets roughly 14,000 tokens per focused session across fifty
+  sessions. Observed usage is materially higher. This affects the Week 5 writeup's
+  accuracy, not any current decision, and should be revisited before submission.
+
+**Next**
+
+Close #15. Proceed to #7, then #2 and #4.
+
 ---
 
 ## Worklog Entry Template

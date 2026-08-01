@@ -12,7 +12,7 @@ Development begins with a Phase 1 terminal prototype containing twelve ingredien
 
 > **Is creating recipes for customers an enjoyable puzzle?**
 
-The capstone deliverable is a playable Godot 4.x desktop game with a functional food-truck UI implementing the validated recipe-composition loop. Phase 1 data, rules, tests, and customer content move into that build through a defined migration pipeline rather than being rewritten from scratch. A larger post-capstone game could add ingredient purchasing, limited stock, recipe discoveries, customer relationships, cooking techniques, and story progression.
+The capstone deliverable is a playable Godot 4.7.1 desktop game with a functional food-truck UI implementing the validated recipe-composition loop. Phase 1 data, rules, tests, and customer content move into that build through a defined migration pipeline rather than being rewritten from scratch. A larger post-capstone game could add ingredient purchasing, limited stock, recipe discoveries, customer relationships, cooking techniques, and story progression.
 
 ## The Core Loop
 
@@ -114,9 +114,9 @@ The player learns why the recipe worked, what could improve, and how the constra
 | Recipe composition | The player freely adds or removes ingredients before serving. Ingredient order has no effect, duplicates are not allowed, and more ingredients are not always better. | One to three distinct ingredients |
 | Flavor | Ingredients contribute consistent values in Savory, Spicy, Fresh, Comfort, and Adventurous. Dish values are added and capped at five. | Ingredient values 0–3; dish values 0–5 |
 | Ingredient metadata | Culinary, dietary, and allergen tags support constraints without being mixed into flavor values. | Examples: protein, vegetable, fermented, vegan, soy, gluten |
-| Customers | Requests use natural dialogue backed by weighted flavor targets. Early encounters teach two obvious preferences; later encounters combine priorities and constraints. | Eight fixed encounters |
+| Customers | Requests use natural dialogue backed by integer-weighted flavor targets. Early encounters teach two obvious preferences; later encounters combine priorities and constraints. | Eight fixed encounters |
 | Constraints | Customers may require or forbid an ingredient or tag, or state a dietary or allergen rule. Constraints are visible before the player chooses. | Zero to two per customer |
-| Evaluation | The system compares the dish profile with the customer’s weighted targets. Scoring is deterministic and contains no hidden randomness. | Score 0–100 |
+| Evaluation | The system compares the dish profile with the customer’s weighted targets. Scoring is deterministic, uses integer arithmetic throughout, and contains no hidden randomness. | Score 0–100 |
 | Feedback | Each result names the rating, constraint outcome, strongest match, largest relevant miss, and one reaction in the customer’s voice. | Four rating bands |
 
 The prototype’s initial pantry contains noodles, tofu, mushrooms, kimchi, pepper paste, chili crisp, coconut milk, pickled cucumber, chickpeas, flatbread, citrus herbs, and smoked fish. This roster is provisional and must be checked for tag accuracy and distinct gameplay roles before external playtesting.
@@ -163,6 +163,8 @@ Persistent agents retain project context because their work depends on decisions
 | **Pantry Keeper** | Persistent; culinary-system and ingredient-consistency steward. | Maintains the ingredient registry, flavor ontology, culinary and dietary tags, customer constraints, emergent recipe rules, balance assumptions, and known successful or dominant combinations.                                              | Does not turn discovered combinations into mandatory recipes or change flavor rules without human approval.                 |
 
 The Kitchen Lead is the default communication channel. The human may directly discuss lore or ingredient design with the Worldkeeper or Pantry Keeper when useful, but implementation and research specialists report through the Kitchen Lead. This keeps the human from having to coordinate a changing collection of short-lived agents.
+
+> **Phase 1 activation.** This roster describes the full capstone architecture. During Phase 1, only the Kitchen Lead is active (DEC-004); the Worldkeeper and Pantry Keeper are deferred until the project holds enough lore and culinary content to justify persistent stewardship (DEC-005). The Kitchen Lead temporarily maintains a minimal setting-and-tone statement and the authoritative ingredient and customer data in their place. Their responsibilities are deferred, not discarded.
 
 ### Task-Scoped Specialist Pool
 
@@ -271,13 +273,13 @@ Automated tests can establish that scoring is deterministic and constraints are 
 
 ## 5.1 Stack and Scope
 
-**Core tools:** Godot 4.x, GDScript, human-readable JSON data, headless automated tests, GitHub, GitHub Actions, ChatGPT, Claude Code, a terminal runner for Phase 1, and Godot Control nodes for the capstone UI.
+**Core tools:** Godot 4.7.1 (standard, non-.NET), GDScript, typed `.tres` Resource content, JSON for saves and golden snapshots, headless automated tests, GitHub, GitHub Actions, ChatGPT, Claude Code, a terminal runner for Phase 1, and Godot Control nodes for the capstone UI.
 
 **Phase 1 implementation:** The terminal prototype runs in headless Godot using GDScript. It calls the same data loader and recipe evaluator that the visual build will use. The terminal is an interface adapter around the game rules, not a separate game implementation.
 
 **Prototype-to-Godot pipeline:**
 
-1. Ingredient and customer definitions live in one shared `data/` source.
+1. Ingredient and customer definitions live in one shared `content/` source as typed `.tres` Resources.
 2. Recipe evaluation, constraint checking, rating bands, and feedback selection live in UI-independent GDScript.
 3. A headless terminal runner calls that rules module during Phase 1.
 4. Golden test cases preserve representative inputs and expected scores, constraints, ratings, and feedback keys.
@@ -288,7 +290,7 @@ This pipeline makes the terminal prototype replaceable while keeping its validat
 
 **What ships:**
 
-* One exported Godot 4.x desktop game
+* One exported Godot 4.7.1 desktop game for macOS (arm64) and Windows (x86_64)
 * One functional food-truck interface
 * Customer request and portrait panel
 * Visible ingredient selection and proposed-dish area
@@ -359,6 +361,16 @@ If usage approaches the ceiling, tasks will use smaller contexts, completed work
 | Automated tests are mistaken for fun validation | Separate Health Inspector verification from human playtest acceptance. |
 
 # 6\. Revision History
+
+## v5 — Reconciliation with Accepted Decisions
+
+Technical corrections only. No change to player experience, mechanics, lore, scope, or the agent architecture. Recorded in [issue #15](https://github.com/rkhanna24/NeonKitchen-godot/issues/15).
+
+* Replaced **human-readable JSON** as the content format with typed `.tres` Resources, per DEC-010. JSON remains the format for saves, replays, network DTOs, and golden snapshots. This removed a contradiction in which the design document and an approved decision named different canonical content formats.
+* Replaced **Godot 4.x** with the pinned **Godot 4.7.1** (standard, non-.NET) throughout, and named macOS arm64 and Windows x86_64 as the supported export targets, per [ADR 0001](../adr/0001-pin-godot-version.md).
+* Moved shared definitions from `data/` to `content/`, matching the ratified repository layout in [ADR 0002](../adr/0002-phase-1-structural-foundation.md) §6.
+* Stated that customer flavor weights and scoring arithmetic are **integers**, per ADR 0002 §8. Godot does not guarantee deterministic float math across platforms, and the rating bands at 40, 65, and 85 are boundaries a float could straddle differently on macOS, Windows, and Linux CI.
+* Recorded that only the Kitchen Lead is active during Phase 1, per DEC-004 and DEC-005, so §4.1 is not read as describing the current agent roster.
 
 ## v4 — Recipe Prototype Revision
 
