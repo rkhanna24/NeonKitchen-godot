@@ -57,13 +57,14 @@ tags:
 | DEC-006 | Phase 1 implementation and verification agents are narrowly scoped and terminate after handoff, bounded repair, and acceptance. | Approved | Human and GDD |
 | DEC-007 | Expeditor is unnecessary for simple Phase 1 tasks; Kitchen Lead may decompose them directly. | Recommended working rule | Kitchen Lead |
 | DEC-008 | Asset Scout, Media Coach, Prep Cook, Service Cook, Sous Chef, and other presentation roles remain dormant until the Godot UI stage. | Approved | Human and GDD |
-| DEC-009 | Use a deterministic UI-independent domain core, application commands/domain events, stable content IDs, and ports/adapters as the proposed technical foundation. | Proposed | [[technical_architecture\|Technical Architecture]] |
+| DEC-009 | Use a deterministic UI-independent domain core, application commands/domain events, stable content IDs, and ports/adapters as the proposed technical foundation. | **Superseded** by [ADR 0002](../adr/0002-phase-1-structural-foundation.md) | [[technical_architecture\|Technical Architecture]] |
 | DEC-010 | Use typed custom `.tres` Resources as canonical game-content definitions from Phase 1 onward. | Approved | Human |
 | DEC-011 | Do not use a project-wide ECS; allow a bounded ECS subsystem only when measured needs justify it and an ADR approves it. | Approved | Human |
 | DEC-012 | Give coding agents a short root `AGENTS.md`; keep rationale in `docs/technical_architecture.md` and architectural decisions in `docs/adr/`. | Approved | Human |
 | DEC-013 | Bootstrap static typing, Godot warnings, `gdformat`, `gdlint`, headless import, and project tests as the code-quality gate. | Approved | Human |
 | DEC-014 | Use private GitHub Issues and the Neon Kitchen Development Project as the system of record for executable work; keep design authority and durable decision memory in the GDD, accepted ADRs, and Kitchen Lead Worklog. | Approved | Human |
 | DEC-015 | Pin Godot 4.7.1 stable standard (non-.NET); develop on macOS arm64; support macOS arm64 and Windows x86_64 exports; accept 4.7.x patches but require a superseding ADR for a new minor. | Approved | Human and [ADR 0001](../adr/0001-pin-godot-version.md) |
+| DEC-016 | Ratify a narrowed Phase 1 structural foundation: interface independence and inward dependency direction; the full command/event vocabulary with cooking-challenge terms reserved but undefined; no randomness or wall-clock time in the domain; three ports (`ContentRepository` built, `RandomPort` and `CookingChallengePort` declared); a minimal repository layout; and six Godot-specific correctness rules. Supersedes DEC-009. | Approved | Human and [ADR 0002](../adr/0002-phase-1-structural-foundation.md) |
 | DEC-015 | Use the repository `docs/` directory as the canonical, version-controlled Obsidian vault for game design, architecture, agent definitions, and durable project memory. | Approved | Human |
 
 ### Phase 1 Scope
@@ -129,25 +130,27 @@ Kitchen Lead maintains these artifacts during Phase 1 without pretending to be a
 | Q-003 | What exact flavor-score formula and feedback rules are locked for the first spike? | Evaluator implementation |
 | Q-004 | Will the remaining proposed repository structure in [[technical_architecture\|Technical Architecture]] be approved as the bootstrap structure? | First code creation |
 | Q-005 | Which observations define success for the first internal human playtest? | Playtest preparation |
-| Q-007 | Which remaining architectural proposal items should be promoted to approved decisions before implementation? | First implementation work package |
-
-Q-004 and Q-007 are owned by
-[#14 — Ratify the Phase 1 structural foundation](https://github.com/rkhanna24/NeonKitchen-godot/issues/14).
 
 ### Resolved Questions
 
 | ID | Question | Resolution |
 |---|---|---|
+| Q-004 | Will the proposed repository structure be approved as the bootstrap structure? | Partly. [ADR 0002](../adr/0002-phase-1-structural-foundation.md) §6 ratifies a reduced Phase 1 layout; §6 of the architecture document remains the target shape. 2026-07-31 |
 | Q-006 | Which exact Godot 4.x version and desktop export targets will be pinned? | DEC-015 / [ADR 0001](../adr/0001-pin-godot-version.md), 2026-07-31 |
+| Q-007 | Which remaining architectural proposal items should be promoted to approved decisions? | DEC-016 / [ADR 0002](../adr/0002-phase-1-structural-foundation.md), which supersedes DEC-009. 2026-07-31 |
 
 ### Next Actions
 
-1. Complete [#14 — Ratify the Phase 1 structural foundation](https://github.com/rkhanna24/NeonKitchen-godot/issues/14),
-   giving DEC-009 a final disposition and unblocking #2 and #4.
+1. Accept [#14](https://github.com/rkhanna24/NeonKitchen-godot/issues/14) and
+   close it, which unblocks #2 and #4.
 2. Select the headless GDScript test framework in [#7](https://github.com/rkhanna24/NeonKitchen-godot/issues/7).
-3. Then [#4 — Lock the Phase 1 contracts](https://github.com/rkhanna24/NeonKitchen-godot/issues/4)
-   and [#2 — Bootstrap the Godot project and quality gates](https://github.com/rkhanna24/NeonKitchen-godot/issues/2).
-4. Activate task-scoped specialists only after their issues are Ready.
+3. [#2 — Bootstrap the Godot project and quality gates](https://github.com/rkhanna24/NeonKitchen-godot/issues/2),
+   scaffolding only the ADR 0002 §6 layout, recording exact warning levels, and
+   adding the no-randomness grep check.
+4. [#4 — Lock the Phase 1 contracts](https://github.com/rkhanna24/NeonKitchen-godot/issues/4),
+   with integer customer weights and fields for five commands and eight events
+   only.
+5. Activate task-scoped specialists only after their issues are Ready.
 
 ## Canonical Artifact Index
 
@@ -161,6 +164,7 @@ Q-004 and Q-007 are owned by
 | `AGENTS.md` | Short operational contract for coding agents | Active |
 | `docs/adr/` | Durable architecture decision records | Active |
 | [ADR 0001](../adr/0001-pin-godot-version.md) | Pinned Godot 4.7.1 build, platform matrix, and upgrade policy | Accepted |
+| [ADR 0002](../adr/0002-phase-1-structural-foundation.md) | Narrowed Phase 1 structural foundation; supersedes DEC-009 | Accepted |
 | [NeonKitchen-godot](https://github.com/rkhanna24/NeonKitchen-godot) | Private implementation repository and issue tracker | Active |
 | [Neon Kitchen Development](https://github.com/users/rkhanna24/projects/1) | Managed status, priority, dependency, phase, and area tracking | Active |
 | [Phase 1 — Recipe Rules Prototype](https://github.com/rkhanna24/NeonKitchen-godot/milestone/1) | Current implementation milestone | Active |
@@ -212,7 +216,12 @@ Q-004 and Q-007 are owned by
 
 ### DEC-009
 
-- **Status:** Proposed
+- **Status:** Superseded by [ADR 0002](../adr/0002-phase-1-structural-foundation.md) and DEC-016 on 2026-07-31
+- **Superseded because:** it remained Proposed while `AGENTS.md` presented its
+  content as non-negotiable, and its scope exceeded what Phase 1 needs. ADR 0002
+  accepts a narrowed form: it keeps interface independence, dependency direction,
+  commands/events, and stable IDs; replaces "inject randomness" with a stricter
+  ban on randomness and wall-clock time in the domain; and limits ports to three.
 - **Decision:** Use a deterministic UI-independent domain core, explicit application commands and domain events, stable versioned content IDs, and ports/adapters as the technical foundation.
 - **Reason:** These seams let new content remain data-driven and let terminal, Godot UI, minigame, localization, networking, persistence, and visual presentation implementations evolve without owning recipe policy.
 - **Player-facing effect:** The same recipe behavior can survive richer interfaces and future modes while additions remain less likely to destabilize unrelated play.
@@ -565,6 +574,74 @@ start.
 
 Install Godot 4.7.1, close #11, then ratify the structural foundation in #14 to
 unblock #2 and #4.
+
+### 2026-07-31 — Session 006: Phase 1 structural foundation ratified
+
+**Summary**
+
+Resolved issue #14. Audited every binding rule in `AGENTS.md` against real
+authority, researched current Godot practice for gaps, and ratified a narrowed
+Phase 1 structural foundation in ADR 0002. DEC-009 now has a final disposition.
+
+**Human-approved decisions**
+
+- DEC-016 / ADR 0002, superseding DEC-009. Full command and event vocabulary
+  retained with cooking-challenge terms reserved but undefined; no randomness or
+  wall-clock time in the domain; `ContentRepository` built with `RandomPort` and
+  `CookingChallengePort` declared as interfaces only; reduced repository layout;
+  rule 10 split into a binding constraint plus guidance; six Godot-specific
+  correctness rules added.
+
+**Work completed**
+
+- Created [ADR 0002](../adr/0002-phase-1-structural-foundation.md).
+- Rewrote the `AGENTS.md` rule set so every binding rule cites its authority;
+  added a Conventions section; corrected the Authority order so the architecture
+  document is guidance rather than authority; replaced "Godot 4.x" with 4.7.1.
+- Marked [[technical_architecture|Technical Architecture]] v0.3 as
+  partially-accepted and recorded which sections ADR 0002 accepts.
+- Resolved Q-004 and Q-007.
+
+**Evidence**
+
+- Traceability audit: 6 of 16 binding items authorized, 4 partial, 6 orphaned.
+  Every orphan traced to DEC-009 or the proposed architecture document.
+- Two structural defects found: `AGENTS.md` ranked a proposed document fourth in
+  its authority order, and still described the engine as "Godot 4.x".
+- Godot practice review found four correctness hazards: Resources are shared by
+  reference so mutating one mutates all consumers; `.uid` sidecar files must be
+  committed and rule 6 risked being read as licence to delete them; a custom
+  `Resource` with a required `_init()` argument loads as `null`; and float math
+  is not deterministic across platforms, which threatens golden parity across
+  the macOS/Windows/Linux matrix pinned by ADR 0001.
+- GDD evidence used in scoping: cooking techniques appear in the stretch-goal
+  list, so challenge vocabulary is roadmap; a randomized visible pantry was
+  deliberately removed in revision v4, so it is a rejected feature rather than a
+  deferred one.
+
+**Specialist handoffs**
+
+- None. Kitchen Lead executed #14 directly per DEC-007.
+
+**Risks or limitations**
+
+- The integer-arithmetic rule constrains #4: customer target weights must be
+  integers. Accepted deliberately to protect band boundaries at 40, 65, and 85.
+- Exact `project.godot` warning levels are named as a mechanism but not chosen;
+  #2 selects and records them against real code.
+- ADR 0002 §5 forbids creating ports beyond the three named without an ADR,
+  which will require an ADR at the Godot UI migration if a presentation port is
+  wanted.
+
+**Open questions**
+
+- A randomized initial ingredient set contradicts GDD §2.3 and the v4 revision.
+  Raised as a future possibility; **not** approved. It would need an explicit GDD
+  revision, not a port-level decision.
+
+**Next**
+
+Close #14, then #7, #2, and #4.
 
 ---
 

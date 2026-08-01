@@ -1,9 +1,9 @@
 ---
 type: technical-architecture
-status: proposed
-version: 0.2
+status: partially-accepted
+version: 0.3
 created: 2026-07-30
-last-updated: 2026-07-30
+last-updated: 2026-07-31
 owner: "[[Kitchen Lead]]"
 governed-by: "[[Neon Kitchen - Game Design Document]]"
 tags:
@@ -21,6 +21,30 @@ tags:
 > Neon Kitchen should preserve its recipe-composition rules while its interface, content, cooking challenges, art direction, language support, and session topology evolve. New content should normally be data. New gameplay should normally be a module behind a stable contract. Terminal, 2D, 3D, localized, and networked versions should be adapters around the same game rules.
 
 ## 1. Status and Scope
+
+> [!warning] This document is guidance, not authority
+> Except where an accepted ADR adopts part of it, this document does **not**
+> bind implementation. Binding authority is the game design document, accepted
+> ADRs in `docs/adr/`, and approved decisions in the Kitchen Lead Worklog.
+>
+> **Accepted for Phase 1** via [ADR 0002](adr/0002-phase-1-structural-foundation.md):
+> interface independence and dependency direction (§3.1, §3.2, §4); commands and
+> events (§3.3), with the cooking-challenge vocabulary reserved but undefined;
+> determinism (§3.4) in the stricter form of *no randomness or wall-clock time in
+> the domain*; stable identity (§3.6); the content rules in §7; and a reduced
+> Phase 1 slice of §6 and §20.
+>
+> **Accepted earlier:** `.tres` content format (§7.1, DEC-010); no project-wide
+> ECS (§3.10, DEC-011); Godot 4.7.1 and the platform matrix
+> ([ADR 0001](adr/0001-pin-godot-version.md)).
+>
+> **Still proposed:** everything concerning multiplayer (§11), localization
+> adapters (§10), 3D and alternate presentation (§12), C# (§13, §15), cooking
+> challenge implementations (§9), and persistence beyond test fixtures.
+>
+> Where this document and ADR 0002 differ, **ADR 0002 wins**. Notably, §3.2's
+> port table is a catalogue of possibilities, not a Phase 1 build list — ADR 0002
+> §5 names the three ports in scope.
 
 This document defines the proposed long-term technical foundation and the smaller subset that Phase 1 should actually build.
 
@@ -967,9 +991,9 @@ This is the minimum architecture that protects future routes without turning Pha
 
 | ID | Decision needed | When |
 |---|---|---|
-| ARCH-Q01 | Pin the Godot 4.x version and export targets. | Before repository bootstrap |
-| ARCH-Q02 | Choose the headless GDScript test framework and CI command. | Before first test harness |
-| ARCH-Q03 | Lock initial command, event, and evaluator result fields. | Before evaluator implementation |
+| ~~ARCH-Q01~~ | ~~Pin the Godot 4.x version and export targets.~~ **Resolved by [ADR 0001](adr/0001-pin-godot-version.md).** | — |
+| ARCH-Q02 | Choose the headless GDScript test framework and CI command. | Before first test harness (issue #7) |
+| ARCH-Q03 | Lock initial command, event, and evaluator result fields. Vocabulary fixed by [ADR 0002](adr/0002-phase-1-structural-foundation.md) §3; fields remain open. | Before evaluator implementation (issue #4) |
 | ARCH-Q04 | Define content-pack and schema-version migration rules. | Before the second schema version |
 | ARCH-Q05 | Decide whether an external JSON import/export pipeline is needed. | When external tooling or network interchange requires it |
 | ARCH-Q06 | Define measurable criteria for approving a C# module. | Before first C# proposal |
@@ -1016,3 +1040,4 @@ Microsoft:
 |---|---|---|---|
 | 0.1 | 2026-07-30 | Proposed | Initial long-term foundation and Phase 1 slice |
 | 0.2 | 2026-07-30 | Proposed | Adopted `.tres`-first content, scoped ECS policy, coding-agent structure, and initial GDScript quality gates |
+| 0.3 | 2026-07-31 | Partially accepted | ADR 0002 accepted a narrowed Phase 1 slice and superseded DEC-009; marked accepted versus proposed content; recorded that this document is guidance, not authority |

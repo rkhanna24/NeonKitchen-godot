@@ -20,9 +20,9 @@ as more authoritative than a current approved decision.
 
 ## Current Phase
 
-Phase 1 is a primitive headless Godot 4.x prototype written in statically typed
-GDScript. Its purpose is to determine whether composing recipes for customer
-preferences is understandable and enjoyable.
+Phase 1 is a primitive headless prototype on **Godot 4.7.1** (standard, non-.NET)
+written in statically typed GDScript. Its purpose is to determine whether
+composing recipes for customer preferences is understandable and enjoyable.
 
 The terminal runner is an adapter, not the final game. The capstone target is a
 Godot desktop game with a player-facing UI.
@@ -34,42 +34,80 @@ Use this order when instructions conflict:
 1. explicit human direction;
 2. the game design document;
 3. accepted ADRs;
-4. the technical architecture;
+4. approved decisions in the Kitchen Lead Worklog;
 5. the current task context;
-6. implementation convenience.
+6. guidance in [Technical architecture](docs/technical_architecture.md);
+7. implementation convenience.
 
-Stop and surface a conflict rather than silently choosing a lower authority.
+The technical architecture is **guidance, not authority**, except where an
+accepted ADR adopts a part of it. Stop and surface a conflict rather than
+silently choosing a lower authority.
 
 ## Non-Negotiable Architecture Rules
 
+Every rule below cites the authority that makes it binding.
+
 1. Keep domain rules independent from `Node`, scenes, input, localization,
    assets, filesystem paths, RPCs, peer IDs, and 2D/3D coordinates.
+   *(GDD §5.1; ADR 0002)*
 2. Send player and system intent through typed commands. Report accepted facts
-   through ordered domain events.
-3. Keep authoritative game state outside presentation nodes.
-4. Inject time and randomness. A recorded seed and command sequence must be
-   reproducible.
+   through ordered domain events. *(ADR 0002 §3)*
+3. Keep authoritative game state outside presentation nodes. *(GDD §5.1;
+   ADR 0002)*
+4. The domain contains no randomness and no wall-clock time. Any future
+   randomness arrives through `RandomPort`. *(GDD §2.3; ADR 0002 §4)*
 5. Author game content as typed custom `.tres` Resources with stable,
-   namespaced `content_id` values.
+   namespaced `content_id` values. *(DEC-010)*
 6. Never use a translated name, resource path, Resource UID, node name, or
-   array index as gameplay identity.
-7. Treat content Resources as immutable definitions at runtime. Validate them
-   before the domain consumes them.
+   array index as gameplay identity. *(DEC-010)*
+7. Treat content Resources as immutable definitions at runtime. Godot shares
+   Resources by reference — `load()` returns a cached instance and an exported
+   Resource is shared across every scene instance — so mutating one mutates
+   every consumer. Never write to a loaded definition; take an explicit
+   `duplicate()` or convert to a separate runtime value object. Validate
+   definitions before the domain consumes them. *(DEC-010; ADR 0002 §8)*
 8. Add content through definitions and registries. Do not add
-   ingredient/customer-specific branches to the general evaluator.
-9. Put technology behind focused ports. Adapters depend inward; domain code
-   never imports adapters.
-10. Prefer feature-local scenes, scripts, tests, and assets. Put something in
-    `shared/` only when multiple real consumers exist.
+   ingredient/customer-specific branches to the general evaluator. *(GDD
+   Pillar 1, §2.3, §5.4)*
+9. Adapters depend inward; domain code never imports adapters. Put technology
+   behind a focused port only when a real consumer exists. *(GDD §5.1;
+   ADR 0002 §5)*
+10. Do not create a folder with no file in it. Do not add anything to `shared/`
+    until two real consumers exist. *(ADR 0002 §7)*
+11. Commit Godot's `.uid` sidecar files. They are engine-internal reference
+    plumbing, not generated output. Never delete one to tidy the tree.
+    *(ADR 0002 §8)*
+12. A custom `Resource` must load with no constructor arguments. Give it a
+    parameterless `_init()` or default every parameter. *(ADR 0002 §8)*
+13. Keep flavor and scoring arithmetic in integers. Godot does not guarantee
+    deterministic float math across platforms. If a float is unavoidable in a
+    rule, define its rounding explicitly and compare with a tolerance.
+    *(ADR 0001 platform matrix; ADR 0002 §8)*
+
+Ports in scope for Phase 1: `ContentRepository` is built; `RandomPort` and
+`CookingChallengePort` are declared as interfaces only. Do not create other
+ports without an ADR. *(ADR 0002 §5)*
 
 The following require an accepted ADR:
 
-- a persistent Autoload;
-- a project-wide ECS or global event bus;
-- C# or another implementation language;
-- a new canonical content format;
-- a new domain dependency;
-- an incompatible command, event, save, replay, or content-schema change.
+- a persistent Autoload *(ADR 0002 §9)*;
+- a project-wide ECS *(DEC-011)* or a global event bus *(ADR 0002 §9)*;
+- C# or another implementation language *(ADR 0001; DEC-002)*;
+- a new canonical content format *(DEC-010)*;
+- a new domain dependency *(ADR 0002 §9)*;
+- an incompatible command, event, save, or replay change *(ADR 0002 §9)*, or an
+  incompatible content-schema change *(DEC-010)*.
+
+## Conventions
+
+Guidance, not binding rules. Use judgment.
+
+- Prefer feature-local scenes, scripts, tests, and assets. Keep a feature
+  understandable without searching the whole repository.
+- Prefer `load()` over `preload()` across layer boundaries. GDScript raises
+  cyclic reference errors when scripts preload each other, and `class_name`
+  participates in those cycles. Treat a cyclic error as evidence the layering is
+  wrong rather than something to work around.
 
 ## Godot Scene Rules
 
@@ -87,7 +125,9 @@ The following require an accepted ADR:
 
 - Follow the official Godot GDScript style guide.
 - Use static types for public parameters, return values, production members,
-  and non-obvious locals.
+  and non-obvious locals. Static typing is enforced by `project.godot` warning
+  settings and CI, not by convention. Do not lower a warning level to make code
+  pass; fix the code, or justify a narrow-scope suppression.
 - Use `snake_case` for files, folders, functions, variables, and signals.
 - Use `PascalCase` for named classes and nodes.
 - Use `CONSTANT_CASE` for constants and enum values.
