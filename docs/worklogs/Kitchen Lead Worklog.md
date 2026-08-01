@@ -776,6 +776,80 @@ check; issue #7 is partially complete and now correctly blocked by #2.
 Human opens the project in the editor once to confirm the GUI path. Then #7
 vendors GUT, adds the smoke test, and demonstrates a nonzero failure exit.
 
+### 2026-08-01 — Session 009: GUT harness vendored and verified
+
+**Summary**
+
+Resolved issue #7. Vendored GUT v9.7.1, added a harness smoke test, and proved
+the gate reports failure. Three separate silent-pass hazards were found and
+closed along the way.
+
+**Work completed**
+
+- Added `scripts/setup.sh`, the project's dependency installer. Godot has no
+  package manager, so it handles gdtoolkit and GUT identically: pin an exact
+  version, fetch it, verify it. `.venv/` and `addons/` are both gitignored.
+- Added `tests/unit/test_harness_smoke.gd`.
+- Extended the test step in `scripts/check.sh` with `-ginclude_subdirs`, a
+  zero-test guard, and hard failures when either dependency is missing.
+- Corrected the headless command recorded in ADR 0003 and revised its
+  installation decision from vendoring to fetch-on-setup.
+- CI now calls `scripts/setup.sh`, so it exercises the same path a developer
+  does.
+
+**Evidence**
+
+- **GUT's exit codes are asymmetric.** It exits 1 when a test *fails*, but 0
+  when no tests are *found*. Without `-ginclude_subdirs` it discovered nothing
+  under the ADR 0002 §6 layout, printed "Nothing was run", and exited 0. CI
+  would have passed with zero coverage. The gate now parses the run summary and
+  fails when the count is zero.
+- The gate is verified in three directions: a deliberately failing assertion
+  gives exit 1; removing it gives exit 0 with 3 tests; an empty `tests/`
+  directory gives exit 1 with "no tests were discovered".
+- GUT's own scripts load cleanly under the project's strict warning levels
+  (`untyped_declaration=2` and the `unsafe_*` family). This was not guaranteed —
+  project warning settings apply to addon code too — and would have blocked the
+  choice had it failed.
+- The smoke test itself passes `gdformat`, `gdlint`, and the type gate, so test
+  files are held to the same standard as production code.
+- **Vendoring was reversed on review.** GUT was first copied into the repository
+  — 259 files and 3.2 MB of third-party source — before the human questioned it.
+  The decisive argument was consistency: gdtoolkit was already pinned-and-fetched
+  rather than committed, so vendoring GUT applied two different philosophies to
+  two dependencies of the same kind.
+- **Git submodules were rejected on structure, not preference.** GUT's repository
+  root is itself a complete Godot project including its own `project.godot`. A
+  submodule at `addons/gut` would nest a second Godot project inside this one;
+  installing to `third_party/` would still need a copy step and clones 6.4 MB to
+  obtain the 3.2 MB required.
+- Integrity is verified with `git rev-parse HEAD` against the pinned commit
+  rather than a tarball checksum, because GitHub's generated archives are not
+  guaranteed byte-stable.
+- Rehearsed from a clean slate: deleting both `.venv/` and `addons/`, then
+  running setup and the gate, ends green.
+
+**Risks or limitations**
+
+- An `ERR` trap in `scripts/check.sh` fired on GUT's nonzero exit, reporting a
+  spurious "unexpected error on line 166" and double-counting the failure. Fixed
+  by running the suite inside an `if`. Found only because the red path was
+  exercised, not just the green one.
+- The GUT editor panel is not enabled. The CLI runner does not require it;
+  enabling it is a `project.godot` change and therefore needs an editor check.
+- Fetch-on-setup trades offline robustness for a clean repository. A fresh clone
+  needs network access once. If GitHub or the tag became unreachable, setup would
+  fail where a vendored copy would not. Accepted deliberately; reproducibility,
+  vendoring's substantive advantage, is preserved by the pinned commit and SHA
+  verification.
+- The smoke test covers the harness, not gameplay. Real domain coverage arrives
+  with #9.
+- CI still has not run.
+
+**Next**
+
+Push, confirm CI green on first run, then #4 locks the Phase 1 contracts.
+
 ---
 
 ## Worklog Entry Template

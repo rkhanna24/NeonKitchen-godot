@@ -57,9 +57,12 @@ fi
 if [ -x ".venv/bin/gdformat" ]; then
 	gdformat_bin="$REPO_ROOT/.venv/bin/gdformat"
 	gdlint_bin="$REPO_ROOT/.venv/bin/gdlint"
-else
+elif command -v gdformat >/dev/null 2>&1; then
 	gdformat_bin="gdformat"
 	gdlint_bin="gdlint"
+else
+	echo "gdtoolkit not found. Run ./scripts/setup.sh first." >&2
+	exit 1
 fi
 
 # Project-owned GDScript only. Vendored addons and the venv are never checked.
@@ -108,7 +111,7 @@ else
 	script_errors=0
 	while IFS= read -r f; do
 		[ -n "$f" ] || continue
-		out="$("$godot_bin" --headless --path . --check-only -s "$f" 2>&1)"
+		out="$("$godot_bin" --headless --path . --check-only -s "$f" 2>&1 || true)"
 		if printf '%s' "$out" | grep -qE 'SCRIPT ERROR|Parse Error'; then
 			printf '    %s\n' "$f"
 			printf '%s' "$out" | grep -E 'SCRIPT ERROR|Parse Error' | sed 's/^/      /'
@@ -137,17 +140,37 @@ else
 fi
 
 # ------------------------------------------------------------------ tests ----
-# Populated by issue #7 once the GUT harness is vendored.
+# GUT v9.7.1, pinned by docs/adr/0003-test-framework.md.
+#
+# -ginclude_subdirs is required: GUT does not recurse into tests/unit,
+# tests/content, tests/contract, or tests/golden without it, and reports
+# "Nothing was run" while still exiting 0. A zero-test run is treated as a
+# failure here so broken discovery cannot pass silently.
 step "Tests"
-if [ -f "addons/gut/gut_cmdln.gd" ]; then
-	if "$godot_bin" --headless --path . -s addons/gut/gut_cmdln.gd \
-		-gdir=res://tests -gexit; then
-		pass "test suite"
-	else
-		fail "test suite"
-	fi
+if [ ! -f "addons/gut/gut_cmdln.gd" ]; then
+	# Never a soft pass: a missing harness must not look like a green run.
+	fail "GUT not installed -- run ./scripts/setup.sh"
 else
-	pass "GUT not vendored yet (issue #7)"
+	gut_log="$(mktemp)"
+	# Kept inside an `if`, so a failing suite does not also trip the ERR trap.
+	if "$godot_bin" --headless --path . -s addons/gut/gut_cmdln.gd \
+		-gdir=res://tests -ginclude_subdirs -gexit >"$gut_log" 2>&1; then
+		gut_status=0
+	else
+		gut_status=1
+	fi
+	tests_run="$(sed -n 's/^Tests  *\([0-9][0-9]*\).*/\1/p' "$gut_log" | head -1)"
+	[ -n "$tests_run" ] || tests_run=0
+
+	if [ "$gut_status" -ne 0 ]; then
+		sed -n '/Run Summary/,$p' "$gut_log" | sed 's/^/      /'
+		fail "test suite ($tests_run test(s) ran)"
+	elif [ "$tests_run" -eq 0 ]; then
+		fail "no tests were discovered under res://tests"
+	else
+		pass "$tests_run test(s)"
+	fi
+	rm -f "$gut_log"
 fi
 
 # ---------------------------------------------------------------- summary ----

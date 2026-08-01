@@ -164,12 +164,17 @@ It exits nonzero if any check fails. It covers, in order: the pinned engine
 version, `gdformat --check`, `gdlint`, headless import, GDScript type and
 warning checks, domain purity, and the test suite.
 
-First-time setup for the linter and formatter:
+First-time setup, once per clone:
 
 ```bash
-python3 -m venv .venv
-.venv/bin/pip install -r requirements-dev.txt
+./scripts/setup.sh
 ```
+
+Godot has no package manager, so that script is ours. It installs the pinned
+`gdtoolkit` into `.venv/` and fetches GUT at its pinned commit into `addons/`.
+Neither directory is committed. The script is idempotent and verifies GUT's
+commit SHA. The gate fails if either dependency is missing, so a fresh clone
+cannot pass with no linter and no tests.
 
 The engine binary is resolved from `$GODOT_BIN`, then `godot` on `PATH`, then
 the macOS default bundle. The bundle name carries no version, so the gate

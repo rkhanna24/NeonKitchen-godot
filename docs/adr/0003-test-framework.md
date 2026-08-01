@@ -30,10 +30,35 @@ maintained and both exporting JUnit XML:
 Use **GUT v9.7.1** from the `godot_4_7` branch, pinned to commit
 `aeb5d4f3f7f0a6c9b5e178876d6c99b791fda605`.
 
-Vendor `addons/gut/` into the repository and commit it. Godot addons have no
-package manager, and vendoring makes a clean checkout reproducible with no
-fetch step. Record the version and commit in this ADR; changing either requires
-updating this record.
+Install it with `scripts/setup.sh`, which fetches the pinned commit into
+`addons/gut`. **`addons/` is gitignored; GUT is not committed.**
+
+Godot has no package manager, so `scripts/setup.sh` is ours. It treats both
+project dependencies identically — pin an exact version, fetch it, verify it —
+so gdtoolkit and GUT are managed the same way rather than by two different
+philosophies.
+
+Verification uses `git rev-parse HEAD` against the pinned commit. Git is
+content-addressed, so matching the SHA is a cryptographic integrity check.
+GitHub's generated tarballs are deliberately not used: they are not guaranteed
+byte-stable, so their checksums can change without the content changing.
+
+`scripts/check.sh` **fails** when `addons/gut` is absent rather than skipping the
+test step, so a fresh clone that has not run setup gets a red gate telling it
+what to do, instead of a green run with zero tests.
+
+> **Revised 2026-08-01, before this ADR was published.** The first draft vendored
+> `addons/gut/` into the repository, on the grounds that Godot has no package
+> manager and vendoring needs no fetch step. That would have committed 259
+> third-party files and 3.2 MB, and — more tellingly — it was inconsistent with
+> gdtoolkit, which was already pinned-and-fetched rather than vendored. The
+> choice of GUT is unchanged; only its installation mechanism is.
+>
+> Git submodules were evaluated and rejected on structure, not preference. GUT's
+> repository root is itself a complete Godot project, including its own
+> `project.godot`. A submodule at `addons/gut` would nest a second Godot project
+> inside this one; installing to `third_party/` instead would still require a
+> copy step and clones 6.4 MB to obtain the 3.2 MB that is needed.
 
 ### Rationale
 
@@ -55,11 +80,24 @@ branch change happens exactly when that ADR is being written.
 ### Headless command
 
 ```text
-godot --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -gexit
+godot --headless --path . -s addons/gut/gut_cmdln.gd \
+    -gdir=res://tests -ginclude_subdirs -gexit
 ```
 
-`-gexit` makes the runner quit when finished and return a nonzero exit code on
-failure, which is what CI and the `AGENTS.md` verification block require.
+`-gexit` makes the runner quit when finished and return a nonzero exit code when
+a test fails. Verified: a deliberately failing assertion produces exit 1.
+
+> **Correction, 2026-08-01.** This command was first recorded without
+> `-ginclude_subdirs`. GUT does not recurse into subdirectories by default, so
+> with the ADR 0002 §6 layout — `tests/unit`, `tests/content`, `tests/contract`,
+> `tests/golden` — it discovered nothing, reported "Nothing was run", **and still
+> exited 0**. The decision to use GUT is unchanged; only the recorded invocation
+> was incomplete.
+
+That asymmetry matters and is guarded in `scripts/check.sh`: GUT exits nonzero
+when a test *fails*, but exits zero when no tests are *found*. Broken discovery
+would otherwise pass CI silently with zero coverage. The gate therefore parses
+the run summary and fails when the test count is zero.
 
 ### Test placement and naming
 
@@ -99,18 +137,25 @@ schedule against two mature MIT tools.
 
 **Enabled**
 
-- A clean checkout runs tests headlessly with no fetch step.
+- The repository contains no third-party source. Upgrading GUT is a one-line
+  change to the pinned commit, not a 259-file diff.
 - Port contract suites can run one shared suite against multiple adapters.
 - JUnit XML output is available to CI without extra tooling.
 
 **Required**
 
-- Issue #2 writes the CI workflow invoking the command above, and replaces the
-  `<repository headless test command>` placeholder in `AGENTS.md`.
-- `addons/` is committed, so `.gitignore` must not exclude it. GUT ships `.uid`
-  files, which are committed per rule 11.
-- Adopting a new Godot minor requires switching the GUT branch in the same ADR
-  that adopts the engine version.
+- A fresh clone must run `./scripts/setup.sh` before `./scripts/check.sh`. This
+  needs network access once; afterwards the working copy is self-contained.
+- CI runs the same setup script, so it exercises the same path a developer does.
+- Adopting a new Godot minor requires switching the GUT branch and commit in the
+  same ADR that adopts the engine version.
+
+**Accepted trade-off**
+
+Vendoring would survive GitHub being unreachable and needs no setup step. That
+robustness is given up in exchange for a repository that contains only this
+project's code. The pinned commit and SHA verification preserve reproducibility,
+which was vendoring's substantive advantage.
 
 **Sequencing constraint**
 
@@ -121,9 +166,10 @@ demonstration cannot be verified until #2 lands.
 
 ## Verification
 
-- `godot --headless -s addons/gut/gut_cmdln.gd -gdir=res://tests -gexit` runs
-  from a clean checkout without opening the editor.
+- `./scripts/check.sh` runs from a clean checkout without opening the editor.
 - A deliberately failing test produces a nonzero exit code; removing it restores
-  a zero exit.
+  a zero exit. **Verified 2026-08-01.**
+- A run that discovers no tests fails the gate. **Verified 2026-08-01.**
 - The vendored `addons/gut/` matches GUT v9.7.1 at commit
-  `aeb5d4f3f7f0a6c9b5e178876d6c99b791fda605`.
+  `aeb5d4f3f7f0a6c9b5e178876d6c99b791fda605`; `addons/gut/plugin.cfg` reports
+  `version="9.7.1"`.

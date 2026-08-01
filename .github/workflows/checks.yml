@@ -64,13 +64,10 @@ jobs:
           set -euo pipefail
           ~/godot-bin/godot --version
 
-      - name: Install pinned GDScript Toolkit
-        run: |
-          set -euo pipefail
-          python -m venv .venv
-          .venv/bin/pip install --quiet --upgrade pip
-          .venv/bin/pip install --quiet -r requirements-dev.txt
-          .venv/bin/gdlint --version
+      # Runs the same script a developer runs, so CI cannot drift from local
+      # setup. Installs pinned gdtoolkit and fetches GUT at its pinned commit.
+      - name: Install pinned dependencies
+        run: ./scripts/setup.sh
 
       - name: Run verification gate
         env:

@@ -5,8 +5,10 @@
 # Godot .uid sidecar files are NOT ignored. They are engine-internal reference
 # plumbing and must be committed -- see AGENTS.md rule 11.
 
-# Vendored addons (for example GUT) are NOT ignored. They are pinned
-# dependencies committed for reproducible checkouts -- see docs/adr/0003.
+# Addons are fetched by scripts/setup.sh, not committed. Godot has no package
+# manager, so that script is ours: it pins an exact commit and verifies it.
+# See docs/adr/0003-test-framework.md.
+/addons/
 
 # Python development environment (gdtoolkit). Pinned in requirements-dev.txt.
 .venv/
