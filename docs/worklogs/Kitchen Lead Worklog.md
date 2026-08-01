@@ -63,6 +63,7 @@ tags:
 | DEC-012 | Give coding agents a short root `AGENTS.md`; keep rationale in `docs/technical_architecture.md` and architectural decisions in `docs/adr/`. | Approved | Human |
 | DEC-013 | Bootstrap static typing, Godot warnings, `gdformat`, `gdlint`, headless import, and project tests as the code-quality gate. | Approved | Human |
 | DEC-014 | Use private GitHub Issues and the Neon Kitchen Development Project as the system of record for executable work; keep design authority and durable decision memory in the GDD, accepted ADRs, and Kitchen Lead Worklog. | Approved | Human |
+| DEC-015 | Pin Godot 4.7.1 stable standard (non-.NET); develop on macOS arm64; support macOS arm64 and Windows x86_64 exports; accept 4.7.x patches but require a superseding ADR for a new minor. | Approved | Human and [ADR 0001](../adr/0001-pin-godot-version.md) |
 | DEC-015 | Use the repository `docs/` directory as the canonical, version-controlled Obsidian vault for game design, architecture, agent definitions, and durable project memory. | Approved | Human |
 
 ### Phase 1 Scope
@@ -115,6 +116,7 @@ Kitchen Lead maintains these artifacts during Phase 1 without pretending to be a
 | Automated correctness is mistaken for fun | Require human playtesting before advancing the design. |
 | Long-term flexibility turns Phase 1 into speculative infrastructure | Build only stable IDs, typed commands/events, deterministic rules, a content repository, and golden tests; defer unused adapters. |
 | A future presentation or networking concern leaks into recipe rules | Keep engine nodes, translated text, scene paths, RPCs, and spatial coordinates outside the domain core. |
+| GDScript Toolkit lags the pinned engine release | gdtoolkit 4.5.0 (2025-10-09) predates Godot 4.6 and 4.7. Issue #2 must demonstrate `gdformat`/`gdlint` working on project code rather than assume it. Prefer avoiding unsupported new syntax over disabling the DEC-013 gate. |
 | GitHub tasks and durable design memory drift apart | Keep executable scope and status in GitHub; update the worklog only when a decision, milestone, risk, or durable context changes. |
 | The repository and former Obsidian vault become competing sources of truth | Treat repository `docs/` as canonical after migration verification; keep only a pointer or archive in the former vault. |
 
@@ -127,16 +129,25 @@ Kitchen Lead maintains these artifacts during Phase 1 without pretending to be a
 | Q-003 | What exact flavor-score formula and feedback rules are locked for the first spike? | Evaluator implementation |
 | Q-004 | Will the remaining proposed repository structure in [[technical_architecture\|Technical Architecture]] be approved as the bootstrap structure? | First code creation |
 | Q-005 | Which observations define success for the first internal human playtest? | Playtest preparation |
-| Q-006 | Which exact Godot 4.x version and desktop export targets will be pinned? | Repository bootstrap |
 | Q-007 | Which remaining architectural proposal items should be promoted to approved decisions before implementation? | First implementation work package |
+
+Q-004 and Q-007 are owned by
+[#14 — Ratify the Phase 1 structural foundation](https://github.com/rkhanna24/NeonKitchen-godot/issues/14).
+
+### Resolved Questions
+
+| ID | Question | Resolution |
+|---|---|---|
+| Q-006 | Which exact Godot 4.x version and desktop export targets will be pinned? | DEC-015 / [ADR 0001](../adr/0001-pin-godot-version.md), 2026-07-31 |
 
 ### Next Actions
 
-1. Complete [#11 — Pin Godot version and Phase 1 platform matrix](https://github.com/rkhanna24/NeonKitchen-godot/issues/11).
-2. Complete [#4 — Lock the Phase 1 commands, events, evaluator, and playtest contracts](https://github.com/rkhanna24/NeonKitchen-godot/issues/4).
-3. Unblock [#2 — Bootstrap the Godot project and quality gates](https://github.com/rkhanna24/NeonKitchen-godot/issues/2).
-4. Select the headless GDScript test framework in [#7](https://github.com/rkhanna24/NeonKitchen-godot/issues/7).
-5. Activate task-scoped specialists only after their issues are Ready.
+1. Complete [#14 — Ratify the Phase 1 structural foundation](https://github.com/rkhanna24/NeonKitchen-godot/issues/14),
+   giving DEC-009 a final disposition and unblocking #2 and #4.
+2. Select the headless GDScript test framework in [#7](https://github.com/rkhanna24/NeonKitchen-godot/issues/7).
+3. Then [#4 — Lock the Phase 1 contracts](https://github.com/rkhanna24/NeonKitchen-godot/issues/4)
+   and [#2 — Bootstrap the Godot project and quality gates](https://github.com/rkhanna24/NeonKitchen-godot/issues/2).
+4. Activate task-scoped specialists only after their issues are Ready.
 
 ## Canonical Artifact Index
 
@@ -149,6 +160,7 @@ Kitchen Lead maintains these artifacts during Phase 1 without pretending to be a
 | [[Home]] | Repository documentation-vault entry point | Active |
 | `AGENTS.md` | Short operational contract for coding agents | Active |
 | `docs/adr/` | Durable architecture decision records | Active |
+| [ADR 0001](../adr/0001-pin-godot-version.md) | Pinned Godot 4.7.1 build, platform matrix, and upgrade policy | Accepted |
 | [NeonKitchen-godot](https://github.com/rkhanna24/NeonKitchen-godot) | Private implementation repository and issue tracker | Active |
 | [Neon Kitchen Development](https://github.com/users/rkhanna24/projects/1) | Managed status, priority, dependency, phase, and area tracking | Active |
 | [Phase 1 — Recipe Rules Prototype](https://github.com/rkhanna24/NeonKitchen-godot/milestone/1) | Current implementation milestone | Active |
@@ -281,6 +293,33 @@ Kitchen Lead maintains these artifacts during Phase 1 without pretending to be a
   executable-work system. The former standalone Neon Kitchen vault is no longer
   canonical after migration verification and should retain only a pointer or
   archive.
+- **Authority:** Human
+- **Date:** 2026-07-31
+
+### DEC-015
+
+- **Status:** Approved
+- **Decision:** Pin Godot 4.7.1 stable standard (non-.NET) as the engine for
+  Phase 1 and the capstone. Develop on macOS arm64, run CI on Linux headless at
+  the same version, and treat macOS arm64 and Windows x86_64 as the supported
+  export targets with Linux desktop untested. Accept 4.7.x patch releases after
+  a full check pass; require a superseding ADR for any new minor.
+- **Reason:** Godot supports a stable branch actively only until its successor's
+  first patch release. 4.7.1 shipped 2026-07-14, so 4.6 is already on partial
+  support and 4.5 is end of life. The repository has no `project.godot`, making
+  the migration cost zero at this moment, and Phase 1 exercises none of the
+  rendering, physics, or navigation code where new-minor regressions cluster.
+- **Player-facing effect:** No direct effect. Testers and graders receive a
+  build for a platform they can actually run, produced from a reproducible
+  toolchain.
+- **Consequences:** 4.6.3 is retired as the project build. Issues #2 and #7 pin
+  CI and the harness to 4.7.1. Issue #2 must additionally resolve how `godot` is
+  invoked, because the binary is not on `PATH` and the `AGENTS.md` verification
+  commands are therefore not yet runnable, and must demonstrate rather than
+  assume GDScript Toolkit compatibility. Export presets, signing, notarization,
+  and Linux verification stay out of scope.
+- **Supersedes:** The unqualified "Godot 4.x" target in the GDD, `AGENTS.md`, and
+  the technical architecture; resolves Q-006.
 - **Authority:** Human
 - **Date:** 2026-07-31
 
@@ -458,6 +497,74 @@ established `docs/` as an Obsidian vault available to repository-scoped agents.
 
 Review and merge the documentation-vault migration, open repository `docs/` in
 Obsidian, and replace the former vault contents with a pointer or archive.
+
+### 2026-07-31 — Session 005: Engine pin and platform matrix
+
+**Summary**
+
+Resolved issue #11 by pinning Godot 4.7.1 stable standard, recording the Phase 1
+platform matrix, and setting an upgrade policy in ADR 0001. Also reconciled the
+documentation-location and architecture-authority conflicts raised at session
+start.
+
+**Human-approved decisions**
+
+- DEC-015: pin Godot 4.7.1 stable standard; develop on macOS arm64; support
+  macOS arm64 and Windows x86_64 exports; accept patch releases but require a
+  superseding ADR for a new minor. Supersedes the unqualified "Godot 4.x" target.
+
+**Work completed**
+
+- Created [ADR 0001](../adr/0001-pin-godot-version.md) with status Accepted.
+- Recorded DEC-015 and resolved Q-006.
+- Noted #14 as the owner of Q-004 and Q-007.
+- Added the GDScript Toolkit lag risk.
+- Installed and verified the pinned engine locally.
+
+**Evidence**
+
+- Godot release history: 4.7.1 published 2026-07-14; 4.7 on 2026-06-18; 4.6.3 on
+  2026-05-20.
+- Godot release policy: a branch is actively supported until its successor's
+  first patch release, then partial, then end of life. 4.7.1 is 4.7's first
+  patch, so 4.6 became partial on 2026-07-14 and 4.5 is end of life.
+- Local install inspected: `4.6.3.stable.official.7d41c59c4`, standard non-.NET
+  bundle, universal binary, on macOS 26.5.2 arm64.
+- GDScript Toolkit latest release is 4.5.0, published 2025-10-09.
+- Godot 4.7's only GDScript language change is Android Java-interface support.
+- Installed `4.7.1.stable.official.a13da4feb` at
+  `/Applications/Godot_4.7.1.app`. The archive matched the published SHA512 sum,
+  the bundle contains no .NET/Mono components, it is a universal binary, and
+  `--headless --quit` exits 0. Installed by direct download rather than Homebrew,
+  because the `godot` cask tracks the latest release and would undermine the pin.
+
+**Specialist handoffs**
+
+- None. Kitchen Lead executed #11 directly per DEC-007.
+
+**Risks or limitations**
+
+- The pinned binary sits at `/Applications/Godot.app/Contents/MacOS/Godot` and is
+  not on `PATH`, so #2 must name it explicitly. The bundle name carries no
+  version, so verification should assert the expected version string rather than
+  trust the path. 4.6.3 was uninstalled on 2026-07-31, leaving 4.7.1 as the only
+  installation.
+- The `AGENTS.md` verification commands remain unrunnable: `godot` is not on
+  `PATH`, and the test and content-validation commands are still placeholders.
+  Owned by #2 and #7.
+- GDScript Toolkit compatibility with 4.7 is assessed but unverified.
+- ADR 0001 was written without loading the official release-policy page
+  directly; the policy statement comes from Godot's own documentation via search
+  plus the observed release history, which agree.
+
+**Open questions**
+
+- None newly opened. Q-006 closed; Q-004 and Q-007 remain, owned by #14.
+
+**Next**
+
+Install Godot 4.7.1, close #11, then ratify the structural foundation in #14 to
+unblock #2 and #4.
 
 ---
 
