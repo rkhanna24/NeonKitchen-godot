@@ -49,13 +49,17 @@ jobs:
           mkdir -p ~/godot-bin
           base="https://github.com/godotengine/godot/releases/download"
           file="Godot_v${GODOT_VERSION}-stable_linux.x86_64"
-          curl -fsSL -o /tmp/godot.zip "${base}/${GODOT_VERSION}-stable/${file}.zip"
+          # Download under the published filename. sha512sum -c reads the name
+          # from the sums file, so saving as godot.zip makes verification fail
+          # with "No such file or directory" rather than a checksum mismatch.
+          curl -fsSL -o "/tmp/${file}.zip" \
+            "${base}/${GODOT_VERSION}-stable/${file}.zip"
           curl -fsSL -o /tmp/SHA512-SUMS.txt \
             "${base}/${GODOT_VERSION}-stable/SHA512-SUMS.txt"
           # Verify against the published checksum before trusting the binary.
-          grep "${file}.zip" /tmp/SHA512-SUMS.txt > /tmp/expected.txt
+          grep " ${file}.zip\$" /tmp/SHA512-SUMS.txt > /tmp/expected.txt
           (cd /tmp && sha512sum -c expected.txt)
-          unzip -q /tmp/godot.zip -d ~/godot-bin
+          unzip -q "/tmp/${file}.zip" -d ~/godot-bin
           mv ~/godot-bin/"${file}" ~/godot-bin/godot
           chmod +x ~/godot-bin/godot
 

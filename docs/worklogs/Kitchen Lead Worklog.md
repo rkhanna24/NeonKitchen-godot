@@ -844,7 +844,12 @@ closed along the way.
   verification.
 - The smoke test covers the harness, not gameplay. Real domain coverage arrives
   with #9.
-- CI still has not run.
+- **CI failed on its first run** (08d6960), in the workflow rather than the
+  project. The Godot archive was saved as `/tmp/godot.zip` while
+  `SHA512-SUMS.txt` lists its published filename, so `sha512sum -c` reported
+  "No such file or directory" — a missing file, not a checksum mismatch. Fixed
+  by downloading under the published name. The download and verification logic
+  was then rehearsed locally against the real Linux asset before re-pushing.
 
 **Next**
 
