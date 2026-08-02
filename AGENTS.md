@@ -214,6 +214,34 @@ anywhere under `core/`. Path references are definitive.
 
 Do not invent a passing result or omit a failed check from the handoff.
 
+### Prove a check can fail
+
+**If a check passing is how you would learn something is fine, prove it can
+fail.** Write the check, then deliberately introduce the defect it guards,
+confirm it names the problem and exits nonzero, remove the defect, and confirm
+it returns to green. Report both directions.
+
+Required for gate steps, CI steps, and any test guarding subtle or
+nondeterministic behaviour. Usually redundant for a unit test whose assertion is
+obviously coupled to the code it tests.
+
+`scripts/verify_gate.sh` is the harness for gate checks; add a scenario there
+rather than verifying by hand and forgetting.
+
+This is not the same as testing invalid input. Both matter, and one does not
+substitute for the other: a correctness assertion can be right and still fail to
+catch the bug it was written for. Everything below was found this way, and none
+of it would have surfaced from writing more assertions:
+
+- `godot --headless --path . --import` exits 0 and prints nothing on type or
+  warning violations;
+- `godot --headless --check-only -s <file>` reports violations and still exits 0;
+- GUT exits 1 when a test fails but 0 when it discovers none;
+- an early `scripts/check.sh` printed "All checks passed" with three steps
+  broken;
+- an early `scripts/verify_gate.sh` would have deleted `core/` and `adapters/`;
+- a lexicographic-order test stayed green with the bug it guarded reinstated.
+
 At minimum:
 
 - code format and lint pass;
