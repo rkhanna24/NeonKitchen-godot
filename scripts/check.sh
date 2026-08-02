@@ -139,6 +139,130 @@ else
 	pass "core/domain does not exist yet"
 fi
 
+# ------------------------------------------------- dependency direction ----
+# ADR 0002 section 2 and technical architecture section 4: adapters depend
+# inward; the domain imports neither application nor adapter code. This is the
+# rule that makes the GDD's "evaluator callable without either interface" true.
+step "Dependency direction (adapters depend inward)"
+
+# refs_from <dir> <forbidden-path-segment>
+refs_from() {
+	[ -d "$1" ] || return 1
+	grep -rnE "res://$2/" "$1" --include='*.gd' 2>/dev/null
+}
+
+dep_violations=0
+check_layer() { # <source dir> <forbidden segment> <human description>
+	hits="$(refs_from "$1" "$2")" || return 0
+	if [ -n "$hits" ]; then
+		printf '%s\n' "$hits" | sed 's/^/      /'
+		printf '    %s must not reference %s\n' "$1" "$3"
+		dep_violations=$((dep_violations + 1))
+	fi
+}
+
+for forbidden in adapters features bootstrap; do
+	check_layer "core" "$forbidden" "$forbidden/"
+done
+check_layer "core/domain" "core/application" "the application layer"
+
+# Path references are definitive. A domain file could also reach an adapter by
+# its class_name with no path, so those are checked too, as a heuristic.
+if [ -d "core" ]; then
+	for outer in adapters features bootstrap; do
+		[ -d "$outer" ] || continue
+		outer_classes="$(grep -rhoE '^class_name[[:space:]]+[A-Za-z0-9_]+' "$outer" \
+			--include='*.gd' 2>/dev/null | awk '{print $2}' | sort -u)"
+		for cls in $outer_classes; do
+			hits="$(grep -rnwE "$cls" core --include='*.gd' 2>/dev/null)"
+			if [ -n "$hits" ]; then
+				printf '%s\n' "$hits" | sed 's/^/      /'
+				printf '    core/ references %s, declared in %s/\n' "$cls" "$outer"
+				dep_violations=$((dep_violations + 1))
+			fi
+		done
+	done
+fi
+
+if [ ! -d "core" ]; then
+	pass "core/ does not exist yet"
+elif [ "$dep_violations" -eq 0 ]; then
+	pass "no inward-only violations"
+else
+	fail "$dep_violations dependency-direction violation(s)"
+fi
+
+# ------------------------------------------------------ repository layout ----
+# ADR 0002 section 7.
+step "Layout (no empty directories, shared/ needs two consumers)"
+layout_ok=1
+
+empties="$(find . -type d -empty \
+	-not -path './.git/*' -not -path './.godot/*' \
+	-not -path './.venv/*' -not -path './addons/*' 2>/dev/null)"
+if [ -n "$empties" ]; then
+	printf '%s\n' "$empties" | sed 's/^/      /'
+	fail "empty directories are not permitted"
+	layout_ok=0
+fi
+
+if [ -d "shared" ]; then
+	while IFS= read -r f; do
+		[ -n "$f" ] || continue
+		base="$(basename "$f")"
+		consumers="$(grep -rlw "${base%.gd}" . --include='*.gd' 2>/dev/null \
+			| grep -v '^./shared/' | grep -v '^./addons/' | sort -u | wc -l)"
+		if [ "$(echo "$consumers" | tr -d ' ')" -lt 2 ]; then
+			printf '      %s has fewer than two consumers\n' "$f"
+			layout_ok=0
+		fi
+	done <<EOF
+$(find shared -name '*.gd' 2>/dev/null)
+EOF
+	[ "$layout_ok" -eq 1 ] || fail "shared/ requires two real consumers per file"
+fi
+
+[ "$layout_ok" -eq 1 ] && pass "layout clean"
+
+# ------------------------------------------------------------ uid sidecars ----
+# AGENTS.md rule 11. Runs after import so Godot has generated any new sidecars.
+step "Resource UID sidecars"
+uid_problems=0
+
+while IFS= read -r f; do
+	[ -n "$f" ] || continue
+	[ -f "${f}.uid" ] || {
+		printf '      missing sidecar: %s.uid\n' "$f"
+		uid_problems=$((uid_problems + 1))
+	}
+done <"$gd_list"
+
+# The real hazard is a .uid being ignored, not merely uncommitted.
+while IFS= read -r u; do
+	[ -n "$u" ] || continue
+	# --no-index is required: without it git consults the index, so an
+	# already-tracked file reports as not-ignored even when a rule matches.
+	# The hazard is the rule existing, which would silently drop future
+	# sidecars, so the rule is what must be checked.
+	if git check-ignore --no-index -q "$u" 2>/dev/null; then
+		printf '      gitignored (must be committed): %s\n' "$u"
+		uid_problems=$((uid_problems + 1))
+	fi
+	[ -f "${u%.uid}" ] || {
+		printf '      orphan, no source file: %s\n' "$u"
+		uid_problems=$((uid_problems + 1))
+	}
+done <<EOF
+$(find . -name '*.gd.uid' -not -path './.godot/*' -not -path './.venv/*' \
+	-not -path './addons/*' 2>/dev/null)
+EOF
+
+if [ "$uid_problems" -eq 0 ]; then
+	pass "sidecars present, tracked, and paired"
+else
+	fail "$uid_problems UID sidecar problem(s)"
+fi
+
 # ------------------------------------------------------------------ tests ----
 # GUT v9.7.1, pinned by docs/adr/0003-test-framework.md.
 #

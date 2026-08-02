@@ -193,6 +193,25 @@ headless invocation validates project configuration. An invalid `config/features
 tag, for example, imports cleanly and is reported only by the editor GUI. The
 gate cannot cover this; a human must.
 
+### Which rules the gate enforces
+
+Do not assume a rule is checked because it is written forcefully above.
+
+| Rule | Enforcement |
+|---|---|
+| 1, 9 — adapters depend inward | gate: path and `class_name` references from `core/` |
+| 4 — no randomness or clock in the domain | gate: grep over `core/domain/` |
+| 10 — no empty folders, `shared/` needs two consumers | gate |
+| 11 — `.uid` sidecars committed | gate: presence, not gitignored, no orphans |
+| 13 — integer arithmetic | gate, partial: `integer_division` and `narrowing_conversion` warnings |
+| 2, 3 — commands/events, state outside presentation | **review only** |
+| 5, 6, 7, 8 — content format, identity, immutability, registries | **review only**; some becomes checkable with #3 |
+| 12 — parameterless `Resource._init()` | **review only** until Resources exist (#3) |
+
+The `class_name` half of the dependency check is a heuristic: it matches
+identifiers declared in `adapters/`, `features/`, or `bootstrap/` appearing
+anywhere under `core/`. Path references are definitive.
+
 Do not invent a passing result or omit a failed check from the handoff.
 
 At minimum:

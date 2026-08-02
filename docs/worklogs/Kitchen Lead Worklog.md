@@ -119,7 +119,7 @@ Kitchen Lead maintains these artifacts during Phase 1 without pretending to be a
 | Long-term flexibility turns Phase 1 into speculative infrastructure | Build only stable IDs, typed commands/events, deterministic rules, a content repository, and golden tests; defer unused adapters. |
 | A future presentation or networking concern leaks into recipe rules | Keep engine nodes, translated text, scene paths, RPCs, and spatial coordinates outside the domain core. |
 | ~~GDScript Toolkit lags the pinned engine release~~ | **Resolved 2026-08-01 in #2.** gdtoolkit 4.5.0 parses `@abstract`, typed dictionaries, `static var`, StringName literals, and `@warning_ignore`; its formatted output is accepted by Godot 4.7.1 and is idempotent. Pinned in `requirements-dev.txt`. |
-| Binding architecture rules are unenforced | Of the thirteen `AGENTS.md` rules, the gate checks only domain purity and, partially, integer arithmetic. **Dependency direction — the rule that makes the GDD's interface-independent evaluator true — has no check at all.** Tracked in [#16](https://github.com/rkhanna24/NeonKitchen-godot/issues/16). Until then a rule is only as strong as review attention. |
+| ~~Binding architecture rules are unenforced~~ | **Largely resolved 2026-08-01 in #16.** The gate now enforces dependency direction, domain purity, layout, and `.uid` sidecars, each verified in the failing direction. Rules 2, 3, 5–8 and 12 remain review-only; `AGENTS.md` states which is which so the distinction is visible rather than assumed. |
 | Export has never been produced on any platform | ADR 0001's platform matrix is an intent for the release milestone, not a verified capability. No export templates, no `export_presets.cfg`, no export attempted. macOS notarisation cost is unknown. Needs an issue when a release milestone exists; discovering this in week 5 would be expensive. |
 | Godot's own commands cannot be trusted as CI gates | `--import` exits 0 and reports nothing on script type or warning violations; `--check-only` reports them but also exits 0. `scripts/check.sh` inspects output instead of exit codes. Never substitute the raw commands for the gate. |
 | GitHub tasks and durable design memory drift apart | Keep executable scope and status in GitHub; update the worklog only when a decision, milestone, risk, or durable context changes. |
@@ -915,6 +915,52 @@ design questions.
 **Next**
 
 #3 typed Resources, #8 fixtures, #9 evaluator, #6 golden coverage.
+
+### 2026-08-01 — Session 011: Binding rules made enforceable
+
+**Summary**
+
+Resolved issue #16. The gate now enforces the architecture rules it previously
+only stated. Before this it checked 2 of 13; it now checks 5 fully and 1
+partially, and `AGENTS.md` records which rules rely on review instead.
+
+**Work completed**
+
+- Dependency direction: no reference from `core/` to `adapters/`, `features/`
+  or `bootstrap/`, and none from `core/domain/` to `core/application/`. Both
+  path references and `class_name` references are checked.
+- Layout: no empty directories, and every file in `shared/` must have at least
+  two consumers outside it.
+- UID sidecars: every project `.gd` has one, none is gitignored, and no orphan
+  sidecar exists.
+- `AGENTS.md` gained a table separating gate-enforced rules from review-only
+  ones.
+
+**Evidence**
+
+- All eight scenarios verified in the failing direction, then confirmed green
+  again: adapter reference by path, adapter reference by `class_name`,
+  domain-to-application reference, empty directory, single-consumer `shared/`,
+  gitignored `.uid`, orphan `.uid`, and a restored clean tree.
+- **The red-path test found a real bug in the check itself.** `git check-ignore`
+  consults the index by default, so an already-tracked `.uid` reported as
+  not-ignored even with a matching rule — the check would have silently never
+  fired. Fixed with `--no-index`, since the hazard is the rule existing and
+  silently dropping future sidecars, not the state of one tracked file.
+
+**Risks or limitations**
+
+- The `class_name` half of the dependency check is a heuristic, matching
+  identifiers declared in outer layers anywhere under `core/`. Path references
+  are definitive. A false positive is possible if an unrelated identifier
+  collides with an adapter class name.
+- Rules 2, 3, 5–8 and 12 remain unenforced. Rule 12 becomes checkable with #3.
+- Every check is currently exercised against a tree with one real script. They
+  will meet real code for the first time in #3 and #9.
+
+**Next**
+
+#3 typed Resources, then #8 fixtures and #9 the evaluator.
 
 ---
 
