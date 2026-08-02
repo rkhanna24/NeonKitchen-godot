@@ -171,10 +171,12 @@ check_layer "core/domain" "core/application" "the application layer"
 if [ -d "core" ]; then
 	for outer in adapters features bootstrap; do
 		[ -d "$outer" ] || continue
+		# `|| true`: grep exits 1 when it matches nothing, which would trip the
+		# ERR trap and fail a clean tree.
 		outer_classes="$(grep -rhoE '^class_name[[:space:]]+[A-Za-z0-9_]+' "$outer" \
-			--include='*.gd' 2>/dev/null | awk '{print $2}' | sort -u)"
+			--include='*.gd' 2>/dev/null | awk '{print $2}' | sort -u || true)"
 		for cls in $outer_classes; do
-			hits="$(grep -rnwE "$cls" core --include='*.gd' 2>/dev/null)"
+			hits="$(grep -rnwE "$cls" core --include='*.gd' 2>/dev/null || true)"
 			if [ -n "$hits" ]; then
 				printf '%s\n' "$hits" | sed 's/^/      /'
 				printf '    core/ references %s, declared in %s/\n' "$cls" "$outer"
@@ -210,8 +212,11 @@ if [ -d "shared" ]; then
 	while IFS= read -r f; do
 		[ -n "$f" ] || continue
 		base="$(basename "$f")"
+		# `|| true`: with pipefail a zero-match grep fails the pipeline, so the
+		# assignment fails and the ERR trap fires on top of the correct
+		# "fewer than two consumers" diagnosis.
 		consumers="$(grep -rlw "${base%.gd}" . --include='*.gd' 2>/dev/null \
-			| grep -v '^./shared/' | grep -v '^./addons/' | sort -u | wc -l)"
+			| grep -v '^./shared/' | grep -v '^./addons/' | sort -u | wc -l || true)"
 		if [ "$(echo "$consumers" | tr -d ' ')" -lt 2 ]; then
 			printf '      %s has fewer than two consumers\n' "$f"
 			layout_ok=0
@@ -222,7 +227,11 @@ EOF
 	[ "$layout_ok" -eq 1 ] || fail "shared/ requires two real consumers per file"
 fi
 
-[ "$layout_ok" -eq 1 ] && pass "layout clean"
+# Written as if/then, not `[ ... ] && pass`: the latter returns non-zero
+# whenever layout_ok is 0, which trips the ERR trap and inflates the count.
+if [ "$layout_ok" -eq 1 ]; then
+	pass "layout clean"
+fi
 
 # ------------------------------------------------------------ uid sidecars ----
 # AGENTS.md rule 11. Runs after import so Godot has generated any new sidecars.
