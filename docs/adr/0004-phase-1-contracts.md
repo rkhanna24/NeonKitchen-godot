@@ -30,6 +30,35 @@ tie-break for deterministic feedback selection.
 - A dish sums its ingredients per dimension and clamps to `0..5`.
 - A dish holds 1–3 **distinct** ingredients. Order never affects the result.
 
+#### Why 3 and 5
+
+These constants come from the GDD, which states them without derivation. They
+are not arbitrary in effect, and the relationships below are what must be
+preserved if either is ever changed:
+
+**`max_ingredient_value < max_target`.** A single ingredient reaches at most 3,
+so any target of **4 or 5 is unreachable with one ingredient**. This is the
+mechanic that forces combination — it is the puzzle. Raising the ingredient
+range to 5 would let one ingredient satisfy any customer and the game would
+collapse.
+
+**`cap < max_dish_size × max_ingredient_value`.** With three ingredients the
+theoretical maximum is 9, so a cap of 5 means surplus is discarded: 35% of
+three-ingredient value combinations exceed it. That waste is what makes the
+third ingredient a real decision rather than a free bonus, and it is why "more
+ingredients" is not automatically better — a risk the GDD names directly.
+
+Both hold for any cap in `4..6`. A cap of 3 would let one ingredient max a
+dimension; a cap of 9 would remove clamping entirely and make stacking always
+correct. **5 is a sound choice within a valid window, not a derived value** —
+worth knowing before anyone "tidies" it.
+
+Dish size is the safer tuning knob. Raising it does not widen the reachable
+range, because the cap already binds at two ingredients; what it changes is that
+**low targets get harder**, since more ingredients contribute more incidental
+flavour. Changing the per-ingredient range instead re-scales the meaning of
+every authored ingredient.
+
 ### 2. Customer targets
 
 Per dimension a customer declares a `target` (`0..5`) and an integer `weight`
@@ -166,10 +195,35 @@ satisfying ADR 0002 §3's ordering requirement.
 
 `CustomerReacted` carries a **localisation key**, never prose, per ADR 0002.
 
-### 9. Evaluator input and output
+### 9. Evaluation is two stages, not one
 
-Input: a dish (ingredient definitions) and a customer definition. The evaluator
-touches no repository, clock, or randomness.
+Evaluation is split into two functions with a typed value between them:
+
+```text
+composition:  Array[IngredientDefinition]      -> FlavorProfile
+scoring:      FlavorProfile + CustomerDefinition -> Evaluation
+```
+
+Phase 1 ships exactly **one** composer, `SumAndClamp`, implementing §1: sum each
+dimension across the dish and clamp to `0..5`. No other composer is built.
+
+The split exists because composition is the part most likely to change. A
+recipe pattern with synergies, an ingredient that suppresses another, or a
+technique that transforms flavour all change *how ingredients combine* — none of
+them change how a profile is scored against a customer. With the seam in place,
+such a change swaps the composer and leaves scoring, feedback selection, rating
+bands, and constraints untouched, and each stage can be pinned by golden cases
+independently.
+
+Which composer runs is selected by the **ruleset**, optionally informed by a
+matched `RecipePatternDefinition` (technical architecture §4.3). It is
+deliberately *not* a property the content itself chooses — otherwise an
+ingredient could silently change the rules of the game.
+
+This is a boundary, not an implementation. Adding a second composer requires an
+ADR.
+
+Both stages touch no repository, clock, or randomness.
 
 Output — `Evaluation`:
 
@@ -256,6 +310,15 @@ dominance failure the GDD's risk table names.
 rule immediately. Rejected in favour of the GDD's stated Week 1 counts; content
 scale-up belongs with the real roster.
 
+**Composing and scoring in one function.** Simpler today. Rejected because
+composition is the part most likely to change — synergies, suppressions,
+techniques — and fusing it to scoring would mean every such change touches
+feedback, bands, and constraints too. The seam costs one type and no code.
+
+**Letting a dish or ingredient select its own flavour model.** Rejected:
+content would then be able to change the rules of the game, which inverts the
+data-driven boundary in AGENTS.md rule 8. The ruleset selects the composer.
+
 **Emitting events for rejected commands.** Rejected: it would put non-facts into
 the replay stream and force every presenter to distinguish accepted from
 attempted.
@@ -273,6 +336,11 @@ attempted.
 
 - Content validation rejects a customer with all-zero weights, and rejects any
   `target` or `weight` outside `0..5`.
+- The evaluator is implemented as two functions with `FlavorProfile` between
+  them, not one. Adding a second composer requires an ADR.
+- The constant relationships in §1 — a single ingredient cannot reach the
+  highest targets, and the cap discards surplus — must survive any change to
+  those numbers.
 - **Adding a flavour dimension appends to §1; it never inserts.** Existing
   customers omit the new dimension, so its weight defaults to 0 and their scores
   are unchanged — verified against the executable model. Inserting mid-list
