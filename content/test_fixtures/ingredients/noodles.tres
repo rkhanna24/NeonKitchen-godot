@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="IngredientDefinition" format=3]
+
+[ext_resource type="Script" path="res://content/schemas/ingredient_definition.gd" id="1_db6wl"]
+
+[resource]
+script = ExtResource("1_db6wl")
+content_id = &"ingredient.noodles"
+name_key = &"fixture.noodles.name"
+description_key = &"fixture.noodles.description"
+savory = 1
+comfort = 3
+tags = Array[StringName]([&"noodle", &"vegetarian"])

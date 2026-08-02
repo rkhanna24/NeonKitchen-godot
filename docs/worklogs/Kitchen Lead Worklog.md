@@ -967,6 +967,66 @@ partially, and `AGENTS.md` records which rules rely on review instead.
 
 #3 typed Resources, then #8 fixtures and #9 the evaluator.
 
+### 2026-08-01 — Session 012: Content model, validation, and repository contract
+
+**Summary**
+
+Resolved issue #3. Typed `.tres` definitions, a content validator, the
+`ContentRepository` port and two implementations now exist, with 39 tests
+including a shared contract suite both repositories must pass.
+
+**Work completed**
+
+- `Flavor` and `FlavorProfile` domain value objects; `FlavorProfile` is the
+  typed value between the two evaluation stages of ADR 0004 §9.
+- `IngredientDefinition`, `CustomerDefinition`, and `CustomerConstraint` as
+  typed Resources, with the ADR 0004 §2 default of comfort weight 1, target 3.
+- `ContentValidator` covering duplicate and malformed IDs, out-of-range flavour
+  values, negative and all-zero weights, missing localisation keys, dangling
+  constraint references, and require/forbid contradictions.
+- `ContentRepository` port, a `.tres` adapter, and an in-memory adapter, both
+  held to one shared contract suite.
+- Test fixtures generated with `ResourceSaver` rather than hand-written, so the
+  `.tres` format is correct by construction.
+
+**Evidence**
+
+- 39 tests pass; the gate, its own eight-scenario self-verification, and the
+  applet parity check are all green.
+- The `.tres` repository refuses to serve anything when validation fails, as
+  rule 7 requires, and that is asserted rather than assumed.
+
+**Risks or limitations**
+
+- **The lexicographic-order test cannot catch the bug it was written for.**
+  `Array[StringName].sort()` orders by internal pointer rather than text, which
+  Godot documents. With these fixtures, pointer order happens to coincide with
+  text order, so reinstating the bug left the suite green. A second,
+  deterministic test was added that supplies definitions in reverse order and
+  does fail when sorting is removed — verified. The invariant assertion is kept
+  but documented as partial.
+
+  **Correction, same session.** This was first recorded as "nondeterministic",
+  which was wrong and understated the risk. Measured on Godot 4.7.1: five names
+  interned in ascending text order sort to exactly reversed text order, and
+  identically across runs. It is stably wrong, not flaky. What varies is
+  interning order, which follows content load order — so the symptom is a
+  confidently consistent wrong order locally and a different one after a
+  fixture is renamed or on another platform. An earlier experiment reporting
+  "eight trials, no disagreement" was itself the error: it interned names in
+  reverse-text order, which is precisely the case where pointer order coincides
+  with text order, so it could not have detected the bug.
+
+  No gate check or rule was added. The hazard is a documented Godot behaviour,
+  the guidance lives as a comment on `_sorted_ids`, and a heuristic check for
+  one library quirk was judged not worth its false positives.
+- Fixtures are contract fixtures, not game content. #8 authors the real roster.
+- No composer or evaluator exists yet; `FlavorProfile` has no producer until #9.
+
+**Next**
+
+#8 authors the Phase 1 fixtures, then #9 implements the evaluator.
+
 ---
 
 ## Worklog Entry Template

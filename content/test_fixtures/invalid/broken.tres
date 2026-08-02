@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="IngredientDefinition" format=3]
+
+[ext_resource type="Script" path="res://content/schemas/ingredient_definition.gd" id="1_15is8"]
+
+[resource]
+script = ExtResource("1_15is8")
+content_id = &"ingredient.broken"
+name_key = &"fixture.broken.name"
+description_key = &"fixture.broken.description"
+comfort = 9
+tags = Array[StringName]([&"broken"])

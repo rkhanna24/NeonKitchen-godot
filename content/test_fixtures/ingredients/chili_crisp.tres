@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="IngredientDefinition" format=3]
+
+[ext_resource type="Script" path="res://content/schemas/ingredient_definition.gd" id="1_wmr0h"]
+
+[resource]
+script = ExtResource("1_wmr0h")
+content_id = &"ingredient.chili_crisp"
+name_key = &"fixture.chili.name"
+description_key = &"fixture.chili.description"
+savory = 1
+spicy = 3
+adventurous = 1
+tags = Array[StringName]([&"spice", &"vegan"])

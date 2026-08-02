@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CustomerDefinition" format=3]
+
+[ext_resource type="Script" path="res://content/schemas/customer_constraint.gd" id="1_if8qg"]
+[ext_resource type="Script" path="res://content/schemas/customer_definition.gd" id="2_58got"]
+
+[resource]
+script = ExtResource("2_58got")
+content_id = &"customer.plain_appetite"
+name_key = &"fixture.plain.name"
+request_key = &"fixture.plain.request"
+reaction_key = &"fixture.plain.reaction"
+comfort_weight = 3

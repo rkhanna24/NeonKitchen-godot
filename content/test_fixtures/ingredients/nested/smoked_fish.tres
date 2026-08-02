@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="IngredientDefinition" format=3]
+
+[ext_resource type="Script" path="res://content/schemas/ingredient_definition.gd" id="1_efnha"]
+
+[resource]
+script = ExtResource("1_efnha")
+content_id = &"ingredient.smoked_fish"
+name_key = &"fixture.smoked_fish.name"
+description_key = &"fixture.smoked_fish.description"
+savory = 3
+adventurous = 1
+tags = Array[StringName]([&"protein"])
