@@ -121,6 +121,7 @@ Kitchen Lead maintains these artifacts during Phase 1 without pretending to be a
 | ~~GDScript Toolkit lags the pinned engine release~~ | **Resolved 2026-08-01 in #2.** gdtoolkit 4.5.0 parses `@abstract`, typed dictionaries, `static var`, StringName literals, and `@warning_ignore`; its formatted output is accepted by Godot 4.7.1 and is idempotent. Pinned in `requirements-dev.txt`. |
 | ~~Binding architecture rules are unenforced~~ | **Largely resolved 2026-08-01 in #16.** The gate now enforces dependency direction, domain purity, layout, and `.uid` sidecars, each verified in the failing direction. Rules 2, 3, 5–8 and 12 remain review-only; `AGENTS.md` states which is which so the distinction is visible rather than assumed. |
 | Export has never been produced on any platform | ADR 0001's platform matrix is an intent for the release milestone, not a verified capability. No export templates, no `export_presets.cfg`, no export attempted. macOS notarisation cost is unknown. Needs an issue when a release milestone exists; discovering this in week 5 would be expensive. |
+| A second implementation of the scoring contract now lives in the repo | `tools/flavor_explorer.html` models ADR 0004 and will be the *third* implementation once #9 lands. `tools/verify_flavor_model.sh` compares it against an ADR-derived oracle over 7,476 cases and is verified to fail on drift. **After #9 the oracle must be replaced by the real evaluator**, or the check only proves two models agree with each other. |
 | Godot's own commands cannot be trusted as CI gates | `--import` exits 0 and reports nothing on script type or warning violations; `--check-only` reports them but also exits 0. `scripts/check.sh` inspects output instead of exit codes. Never substitute the raw commands for the gate. |
 | GitHub tasks and durable design memory drift apart | Keep executable scope and status in GitHub; update the worklog only when a decision, milestone, risk, or durable context changes. |
 | The repository and former Obsidian vault become competing sources of truth | Treat repository `docs/` as canonical after migration verification; keep only a pointer or archive in the former vault. |
@@ -753,6 +754,10 @@ check; issue #7 is partially complete and now correctly blocked by #2.
 - `scripts/` is not in the ADR 0002 §6 layout. It was added deliberately so the
   gate is runnable locally and by CI from one definition. Recorded here rather
   than silently extending the ratified structure.
+- `tools/` is likewise outside the §6 layout, added on 2026-08-01 for the
+  flavour explorer. Both are developer tooling rather than game structure. If a
+  third such directory appears, the layout should be revisited properly rather
+  than extended a fourth time by note.
 - **The editor catches project-configuration errors that headless mode cannot.**
   The first `project.godot` listed `"GDScript"` in `config/features`, which is not
   a valid feature tag — tags describe engine capabilities such as the version, a

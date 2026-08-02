@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ADR 0004 Flavour Formula Explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:      #fcfcfb;
+    --surface-2:      #f9f9f7;
+    --card:           #ffffff;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #898781;
+    --grid:           #e1e0d9;
+    --baseline:       #c3c2b7;
+    --border:         rgba(11,11,11,0.10);
+    --series:         #2a78d6;   /* single hue used consistently across all curve charts */
+    --series-soft:    #cde2fb;
+    --good:           #0ca30c;
+    --warning:        #b5790f;   /* darkened from #fab219 for legible light-mode text */
+    --serious:        #c95b34;   /* darkened from #ec835a for legible light-mode text */
+    --critical:       #d03b3b;
+    --good-bg:         #e6f6e6;
+    --warning-bg:      #fdf0d6;
+    --serious-bg:      #fbe4da;
+    --critical-bg:     #fbe2e2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --surface-1:      #1a1a19;
+      --surface-2:      #0d0d0d;
+      --card:           #232322;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #898781;
+      --grid:           #2c2c2a;
+      --baseline:       #383835;
+      --border:         rgba(255,255,255,0.10);
+      --series:         #3987e5;
+      --series-soft:    #16324f;
+      --good:           #0ca30c;
+      --warning:        #fab219;
+      --serious:        #ec835a;
+      --critical:       #e66767;
+      --good-bg:         #103010;
+      --warning-bg:      #3a2c08;
+      --serious-bg:      #3a1f14;
+      --critical-bg:     #3a1414;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1:      #1a1a19;
+    --surface-2:      #0d0d0d;
+    --card:           #232322;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --grid:           #2c2c2a;
+    --baseline:       #383835;
+    --border:         rgba(255,255,255,0.10);
+    --series:         #3987e5;
+    --series-soft:    #16324f;
+    --good:           #0ca30c;
+    --warning:        #fab219;
+    --serious:        #ec835a;
+    --critical:       #e66767;
+    --good-bg:         #103010;
+    --warning-bg:      #3a2c08;
+    --serious-bg:      #3a1f14;
+    --critical-bg:     #3a1414;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--surface-2);
+    color: var(--text-primary);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  body { padding: 20px 20px 60px; }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 0 0 10px; }
+  h3 { font-size: 13px; margin: 0 0 8px; color: var(--text-secondary); font-weight: 600; }
+  p.lede { color: var(--text-secondary); margin: 0 0 18px; max-width: 78ch; }
+  .tag {
+    display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .02em;
+    text-transform: uppercase; color: var(--text-muted); border: 1px solid var(--border);
+    border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: middle;
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 18px; margin-bottom: 16px;
+  }
+
+  /* ---------- self-check banner ---------- */
+  #selfcheck-banner {
+    border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;
+    font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 10px;
+    border: 1px solid var(--border);
+  }
+  #selfcheck-banner.pass { background: var(--good-bg); color: var(--good); }
+  #selfcheck-banner.fail {
+    background: var(--critical-bg); color: var(--critical);
+    animation: pulse 1.1s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(208,59,59,0.35);} 50% { box-shadow: 0 0 0 6px rgba(208,59,59,0);} }
+
+  table.vectors { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.vectors th, table.vectors td {
+    text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--grid);
+    vertical-align: top;
+  }
+  table.vectors th { color: var(--text-muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .02em; }
+  .pass-pill, .fail-pill {
+    display: inline-block; font-size: 11px; font-weight: 700; border-radius: 4px; padding: 1px 7px;
+  }
+  .pass-pill { background: var(--good-bg); color: var(--good); }
+  .fail-pill { background: var(--critical-bg); color: var(--critical); }
+  code.mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+
+  /* ---------- layout ---------- */
+  .cols { display: grid; grid-template-columns: minmax(340px, 420px) 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+
+  .dim-row {
+    display: grid; grid-template-columns: 90px 1fr 1fr; gap: 10px; align-items: center;
+    padding: 8px 0; border-bottom: 1px solid var(--grid);
+  }
+  .dim-row:last-child { border-bottom: none; }
+  .dim-name { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 12.5px; }
+  .swatch { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+  .ctrl-label { font-size: 10.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .03em; display:flex; justify-content: space-between; }
+  .ctrl-label b { color: var(--text-primary); font-weight: 700; font-variant-numeric: tabular-nums; }
+  input[type="range"] { width: 100%; accent-color: var(--series); }
+  input[type="range"]:disabled { opacity: .45; }
+
+  .mode-toggle { display: flex; gap: 6px; margin-bottom: 12px; }
+  .mode-toggle button {
+    flex: 1; padding: 7px 10px; border-radius: 7px; border: 1px solid var(--border);
+    background: var(--surface-1); color: var(--text-secondary); font: inherit; font-weight: 600;
+    cursor: pointer; font-size: 12.5px;
+  }
+  .mode-toggle button.active { background: var(--series); color: #fff; border-color: var(--series); }
+
+  .ing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .ing-card { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; background: var(--surface-1); }
+  .ing-card h4 { margin: 0 0 6px; font-size: 12px; }
+  .ing-card .dim-mini { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; font-size: 11px; }
+  .ing-card .dim-mini label { width: 66px; flex: none; color: var(--text-secondary); }
+  .ing-card input[type="range"] { flex: 1; }
+  .ing-card .val { width: 14px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .ing-toggle-row { display: flex; gap: 6px; margin-bottom: 10px; }
+  .ing-toggle-row button {
+    flex: 1; padding: 5px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface-1); color: var(--text-secondary); font: inherit; cursor: pointer; font-size: 12px;
+  }
+  .ing-toggle-row button.active { background: var(--series-soft); color: var(--series); border-color: var(--series); font-weight: 700; }
+
+  /* ---------- results ---------- */
+  .hero { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  .hero .score { font-size: 52px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  .band-badge {
+    display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 13px;
+    padding: 5px 12px; border-radius: 999px;
+  }
+  .band-badge .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .band-DELIGHTED    { background: var(--good-bg);     color: var(--good); }
+  .band-SATISFIED    { background: var(--warning-bg);  color: var(--warning); }
+  .band-MIXED        { background: var(--serious-bg);  color: var(--serious); }
+  .band-DISSATISFIED { background: var(--critical-bg); color: var(--critical); }
+  .band-DELIGHTED .dot    { background: var(--good); }
+  .band-SATISFIED .dot    { background: var(--warning); }
+  .band-MIXED .dot        { background: var(--serious); }
+  .band-DISSATISFIED .dot { background: var(--critical); }
+
+  .feedback-line { margin-top: 8px; color: var(--text-secondary); font-size: 13px; }
+  .feedback-line b { color: var(--text-primary); }
+
+  table.breakdown { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 12px; }
+  table.breakdown th, table.breakdown td {
+    text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums;
+  }
+  table.breakdown th:first-child, table.breakdown td:first-child { text-align: left; font-variant-numeric: normal; }
+  table.breakdown th { color: var(--text-muted); font-weight: 600; font-size: 10.5px; text-transform: uppercase; letter-spacing: .02em; }
+  table.breakdown tr.ignored td { color: var(--text-muted); font-style: italic; }
+  table.breakdown tr.strongest { background: var(--good-bg); }
+  table.breakdown tr.largest { background: var(--critical-bg); }
+  .row-flag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; }
+  tr.strongest .row-flag { color: var(--good); }
+  tr.largest .row-flag { color: var(--critical); }
+
+  /* ---------- charts ---------- */
+  .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 8px; }
+  .chart-card { border: 1px solid var(--border); border-radius: 8px; padding: 10px 10px 6px; background: var(--surface-1); }
+  .chart-card.ignored { opacity: .55; }
+  .chart-title { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; font-weight: 700; margin-bottom: 2px; }
+  .chart-title .note { font-weight: 500; color: var(--text-muted); font-size: 10.5px; text-transform: none; }
+  svg.curve { width: 100%; height: 140px; display: block; overflow: visible; }
+  .curve .gridline { stroke: var(--grid); stroke-width: 1; }
+  .curve .bandline { stroke: var(--baseline); stroke-width: 1; stroke-dasharray: 3 3; }
+  .curve .bandlabel { fill: var(--text-muted); font-size: 8.5px; }
+  .curve .axislabel { fill: var(--text-muted); font-size: 8.5px; }
+  .curve .line { fill: none; stroke: var(--series); stroke-width: 2; }
+  .curve .dot { fill: var(--series); stroke: var(--surface-1); stroke-width: 2; cursor: pointer; }
+  .curve .dot.current { fill: var(--surface-1); stroke: var(--series); stroke-width: 3; }
+  .curve .dot.ignored-dot { fill: var(--text-muted); }
+
+  #tooltip {
+    position: fixed; pointer-events: none; z-index: 50; background: var(--card); color: var(--text-primary);
+    border: 1px solid var(--border); border-radius: 6px; padding: 6px 9px; font-size: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18); display: none; font-variant-numeric: tabular-nums;
+  }
+
+  footer { color: var(--text-muted); font-size: 11.5px; margin-top: 20px; border-top: 1px solid var(--border); padding-top: 12px; }
+  .kv { display: flex; gap: 6px; }
+  .kv dt { color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>ADR 0004 Flavour Formula Explorer <span class="tag">design aid — not project code</span></h1>
+  <p class="lede">
+    Every parameter of the §3 scoring formula is tweakable below. This visualises an
+    existing decision (ADR 0004); it does not make balance calls, and it is not part
+    of the Neon Kitchen repository. Constraints (§5) are out of scope — they simply
+    cap a score at 39 and add no interesting maths.
+  </p>
+
+  <div id="selfcheck-banner" class="card"></div>
+
+  <div class="card">
+    <h2>Self-check — 5 verification vectors from the task packet</h2>
+    <table class="vectors" id="vector-table"></table>
+  </div>
+
+  <div class="cols">
+    <div>
+      <div class="card">
+        <h2>Customer targets &amp; weights</h2>
+        <div id="dim-controls"></div>
+        <p style="color:var(--text-muted); font-size:11.5px; margin-top:10px; margin-bottom:0;">
+          Weight 0 means the dimension is <b>ignored</b> — it drops out of both the
+          score and feedback selection entirely, per §2 and §6.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Dish profile</h2>
+        <div class="mode-toggle">
+          <button id="mode-direct" class="active">Direct dish value</button>
+          <button id="mode-ingredients">Build from ingredients</button>
+        </div>
+        <div id="direct-controls"></div>
+        <div id="ingredient-controls" style="display:none;">
+          <div class="ing-toggle-row" id="ing-count-row"></div>
+          <div class="ing-grid" id="ing-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h2>Result</h2>
+        <div class="hero">
+          <div class="score" id="score-value">—</div>
+          <div class="band-badge" id="band-badge"><span class="dot"></span><span id="band-label"></span></div>
+        </div>
+        <div class="feedback-line" id="feedback-line"></div>
+        <table class="breakdown" id="breakdown-table"></table>
+      </div>
+
+      <div class="card">
+        <h2>Shape of the curve <span style="font-weight:400;color:var(--text-muted);font-size:12px;">— score as this dimension's dish value sweeps 0–5, everything else held at its current setting</span></h2>
+        <div class="chart-grid" id="chart-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p><b>Formula (ADR 0004 §3):</b> <code class="mono">error=|actual-target|, max_error=max(target,5-target), penalty=weight×error, max_penalty=weight×max_error, score = 100 − ⌊(Σpenalty × 100) / Σmax_penalty⌋</code> —
+    computed here with <code class="mono">Math.floor(total*100/max)</code>, multiplication before division, exactly once, matching the game's integer arithmetic.</p>
+    <p>Bands: DELIGHTED 85–100 · SATISFIED 65–84 · MIXED 40–64 · DISSATISFIED 0–39 (§4). Dimension order (§1, the final feedback tie-break): SAVORY, SPICY, FRESH, COMFORT, ADVENTUROUS.</p>
+  </footer>
+</div>
+<div id="tooltip"></div>
+
+<script>
+"use strict";
+
+/* =========================================================================
+ * CORE FORMULA — this block is the single source of truth for scoring and
+ * feedback in this applet. It is fuzz-verified offline against a Python
+ * oracle over 11,000+ cases including every band-edge score (39/40, 64/65,
+ * 84/85) reachable by a single weighted dimension. See hand-off notes.
+ * ========================================================================= */
+
+const DIMS = ["SAVORY", "SPICY", "FRESH", "COMFORT", "ADVENTUROUS"];
+
+// Fixed dimension -> chart/series color mapping. A single hue (the palette's
+// "series" role) is reused across every curve chart on purpose: these are
+// small multiples of the SAME measure (score), faceted by dimension, and
+// each facet carries its own text title — identity is carried by the label,
+// never by color alone, so no categorical (per-dimension) palette is needed.
+const DIM_LABEL = {
+  SAVORY: "Savory", SPICY: "Spicy", FRESH: "Fresh",
+  COMFORT: "Comfort", ADVENTUROUS: "Adventurous",
+};
+
+function evaluate(targets, weights, dish, dims) {
+  dims = dims || DIMS;
+  let totalPenalty = 0;
+  let maxPenalty = 0;
+  const per = [];
+  for (const d of dims) {
+    const w = weights[d] || 0;
+    if (w === 0) continue; // weight 0 == ignored, not "wants zero" (ADR §2)
+    const t = targets[d] || 0;
+    const a = dish[d] || 0;
+    const err = Math.abs(a - t);
+    const mx = Math.max(t, 5 - t);
+    totalPenalty += w * err;
+    maxPenalty += w * mx;
+    per.push({ d, t, a, w, err, mx, penalty: w * err, maxPenalty: w * mx });
+  }
+  if (maxPenalty <= 0) {
+    return { error: "invalid content: max_penalty=" + maxPenalty, per };
+  }
+  // THE deliberate truncation (ADR §3): multiplication precedes the floor
+  // division so precision is lost only once, matching GDScript's integer
+  // division exactly. This must never be plain "/" in JS.
+  const score = 100 - Math.floor((totalPenalty * 100) / maxPenalty);
+  return { score, per };
+}
+
+function band(s) {
+  return s >= 85 ? "DELIGHTED" : s >= 65 ? "SATISFIED" : s >= 40 ? "MIXED" : "DISSATISFIED";
+}
+
+// Feedback tie-breaks (ADR §6): higher weight first, then fixed dimension
+// order (§1). Strongest = lowest penalty; largest miss = highest penalty,
+// reported absent when every weighted penalty is zero.
+function feedback(per, dims) {
+  dims = dims || DIMS;
+  if (per.length === 0) return { strongest: null, largest: null };
+  let strongest = per[0];
+  let largest = per[0];
+  for (const r of per) {
+    if (
+      r.penalty < strongest.penalty ||
+      (r.penalty === strongest.penalty && r.w > strongest.w) ||
+      (r.penalty === strongest.penalty && r.w === strongest.w && dims.indexOf(r.d) < dims.indexOf(strongest.d))
+    ) strongest = r;
+    if (
+      r.penalty > largest.penalty ||
+      (r.penalty === largest.penalty && r.w > largest.w) ||
+      (r.penalty === largest.penalty && r.w === largest.w && dims.indexOf(r.d) < dims.indexOf(largest.d))
+    ) largest = r;
+  }
+  return { strongest: strongest.d, largest: largest.penalty === 0 ? null : largest.d };
+}
+
+/* =========================================================================
+ * SELF-CHECK — the 5 verification vectors from the task packet, reproduced
+ * exactly. Runs once on load. Any mismatch fails loudly.
+ * ========================================================================= */
+
+const VECTORS = [
+  {
+    label: "GDD worked example — Comfort 5(w3), Spicy 4(w2), Savory 3(w1); dish C5 S2 Sv4",
+    targets: { COMFORT: 5, SPICY: 4, SAVORY: 3 },
+    weights: { COMFORT: 3, SPICY: 2, SAVORY: 1 },
+    dish: { COMFORT: 5, SPICY: 2, SAVORY: 4 },
+    expect: { score: 81, band: "SATISFIED", strongest: "COMFORT", largest: "SPICY" },
+  },
+  {
+    label: "same customer — dish equals targets exactly (C5 S4 Sv3)",
+    targets: { COMFORT: 5, SPICY: 4, SAVORY: 3 },
+    weights: { COMFORT: 3, SPICY: 2, SAVORY: 1 },
+    dish: { COMFORT: 5, SPICY: 4, SAVORY: 3 },
+    expect: { score: 100, band: "DELIGHTED", largest: null },
+  },
+  {
+    label: "same customer — dish C0 S0 Sv0",
+    targets: { COMFORT: 5, SPICY: 4, SAVORY: 3 },
+    weights: { COMFORT: 3, SPICY: 2, SAVORY: 1 },
+    dish: { COMFORT: 0, SPICY: 0, SAVORY: 0 },
+    expect: { score: 0, band: "DISSATISFIED" },
+  },
+  {
+    label: "Comfort 5(w3), Spicy 0(w5); dish C5 S0",
+    targets: { COMFORT: 5, SPICY: 0 },
+    weights: { COMFORT: 3, SPICY: 5 },
+    dish: { COMFORT: 5, SPICY: 0 },
+    expect: { score: 100, band: "DELIGHTED" },
+  },
+  {
+    label: "Comfort 5(w3), Spicy 0(w5); dish C5 S5",
+    targets: { COMFORT: 5, SPICY: 0 },
+    weights: { COMFORT: 3, SPICY: 5 },
+    dish: { COMFORT: 5, SPICY: 5 },
+    expect: { score: 38, band: "DISSATISFIED", largest: "SPICY" },
+  },
+];
+
+function runSelfCheck() {
+  let allPass = true;
+  const rows = VECTORS.map((v) => {
+    const result = evaluate(v.targets, v.weights, v.dish);
+    const fb = result.error ? { strongest: null, largest: null } : feedback(result.per);
+    const checks = [];
+    let pass = true;
+    if (!result.error) {
+      if ("score" in v.expect) { const ok = result.score === v.expect.score; checks.push(["score", v.expect.score, result.score, ok]); pass = pass && ok; }
+      if ("band" in v.expect) { const b = band(result.score); const ok = b === v.expect.band; checks.push(["band", v.expect.band, b, ok]); pass = pass && ok; }
+      if ("strongest" in v.expect) { const ok = fb.strongest === v.expect.strongest; checks.push(["strongest", v.expect.strongest, fb.strongest, ok]); pass = pass && ok; }
+      if ("largest" in v.expect) { const ok = fb.largest === v.expect.largest; checks.push(["largest_miss", v.expect.largest === null ? "absent" : v.expect.largest, fb.largest === null ? "absent" : fb.largest, ok]); pass = pass && ok; }
+    } else {
+      pass = false;
+      checks.push(["error", "n/a", result.error, false]);
+    }
+    if (!pass) allPass = false;
+    return { label: v.label, checks, pass };
+  });
+  return { allPass, rows };
+}
+
+function renderSelfCheck() {
+  const { allPass, rows } = runSelfCheck();
+  const banner = document.getElementById("selfcheck-banner");
+  banner.className = allPass ? "card pass" : "card fail";
+  banner.textContent = allPass
+    ? "SELF-CHECK PASSED — all 5 verification vectors reproduce exactly."
+    : "SELF-CHECK FAILED — one or more verification vectors did NOT reproduce. Do not trust the results below; see table for the mismatch, and treat this as an escalation (either the applet or the oracle is wrong).";
+
+  const table = document.getElementById("vector-table");
+  let html = "<tr><th>Vector</th><th>Field</th><th>Expected</th><th>Actual</th><th>Result</th></tr>";
+  for (const r of rows) {
+    r.checks.forEach((c, i) => {
+      const [field, expected, actual, ok] = c;
+      html += `<tr>
+        <td>${i === 0 ? r.label : ""}</td>
+        <td><code class="mono">${field}</code></td>
+        <td><code class="mono">${expected}</code></td>
+        <td><code class="mono">${actual}</code></td>
+        <td>${ok ? '<span class="pass-pill">PASS</span>' : '<span class="fail-pill">FAIL</span>'}</td>
+      </tr>`;
+    });
+  }
+  table.innerHTML = html;
+}
+
+/* =========================================================================
+ * APPLICATION STATE
+ * ========================================================================= */
+
+const state = {
+  targets: { SAVORY: 3, SPICY: 4, FRESH: 0, COMFORT: 5, ADVENTUROUS: 0 },
+  weights: { SAVORY: 1, SPICY: 2, FRESH: 0, COMFORT: 3, ADVENTUROUS: 0 },
+  dishMode: "direct", // "direct" | "ingredients"
+  dishDirect: { SAVORY: 4, SPICY: 2, FRESH: 0, COMFORT: 5, ADVENTUROUS: 0 },
+  ingredientCount: 2,
+  ingredients: [
+    { SAVORY: 2, SPICY: 1, FRESH: 0, COMFORT: 3, ADVENTUROUS: 0 },
+    { SAVORY: 2, SPICY: 1, FRESH: 0, COMFORT: 2, ADVENTUROUS: 0 },
+    { SAVORY: 0, SPICY: 0, FRESH: 0, COMFORT: 0, ADVENTUROUS: 0 },
+  ],
+};
+
+function currentDish() {
+  if (state.dishMode === "direct") return { ...state.dishDirect };
+  const dish = {};
+  for (const d of DIMS) {
+    let sum = 0;
+    for (let i = 0; i < state.ingredientCount; i++) sum += state.ingredients[i][d];
+    dish[d] = Math.max(0, Math.min(5, sum));
+  }
+  return dish;
+}
+
+/* =========================================================================
+ * RENDERING
+ * ========================================================================= */
+
+function el(tag, attrs, children) {
+  const e = document.createElement(tag);
+  if (attrs) for (const k in attrs) {
+    if (k === "class") e.className = attrs[k];
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), attrs[k]);
+    else e.setAttribute(k, attrs[k]);
+  }
+  (children || []).forEach((c) => e.appendChild(typeof c === "string" ? document.createTextNode(c) : c));
+  return e;
+}
+
+function renderDimControls() {
+  const root = document.getElementById("dim-controls");
+  root.innerHTML = "";
+  DIMS.forEach((d) => {
+    const row = el("div", { class: "dim-row" }, [
+      el("div", { class: "dim-name" }, [
+        el("span", { class: "swatch", style: "background:var(--series)" }),
+        DIM_LABEL[d],
+      ]),
+      makeSlider(`target-${d}`, "Target", state.targets[d], 0, 5, (v) => { state.targets[d] = v; renderAll(); }),
+      makeSlider(`weight-${d}`, "Weight", state.weights[d], 0, 5, (v) => { state.weights[d] = v; renderAll(); }),
+    ]);
+    root.appendChild(row);
+  });
+}
+
+function makeSlider(id, labelText, value, min, max, onChange) {
+  const wrap = el("div", {});
+  const label = el("div", { class: "ctrl-label" }, [labelText, el("b", { id: id + "-val" }, [String(value)])]);
+  const input = el("input", {
+    type: "range", id, min: String(min), max: String(max), step: "1", value: String(value),
+    oninput: (e) => {
+      const v = parseInt(e.target.value, 10);
+      document.getElementById(id + "-val").textContent = String(v);
+      onChange(v);
+    },
+  });
+  wrap.appendChild(label);
+  wrap.appendChild(input);
+  return wrap;
+}
+
+function renderDishControls() {
+  const directRoot = document.getElementById("direct-controls");
+  directRoot.innerHTML = "";
+  DIMS.forEach((d) => {
+    const row = el("div", { class: "dim-row", style: "grid-template-columns: 90px 1fr;" }, [
+      el("div", { class: "dim-name" }, [
+        el("span", { class: "swatch", style: "background:var(--series)" }),
+        DIM_LABEL[d],
+      ]),
+      makeSlider(`dish-${d}`, "Dish value", state.dishDirect[d], 0, 5, (v) => { state.dishDirect[d] = v; renderAll(); }),
+    ]);
+    if (state.dishMode !== "direct") row.querySelector("input").disabled = true;
+    directRoot.appendChild(row);
+  });
+
+  // Ingredient count toggle
+  const countRow = document.getElementById("ing-count-row");
+  countRow.innerHTML = "";
+  [1, 2, 3].forEach((n) => {
+    const btn = el("button", {
+      class: n === state.ingredientCount ? "active" : "",
+      onclick: () => { state.ingredientCount = n; renderAll(); },
+    }, [n + " ingredient" + (n > 1 ? "s" : "")]);
+    countRow.appendChild(btn);
+  });
+
+  // Ingredient value grids
+  const grid = document.getElementById("ing-grid");
+  grid.innerHTML = "";
+  for (let i = 0; i < 3; i++) {
+    const card = el("div", { class: "ing-card", style: i >= state.ingredientCount ? "opacity:.35;" : "" }, [
+      el("h4", {}, ["Ingredient " + (i + 1)]),
+    ]);
+    DIMS.forEach((d) => {
+      const row = el("div", { class: "dim-mini" }, [
+        el("label", {}, [DIM_LABEL[d]]),
+        el("input", {
+          type: "range", min: "0", max: "3", step: "1", value: String(state.ingredients[i][d]),
+          disabled: i >= state.ingredientCount ? "disabled" : null,
+          oninput: (e) => {
+            state.ingredients[i][d] = parseInt(e.target.value, 10);
+            renderAll();
+          },
+        }),
+        el("span", { class: "val" }, [String(state.ingredients[i][d])]),
+      ]);
+      card.appendChild(row);
+    });
+    grid.appendChild(card);
+  }
+}
+
+function renderResult() {
+  const dish = currentDish();
+  const result = evaluate(state.targets, state.weights, dish);
+
+  const scoreEl = document.getElementById("score-value");
+  const badgeEl = document.getElementById("band-badge");
+  const labelEl = document.getElementById("band-label");
+  const fbEl = document.getElementById("feedback-line");
+  const tableEl = document.getElementById("breakdown-table");
+
+  if (result.error) {
+    scoreEl.textContent = "—";
+    badgeEl.className = "band-badge band-DISSATISFIED";
+    labelEl.textContent = "INVALID CONTENT";
+    fbEl.textContent = result.error + " — all weights are 0, or a weight/target is out of 0..5. Content validation would reject this (ADR §2); nothing to score.";
+    tableEl.innerHTML = "";
+    return { dish, result };
+  }
+
+  const b = band(result.score);
+  const fb = feedback(result.per);
+
+  scoreEl.textContent = String(result.score);
+  badgeEl.className = "band-badge band-" + b;
+  labelEl.textContent = b;
+  fbEl.innerHTML = `Strongest match: <b>${fb.strongest ? DIM_LABEL[fb.strongest] : "—"}</b> &nbsp;·&nbsp; Largest miss: <b>${fb.largest ? DIM_LABEL[fb.largest] : "absent (every weighted penalty is zero)"}</b>`;
+
+  let html = "<tr><th>Dimension</th><th>Target</th><th>Dish</th><th>Weight</th><th>Error</th><th>Max err</th><th>Penalty</th><th>Max penalty</th><th></th></tr>";
+  DIMS.forEach((d) => {
+    const w = state.weights[d] || 0;
+    if (w === 0) {
+      html += `<tr class="ignored"><td>${DIM_LABEL[d]}</td><td colspan="7">ignored — weight 0</td><td></td></tr>`;
+      return;
+    }
+    const row = result.per.find((r) => r.d === d);
+    const cls = fb.strongest === d ? "strongest" : fb.largest === d ? "largest" : "";
+    const flag = fb.strongest === d ? "strongest" : fb.largest === d ? "largest miss" : "";
+    html += `<tr class="${cls}">
+      <td>${DIM_LABEL[d]}</td><td>${row.t}</td><td>${row.a}</td><td>${row.w}</td>
+      <td>${row.err}</td><td>${row.mx}</td><td>${row.penalty}</td><td>${row.maxPenalty}</td>
+      <td class="row-flag">${flag}</td>
+    </tr>`;
+  });
+  tableEl.innerHTML = html;
+
+  return { dish, result };
+}
+
+/* ---- curve charts (small multiples: score vs this dimension's dish value) ---- */
+
+const CW = 240, CH = 130, PAD_L = 24, PAD_R = 8, PAD_T = 8, PAD_B = 16;
+
+function scoreForSweptDim(dim, sweptValue, baseDish) {
+  const dish = { ...baseDish, [dim]: sweptValue };
+  return evaluate(state.targets, state.weights, dish);
+}
+
+function renderCharts(baseDish) {
+  const grid = document.getElementById("chart-grid");
+  grid.innerHTML = "";
+  const xFor = (v) => PAD_L + (v / 5) * (CW - PAD_L - PAD_R);
+  const yFor = (s) => PAD_T + (1 - Math.max(0, Math.min(100, s)) / 100) * (CH - PAD_T - PAD_B);
+
+  DIMS.forEach((d) => {
+    const ignored = (state.weights[d] || 0) === 0;
+    const card = el("div", { class: "chart-card" + (ignored ? " ignored" : "") });
+    card.appendChild(el("div", { class: "chart-title" }, [
+      DIM_LABEL[d],
+      el("span", { class: "note" }, [ignored ? "ignored — weight 0" : `weight ${state.weights[d]}, target ${state.targets[d]}`]),
+    ]));
+
+    const points = [];
+    for (let v = 0; v <= 5; v++) {
+      const r = scoreForSweptDim(d, v, baseDish);
+      points.push({ v, score: r.error ? null : r.score, per: r.per });
+    }
+
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "curve");
+    svg.setAttribute("viewBox", `0 0 ${CW} ${CH}`);
+
+    // band reference lines
+    [40, 65, 85].forEach((edge) => {
+      const y = yFor(edge);
+      const line = document.createElementNS(svg.namespaceURI, "line");
+      line.setAttribute("class", "bandline");
+      line.setAttribute("x1", PAD_L); line.setAttribute("x2", CW - PAD_R);
+      line.setAttribute("y1", y); line.setAttribute("y2", y);
+      svg.appendChild(line);
+      const lbl = document.createElementNS(svg.namespaceURI, "text");
+      lbl.setAttribute("class", "bandlabel");
+      lbl.setAttribute("x", 2); lbl.setAttribute("y", y + 3);
+      lbl.textContent = edge;
+      svg.appendChild(lbl);
+    });
+    // 0 / 100 baseline
+    [0, 100].forEach((edge) => {
+      const y = yFor(edge);
+      const line = document.createElementNS(svg.namespaceURI, "line");
+      line.setAttribute("class", "gridline");
+      line.setAttribute("x1", PAD_L); line.setAttribute("x2", CW - PAD_R);
+      line.setAttribute("y1", y); line.setAttribute("y2", y);
+      svg.appendChild(line);
+    });
+
+    // polyline
+    const validPts = points.filter((p) => p.score !== null);
+    if (validPts.length > 1) {
+      const poly = document.createElementNS(svg.namespaceURI, "polyline");
+      poly.setAttribute("class", "line");
+      poly.setAttribute("points", validPts.map((p) => `${xFor(p.v)},${yFor(p.score)}`).join(" "));
+      svg.appendChild(poly);
+    }
+
+    // x axis ticks
+    for (let v = 0; v <= 5; v++) {
+      const t = document.createElementNS(svg.namespaceURI, "text");
+      t.setAttribute("class", "axislabel");
+      t.setAttribute("x", xFor(v)); t.setAttribute("y", CH - 2);
+      t.setAttribute("text-anchor", "middle");
+      t.textContent = v;
+      svg.appendChild(t);
+    }
+
+    // dots
+    const currentVal = baseDish[d];
+    points.forEach((p) => {
+      if (p.score === null) return;
+      const dot = document.createElementNS(svg.namespaceURI, "circle");
+      const isCurrent = p.v === currentVal;
+      dot.setAttribute("class", "dot" + (isCurrent ? " current" : "") + (ignored ? " ignored-dot" : ""));
+      dot.setAttribute("cx", xFor(p.v));
+      dot.setAttribute("cy", yFor(p.score));
+      dot.setAttribute("r", isCurrent ? 5.5 : 3.5);
+      dot.addEventListener("mouseenter", (ev) => showTip(ev, d, p));
+      dot.addEventListener("mousemove", (ev) => showTip(ev, d, p));
+      dot.addEventListener("mouseleave", hideTip);
+      svg.appendChild(dot);
+    });
+
+    card.appendChild(svg);
+    grid.appendChild(card);
+  });
+}
+
+function showTip(ev, dim, p) {
+  const tip = document.getElementById("tooltip");
+  const row = p.per.find((r) => r.d === dim);
+  let body = `<b>${DIM_LABEL[dim]} = ${p.v}</b><br>score = ${p.score}`;
+  if (row) body += ` · error ${row.err} · penalty ${row.penalty}`;
+  else body += ` (ignored — does not affect score)`;
+  tip.innerHTML = body;
+  tip.style.left = (ev.clientX + 14) + "px";
+  tip.style.top = (ev.clientY + 14) + "px";
+  tip.style.display = "block";
+}
+function hideTip() { document.getElementById("tooltip").style.display = "none"; }
+
+function renderAll() {
+  const { dish } = renderResult();
+  renderCharts(dish);
+}
+
+/* =========================================================================
+ * WIRE UP
+ * ========================================================================= */
+
+document.getElementById("mode-direct").addEventListener("click", () => {
+  state.dishMode = "direct";
+  document.getElementById("mode-direct").classList.add("active");
+  document.getElementById("mode-ingredients").classList.remove("active");
+  document.getElementById("direct-controls").style.display = "";
+  document.getElementById("ingredient-controls").style.display = "none";
+  renderDishControls();
+  renderAll();
+});
+document.getElementById("mode-ingredients").addEventListener("click", () => {
+  state.dishMode = "ingredients";
+  document.getElementById("mode-ingredients").classList.add("active");
+  document.getElementById("mode-direct").classList.remove("active");
+  document.getElementById("direct-controls").style.display = "none";
+  document.getElementById("ingredient-controls").style.display = "";
+  renderDishControls();
+  renderAll();
+});
+
+renderSelfCheck();
+renderDimControls();
+renderDishControls();
+renderAll();
+</script>
+</body>
+</html>
