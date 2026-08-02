@@ -94,6 +94,31 @@ is a flavour target and can still be outweighed by the rest of the dish. A
 is a `FORBID_*` constraint under §5 and caps the score at 39 regardless of how
 good the flavour match is.
 
+#### The default customer profile
+
+A new `CustomerDefinition` defaults to **`COMFORT` weight 1, target 3**, with
+every other dimension at weight 0.
+
+Two properties of the model make this the right shape, both found by using the
+explorer rather than by reading the formula:
+
+**Weight is purely relative.** When only one dimension is weighted, its weight
+cancels in the normalisation — weights 1 and 5 produce identical scores across
+every dish. A weight only means anything next to another weight. So the default
+weight value is arbitrary; it just has to be non-zero, since all-zero weights are
+invalid content.
+
+**The default's meaning lives in the target.** A target of 0 is the trap: "all
+weights 1, all targets 0" reads as a customer with no opinion, but scores an
+empty plate at 100 and falls monotonically to 0 as any flavour is added. It is a
+customer who wants nothing served. Target 3 instead gives a curve peaking
+mid-range, which matches "most people want some comfort".
+
+An unauthored default is deliberately **valid but bland**, not invalid. The
+protection against shipping bland customers is not validation but the §11 audit:
+the GDD requires that no single recipe satisfies more than half the roster, and a
+customer satisfied by almost anything fails that check.
+
 ### 3. Scoring
 
 For each dimension where `weight > 0`:
@@ -131,6 +156,40 @@ Savory 3 (w1), dish Comfort 5, Spicy 2, Savory 4:
 `score = 100 - (5 * 100) / 26 = 81` → **Satisfied**, strongest match Comfort,
 largest miss Spicy. The GDD narrates this dish as Satisfied 78 with the same
 strongest match and largest miss.
+
+### 3a. Dish quality — contract recorded, not implemented
+
+Cooking challenges will produce a dish **quality**, already anticipated by the
+`CookingChallengePort` result in technical architecture §9. Phase 1 does not
+implement it and no quality field exists in `Evaluation`. The contract is
+recorded here because its shape is constrained by decisions already made, and
+getting it wrong later would be expensive.
+
+**Quality is an integer percentage, `0..100`. It is never a float.** A `1.0`
+multiplier would break ADR 0002 rule 13 and reintroduce exactly the
+cross-platform determinism risk this contract was built to avoid — with band
+edges at 40, 65 and 85, a float quality would put macOS and Linux back in
+disagreement at the boundaries.
+
+When implemented:
+
+```text
+score = flavour_score * quality / 100      # a SECOND deliberate truncation
+score = min(score, 39) if any constraint violated
+```
+
+Two things must be decided at implementation time, not assumed:
+
+- **Order matters and is fixed above.** Quality scales the flavour score; the
+  constraint cap applies last. A boundary violation must cap the result no
+  matter how well the dish was cooked.
+- **A second truncation interacts with the band edges.** The single truncation
+  in §3 was analysed against 40, 65 and 85; a second one has not been. That
+  analysis is a precondition of implementing quality.
+
+No placeholder field is added now. An always-100 field would invite code to
+multiply by it and would prove nothing — the same reasoning that keeps the
+cooking-challenge command vocabulary reserved but undefined under ADR 0002 §3.
 
 ### 4. Rating bands
 

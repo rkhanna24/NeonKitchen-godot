@@ -70,8 +70,10 @@ After the Phase 1 rules gate and the baseline Godot UI are complete, a later pro
 * limited pantry stock across a service;
 * ingredient purchasing and budget;
 * recipe discovery and recall;
-* customer relationships and narrative consequences; or
-* cooking techniques that transform flavor.
+* customer relationships and narrative consequences;
+* cooking techniques that transform flavor; or
+* multi-day progression, where a level is a day and difficulty ramps across
+  days as well as within one service.
 
 Only one of these should be added to the next prototype. Economy, inventory, timing, progression, procedural recipe names, travel, farming, cleaning, combat, hacking, staff management, branching campaigns, multiplayer, high-volume custom animation, and an original soundtrack are deferred. A functional Godot UI is required capstone scope, not a stretch goal.
 
@@ -361,6 +363,24 @@ If usage approaches the ceiling, tasks will use smaller contexts, completed work
 | Automated tests are mistaken for fun validation | Separate Health Inspector verification from human playtest acceptance. |
 
 # 6\. Revision History
+
+## v6 — Findings from the Flavour Explorer
+
+Changes arising from human exploration of the scoring model in
+`tools/flavor_explorer.html`. No change to the scoring rules themselves.
+
+* Added **multi-day progression** as a sixth stretch-goal candidate, where a
+  level is a day and difficulty ramps across days as well as within a service.
+  Confirmed as **post-capstone**, not capstone scope. Within-service progression
+  already exists in §2.4 and needs no change: the encounter ramp introduces
+  signalled preferences, then an undesired flavour, a dietary rule, a required
+  ingredient, and finally competing priorities.
+* Recorded in [ADR 0004](../adr/0004-phase-1-contracts.md) §3a that dish
+  **quality** from cooking challenges is an integer percentage, never a float,
+  and that the constraint cap applies after it. Not implemented in Phase 1.
+* Recorded in ADR 0004 §2 the default customer profile, after exploration showed
+  that a profile of all-weights-1 and all-targets-0 reads as "no preference" but
+  is in fact a customer who wants an empty plate.
 
 ## v5 — Reconciliation with Accepted Decisions
 
