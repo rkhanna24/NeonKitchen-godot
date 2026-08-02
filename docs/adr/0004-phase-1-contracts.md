@@ -40,7 +40,30 @@ This is the primary tuning lever: a customer weighting two dimensions leaves the
 player free on the other three, which is how the GDD's "at least three
 satisfying combinations" is achieved without making targets vague.
 
-Content validation must reject a customer whose weights are all zero.
+Content validation must reject a customer whose:
+
+- weights are **all zero** — there would be nothing to score against; or
+- `weight` falls outside `0..5`, or `target` outside `0..5`.
+
+> **Gap closed 2026-08-01, before publication.** The range was stated in prose
+> but only the all-zero rule was listed as enforceable, so a **negative weight**
+> would have passed validation and reached the formula. It inverts the
+> arithmetic — penalty becomes a reward for being wrong — and can drive
+> `sum(max_penalty)` to zero or below, making the division undefined. Verified
+> against an executable model of this contract: weight `-5` produced
+> `max_penalty = -10`.
+
+**Negative weights are not a way to express dislike, and are not permitted.**
+Dislike is a low target with a high weight: "definitely not spicy" is
+`target 0, weight 5`. Verified against the same model — that customer served a
+maximally spicy dish scores 38, `DISSATISFIED`, largest miss Spicy, with no hard
+constraint involved.
+
+This is the deliberate two-tier design. A strong *preference* against something
+is a flavour target and can still be outweighed by the rest of the dish. A
+*boundary* — an allergen, a dietary rule, an ingredient the customer refuses —
+is a `FORBID_*` constraint under §5 and caps the score at 39 regardless of how
+good the flavour match is.
 
 ### 3. Scoring
 
@@ -248,7 +271,15 @@ attempted.
 
 **Required**
 
-- Content validation rejects a customer with all-zero weights.
+- Content validation rejects a customer with all-zero weights, and rejects any
+  `target` or `weight` outside `0..5`.
+- **Adding a flavour dimension appends to §1; it never inserts.** Existing
+  customers omit the new dimension, so its weight defaults to 0 and their scores
+  are unchanged — verified against the executable model. Inserting mid-list
+  instead would shift the index used as the final feedback tie-break and could
+  silently flip `strongest_match` or `largest_miss` in existing golden cases. A
+  new dimension also changes the GDD, which names five, so it needs a GDD
+  revision and a superseding ADR, not just a content edit.
 - The single integer division carries a narrow suppression and a reason.
 - The dimension order in §1 is part of the contract; reordering it changes
   feedback output and requires a superseding ADR.
