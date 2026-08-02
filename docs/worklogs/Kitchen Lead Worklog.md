@@ -65,7 +65,8 @@ tags:
 | DEC-014 | Use private GitHub Issues and the Neon Kitchen Development Project as the system of record for executable work; keep design authority and durable decision memory in the GDD, accepted ADRs, and Kitchen Lead Worklog. | Approved | Human |
 | DEC-015 | Pin Godot 4.7.1 stable standard (non-.NET); develop on macOS arm64; support macOS arm64 and Windows x86_64 exports; accept 4.7.x patches but require a superseding ADR for a new minor. | Approved | Human and [ADR 0001](../adr/0001-pin-godot-version.md) |
 | DEC-016 | Ratify a narrowed Phase 1 structural foundation: interface independence and inward dependency direction; the full command/event vocabulary with cooking-challenge terms reserved but undefined; no randomness or wall-clock time in the domain; three ports (`ContentRepository` built, `RandomPort` and `CookingChallengePort` declared); a minimal repository layout; and six Godot-specific correctness rules. Supersedes DEC-009. | Approved | Human and [ADR 0002](../adr/0002-phase-1-structural-foundation.md) |
-| DEC-015 | Use the repository `docs/` directory as the canonical, version-controlled Obsidian vault for game design, architecture, agent definitions, and durable project memory. | Approved | Human |
+| DEC-017 | Lock the Phase 1 evaluator contract: normalised weighted distance to per-dimension targets with integer arithmetic; weight 0 means the dimension is ignored; four hard constraint kinds capping at 39; deterministic feedback selection; five commands and eight events with typed fields; rejected commands emit no events; three ingredients and two customers as contract fixtures. | Approved | Human and [ADR 0004](../adr/0004-phase-1-contracts.md) |
+| DEC-018 | Use the repository `docs/` directory as the canonical, version-controlled Obsidian vault for game design, architecture, agent definitions, and durable project memory. | Approved | Human |
 
 ### Phase 1 Scope
 
@@ -124,33 +125,32 @@ Kitchen Lead maintains these artifacts during Phase 1 without pretending to be a
 
 ### Open Questions
 
-| ID | Question | Needed before |
-|---|---|---|
-| Q-001 | What is the exact smallest Phase 1 data set: three ingredients and two customers, or a slightly larger first playable set? | First implementation work package |
-| Q-002 | Which headless Godot testing approach will be used? | Test harness implementation |
-| Q-003 | What exact flavor-score formula and feedback rules are locked for the first spike? | Evaluator implementation |
-| Q-004 | Will the remaining proposed repository structure in [[technical_architecture\|Technical Architecture]] be approved as the bootstrap structure? | First code creation |
-| Q-005 | Which observations define success for the first internal human playtest? | Playtest preparation |
+None. Every question opened during design has a recorded resolution below.
+New questions are added here as they arise.
 
 ### Resolved Questions
 
 | ID | Question | Resolution |
 |---|---|---|
+| Q-001 | What is the exact smallest Phase 1 data set? | Three ingredients, two customers, as evaluator **contract fixtures** rather than a playable slice. [ADR 0004](../adr/0004-phase-1-contracts.md) §11. 2026-08-01 |
+| Q-002 | Which headless Godot testing approach will be used? | GUT v9.7.1, fetched by `scripts/setup.sh`. [ADR 0003](../adr/0003-test-framework.md). 2026-08-01 |
+| Q-003 | What exact flavor-score formula and feedback rules are locked? | Normalised weighted distance to per-dimension targets, integer arithmetic, single truncation. [ADR 0004](../adr/0004-phase-1-contracts.md) §3 and §6. 2026-08-01 |
 | Q-004 | Will the proposed repository structure be approved as the bootstrap structure? | Partly. [ADR 0002](../adr/0002-phase-1-structural-foundation.md) §6 ratifies a reduced Phase 1 layout; §6 of the architecture document remains the target shape. 2026-07-31 |
+| Q-005 | Which observations define success for the first internal human playtest? | Five per-encounter observations; points 2–4 are the GDD's advance gate, point 5 is the design question. [ADR 0004](../adr/0004-phase-1-contracts.md) §12. 2026-08-01 |
 | Q-006 | Which exact Godot 4.x version and desktop export targets will be pinned? | DEC-015 / [ADR 0001](../adr/0001-pin-godot-version.md), 2026-07-31 |
 | Q-007 | Which remaining architectural proposal items should be promoted to approved decisions? | DEC-016 / [ADR 0002](../adr/0002-phase-1-structural-foundation.md), which supersedes DEC-009. 2026-07-31 |
 
 ### Next Actions
 
-1. Accept [#14](https://github.com/rkhanna24/NeonKitchen-godot/issues/14) and
-   close it, which unblocks #2 and #4.
-2. Select the headless GDScript test framework in [#7](https://github.com/rkhanna24/NeonKitchen-godot/issues/7).
-3. [#2 — Bootstrap the Godot project and quality gates](https://github.com/rkhanna24/NeonKitchen-godot/issues/2),
-   scaffolding only the ADR 0002 §6 layout, recording exact warning levels, and
-   adding the no-randomness grep check.
-4. [#4 — Lock the Phase 1 contracts](https://github.com/rkhanna24/NeonKitchen-godot/issues/4),
-   with integer customer weights and fields for five commands and eight events
-   only.
+1. [#3 — Implement typed Resource definitions and validation](https://github.com/rkhanna24/NeonKitchen-godot/issues/3),
+   against the schemas in ADR 0004.
+2. [#8 — Author the minimal fixtures](https://github.com/rkhanna24/NeonKitchen-godot/issues/8):
+   three ingredients, two customers, exercising all four bands and a hard
+   violation.
+3. [#9 — Implement the deterministic evaluator](https://github.com/rkhanna24/NeonKitchen-godot/issues/9)
+   to ADR 0004 §3 and §6.
+4. [#6 — Golden and contract coverage](https://github.com/rkhanna24/NeonKitchen-godot/issues/6),
+   enumerating all seven fixture dishes.
 5. Activate task-scoped specialists only after their issues are Ready.
 
 ## Canonical Artifact Index
@@ -166,6 +166,8 @@ Kitchen Lead maintains these artifacts during Phase 1 without pretending to be a
 | `docs/adr/` | Durable architecture decision records | Active |
 | [ADR 0001](../adr/0001-pin-godot-version.md) | Pinned Godot 4.7.1 build, platform matrix, and upgrade policy | Accepted |
 | [ADR 0002](../adr/0002-phase-1-structural-foundation.md) | Narrowed Phase 1 structural foundation; supersedes DEC-009 | Accepted |
+| [ADR 0003](../adr/0003-test-framework.md) | GUT v9.7.1 as the headless test framework, fetched not vendored | Accepted |
+| [ADR 0004](../adr/0004-phase-1-contracts.md) | Commands, events, evaluator, fixtures, and playtest protocol | Accepted |
 | [NeonKitchen-godot](https://github.com/rkhanna24/NeonKitchen-godot) | Private implementation repository and issue tracker | Active |
 | [Neon Kitchen Development](https://github.com/users/rkhanna24/projects/1) | Managed status, priority, dependency, phase, and area tracking | Active |
 | [Phase 1 — Recipe Rules Prototype](https://github.com/rkhanna24/NeonKitchen-godot/milestone/1) | Current implementation milestone | Active |
@@ -287,9 +289,13 @@ Kitchen Lead maintains these artifacts during Phase 1 without pretending to be a
 - **Authority:** Human
 - **Date:** 2026-07-30
 
-### DEC-015
+### DEC-018
 
 - **Status:** Approved
+- **Note:** Originally recorded as DEC-015. Renumbered on 2026-08-01 after the
+  Godot version pin reused that identifier, creating a duplicate in this log.
+  This record was renumbered rather than the pin because nothing referenced it,
+  whereas the pin is cited by ADR 0001, ADR 0002, and Q-006.
 - **Decision:** Use the `docs/` directory in `NeonKitchen-godot` as the
   canonical, version-controlled Obsidian vault for the GDD, technical
   architecture, ADRs, agent definitions, and Kitchen Lead durable memory.
@@ -854,6 +860,59 @@ closed along the way.
 **Next**
 
 Push, confirm CI green on first run, then #4 locks the Phase 1 contracts.
+
+### 2026-08-01 — Session 010: Phase 1 contracts locked
+
+**Summary**
+
+Resolved issue #4. [ADR 0004](../adr/0004-phase-1-contracts.md) locks the
+evaluator, commands, events, invalid-action behaviour, fixture scope, and
+playtest protocol. Q-001, Q-003, and Q-005 are resolved, closing the last of the
+design questions.
+
+**Human-approved decisions**
+
+- DEC-017 / ADR 0004. Scoring is normalised weighted distance to per-dimension
+  targets, integer arithmetic, one deliberate truncation. Weight 0 means the
+  dimension is ignored, which is the tuning lever that makes multiple solutions
+  possible without vague targets. Four hard constraint kinds cap at 39. Feedback
+  selection is deterministic via explicit tie-breaks. Fixtures are three
+  ingredients and two customers, scoped as evaluator contract fixtures rather
+  than a playable slice.
+
+**Evidence**
+
+- The formula was validated computationally before being written down. Against
+  the GDD's worked example it returns 81 / Satisfied / strongest match Comfort /
+  largest miss Spicy; the GDD narrates that dish as Satisfied 78 with the same
+  two feedback fields. A perfect dish scores 100, the worst scores 0, and an
+  exhaustive two-dimension sweep over every target, weight, and dish value
+  stayed inside 0–100.
+- Overshooting is penalised as much as undershooting, which is what prevents
+  "more ingredients is always better" — a dominance risk the GDD names.
+- Rejected alternatives were compared against the same worked example rather
+  than argued abstractly. A ±1 tolerance scored it a full band higher, and a
+  direction-based model cannot express "spicy, but not too spicy".
+
+**Risks or limitations**
+
+- The GDD's Week 1 fixture count and its viability rule are in tension: three
+  ingredients admit only seven dishes, so requiring three satisfying solutions
+  with two different central ingredients would force targets so generous the
+  puzzle loses teeth. Resolved by scoping the fixtures as contract tests and
+  deferring the viability rule to the twelve-ingredient roster, audited in #6
+  across all 298 dishes.
+- Two defects were found in this log while recording the decision. **DEC-015 was
+  duplicated** — the Godot pin reused an identifier already held by the docs
+  vault decision. The vault record is renumbered DEC-018 because nothing
+  referenced it. Separately, Q-004 had been added to Resolved Questions in
+  session 006 without being removed from Open Questions.
+- Fixture identities and flavour values are approved in count and purpose only;
+  #8 authors the actual ingredients and customers.
+
+**Next**
+
+#3 typed Resources, #8 fixtures, #9 evaluator, #6 golden coverage.
 
 ---
 
