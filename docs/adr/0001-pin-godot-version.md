@@ -59,6 +59,14 @@ Two conditions make this the cheapest possible moment to choose:
    Linux desktop is deliberately best-effort so the week-5 release milestone
    does not acquire a third verification target.
 
+   > **Status as of 2026-08-01: not yet exercised.** No export has been produced
+   > on any platform. Export templates are not installed and no
+   > `export_presets.cfg` exists. This table states an intent for the release
+   > milestone, not a verified capability, and the two are easy to conflate when
+   > reading a table of "supported" targets. macOS distribution outside the
+   > development machine may additionally require notarisation, whose cost is
+   > unknown and unbudgeted.
+
 4. Adopt this **upgrade policy**:
    - **Patch releases within 4.7.x are accepted** after a headless import and a
      full pass of the repository's checks on the new build. Record the new exact
