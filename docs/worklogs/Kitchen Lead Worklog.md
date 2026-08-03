@@ -66,6 +66,7 @@ tags:
 | DEC-015 | Pin Godot 4.7.1 stable standard (non-.NET); develop on macOS arm64; support macOS arm64 and Windows x86_64 exports; accept 4.7.x patches but require a superseding ADR for a new minor. | Approved | Human and [ADR 0001](../adr/0001-pin-godot-version.md) |
 | DEC-016 | Ratify a narrowed Phase 1 structural foundation: interface independence and inward dependency direction; the full command/event vocabulary with cooking-challenge terms reserved but undefined; no randomness or wall-clock time in the domain; three ports (`ContentRepository` built, `RandomPort` and `CookingChallengePort` declared); a minimal repository layout; and six Godot-specific correctness rules. Supersedes DEC-009. | Approved | Human and [ADR 0002](../adr/0002-phase-1-structural-foundation.md) |
 | DEC-017 | Lock the Phase 1 evaluator contract: normalised weighted distance to per-dimension targets with integer arithmetic; weight 0 means the dimension is ignored; four hard constraint kinds capping at 39; deterministic feedback selection; five commands and eight events with typed fields; rejected commands emit no events; three ingredients and two customers as contract fixtures. | Approved | Human and [ADR 0004](../adr/0004-phase-1-contracts.md) |
+| DEC-019 | Activate the task-scoped Systems Cook via [[Systems Cook]], with a propose-and-stop loop, mandatory red-path proof, an adversarial pass aimed at unchecked claims, and Kitchen Lead `/code-review` before acceptance. Run specialists on Sonnet. Commit subjects ≤72 characters and bodies ≤15 lines, with detail on the issue per DEC-014. | Approved | Human |
 | DEC-018 | Use the repository `docs/` directory as the canonical, version-controlled Obsidian vault for game design, architecture, agent definitions, and durable project memory. | Approved | Human |
 
 ### Phase 1 Scope
@@ -162,6 +163,7 @@ New questions are added here as they arise.
 |---|---|---|
 | [[Neon Kitchen - Game Design Document]] | Authoritative game design and MAS architecture | Active |
 | [[Kitchen Lead]] | Stable Kitchen Lead operating definition | Active |
+| [[Systems Cook]] | Task-scoped GDScript implementation role | Active |
 | [[Kitchen Lead Worklog]] | Current state, decisions, evidence, and handoffs | Active |
 | [[technical_architecture\|Technical Architecture]] | Proposed modular architecture, extension seams, and GDScript/C# standards | Proposed v0.2 |
 | [[Home]] | Repository documentation-vault entry point | Active |

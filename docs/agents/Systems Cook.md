@@ -112,6 +112,12 @@ find them; hunting this specific pattern will.
 
 For each one you find, either make the claim true or delete the claim.
 
+If a gate check fires on something you believe is a false positive, **say so in
+the handoff rather than quietly working around it**. A check aimed at `preload`
+paths once fired on a comment in a port that named its own adapters — a
+heuristic catching a real design fault it was not written for. Silently
+rewording it would have discarded the finding.
+
 ### 6. Hand off
 
 Report, concisely:
