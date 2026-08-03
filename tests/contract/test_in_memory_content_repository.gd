@@ -44,3 +44,33 @@ func test_insertion_order_does_not_leak_into_iteration() -> void:
 
 	var expected: Array[StringName] = [&"ingredient.alpha", &"ingredient.mike", &"ingredient.zulu"]
 	assert_eq(ids, expected, "iteration must not reflect insertion order")
+
+
+func test_a_duplicate_content_id_is_reported_not_absorbed() -> void:
+	# The .tres repository refuses a set containing a duplicate. Silently
+	# keeping one here made the two implementations of one port disagree, and a
+	# golden case could drift by one definition with no diagnostic.
+	var first := IngredientDefinition.new()
+	first.content_id = &"ingredient.twin"
+	var second := IngredientDefinition.new()
+	second.content_id = &"ingredient.twin"
+	var pair: Array[IngredientDefinition] = [first, second]
+
+	var subject := InMemoryContentRepository.new(pair, [] as Array[CustomerDefinition])
+	assert_string_contains("\n".join(subject.problems()), "duplicate content_id")
+	assert_eq(subject.all_ingredients().size(), 1, "first entry wins")
+
+
+func test_a_null_or_unnamed_definition_is_reported() -> void:
+	var nameless := IngredientDefinition.new()
+	var entries: Array[IngredientDefinition] = [null, nameless]
+	var subject := InMemoryContentRepository.new(entries, [] as Array[CustomerDefinition])
+	var joined: String = "\n".join(subject.problems())
+	assert_string_contains(joined, "null entry")
+	assert_string_contains(joined, "empty content_id")
+	assert_eq(subject.all_ingredients().size(), 0)
+
+
+func test_the_fixture_set_has_no_structural_problems() -> void:
+	var subject := _build_repository() as InMemoryContentRepository
+	assert_eq(subject.problems().size(), 0, "fixtures must be structurally clean")

@@ -13,6 +13,8 @@ const ID_PATTERN: String = "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$"
 ## silently reinterpreted with today's semantics.
 const MAX_SCHEMA_VERSION: int = 1
 
+static var _cached_id_regex: RegEx = null
+
 
 ## Validates a whole content set and returns human-readable problems.
 ## An empty array means the content is safe for the domain to use.
@@ -233,16 +235,27 @@ static func _validate_customer_constraints(
 	return problems
 
 
+## The compiled id pattern, or null if it will not compile.
+static func _id_regex() -> RegEx:
+	if _cached_id_regex != null:
+		return _cached_id_regex
+	var regex := RegEx.new()
+	if regex.compile(ID_PATTERN) != OK:
+		return null
+	_cached_id_regex = regex
+	return _cached_id_regex
+
+
 static func _validate_id(id: StringName, kind: String) -> PackedStringArray:
 	var problems: PackedStringArray = []
 	if id == &"":
 		problems.append("%s: missing content_id" % kind)
 		return problems
-	var regex := RegEx.new()
-	var compiled: int = regex.compile(ID_PATTERN)
+	# Compiled once per run rather than once per identifier.
+	var regex: RegEx = _id_regex()
 	# Fail closed. Skipping the check when the pattern will not compile would
 	# silently accept every identifier, which is the opposite of this file's job.
-	if compiled != OK:
+	if regex == null:
 		problems.append("%s '%s': could not compile the content_id pattern" % [kind, id])
 		return problems
 	# `search` is not a full match, and PCRE `$` also matches before a trailing

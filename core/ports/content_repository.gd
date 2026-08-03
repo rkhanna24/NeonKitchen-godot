@@ -10,7 +10,16 @@
 ##   - a missing identifier returns `null` rather than raising;
 ##   - `all_*` returns definitions sorted by `content_id`, so iteration order is
 ##     deterministic and golden cases stay stable;
-##   - returned definitions are validated and must be treated as immutable.
+##   - returned definitions must be treated as immutable.
+##
+## Validation belongs to whichever implementation owns the content source. One
+## that loads from disk can validate the whole set and refuse to serve any of it
+## on failure; one handed definitions directly by its caller cannot promise more
+## than that it reports structural problems. The port therefore does not
+## guarantee validation on their behalf.
+##
+## This deliberately describes kinds of implementation rather than naming any:
+## a port that knows its adapters has the dependency arrow backwards.
 @abstract class_name ContentRepository
 extends RefCounted
 

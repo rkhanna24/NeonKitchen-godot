@@ -2,24 +2,53 @@
 ##
 ## This is a real substitute rather than a mock: it implements the same port and
 ## passes the same contract suite as the `.tres` repository. That is why ADR
-## 0002 could reject a mocking framework — the seams are exercised with genuine
+## 0003 could reject a mocking framework — the seams are exercised with genuine
 ## implementations.
 class_name InMemoryContentRepository
 extends ContentRepository
 
 var _ingredients: Dictionary[StringName, IngredientDefinition] = {}
 var _customers: Dictionary[StringName, CustomerDefinition] = {}
+var _problems: PackedStringArray = []
 
 
 func _init(
 	ingredients: Array[IngredientDefinition] = [], customers: Array[CustomerDefinition] = []
 ) -> void:
 	for ingredient: IngredientDefinition in ingredients:
-		if ingredient != null:
-			_ingredients[ingredient.content_id] = ingredient
+		if ingredient == null:
+			_problems.append("ingredient: null entry")
+			continue
+		if ingredient.content_id == &"":
+			_problems.append("ingredient: empty content_id")
+			continue
+		if _ingredients.has(ingredient.content_id):
+			_problems.append("ingredient '%s': duplicate content_id" % ingredient.content_id)
+			continue
+		_ingredients[ingredient.content_id] = ingredient
 	for customer: CustomerDefinition in customers:
-		if customer != null:
-			_customers[customer.content_id] = customer
+		if customer == null:
+			_problems.append("customer: null entry")
+			continue
+		if customer.content_id == &"":
+			_problems.append("customer: empty content_id")
+			continue
+		if _customers.has(customer.content_id):
+			_problems.append("customer '%s': duplicate content_id" % customer.content_id)
+			continue
+		_customers[customer.content_id] = customer
+
+
+## Structural problems in the supplied definitions: nulls, empty identifiers,
+## and duplicates.
+##
+## Not content validation -- that belongs to ContentValidator and to whoever
+## owns the source. These are the cases where silently accepting the input would
+## make this implementation disagree with the `.tres` one, which refuses a set
+## containing a duplicate. First entry wins rather than last, so the disagreement
+## is reported rather than absorbed.
+func problems() -> PackedStringArray:
+	return _problems.duplicate()
 
 
 func find_ingredient(content_id: StringName) -> IngredientDefinition:

@@ -27,10 +27,21 @@ func load_from(ingredient_dir: String, customer_dir: String) -> PackedStringArra
 	# export that dropped the directory produced a "validated and loaded"
 	# repository with nothing in it — the silent muddle-through rule 7 exists to
 	# prevent.
-	_problems.append_array(_check_directory(ingredient_dir, "ingredient"))
-	_problems.append_array(_check_directory(customer_dir, "customer"))
+	var ingredient_paths: PackedStringArray = []
+	var customer_paths: PackedStringArray = []
+	_problems.append_array(_check_directory(ingredient_dir, "ingredient", ingredient_paths))
+	_problems.append_array(_check_directory(customer_dir, "customer", customer_paths))
 
-	for path: String in _resource_paths(ingredient_dir):
+	# Stop here on a directory-level failure. Validating against an empty
+	# ingredient list would report every customer constraint as a dangling
+	# reference, burying the one true cause under one false message per
+	# constraint -- the opposite of an actionable diagnosis.
+	if not _problems.is_empty():
+		_delegate = InMemoryContentRepository.new()
+		_loaded = false
+		return _problems
+
+	for path: String in ingredient_paths:
 		var resource: Resource = load(path)
 		var ingredient := resource as IngredientDefinition
 		if ingredient == null:
@@ -38,7 +49,7 @@ func load_from(ingredient_dir: String, customer_dir: String) -> PackedStringArra
 			continue
 		ingredients.append(ingredient)
 
-	for path: String in _resource_paths(customer_dir):
+	for path: String in customer_paths:
 		var resource: Resource = load(path)
 		var customer := resource as CustomerDefinition
 		if customer == null:
@@ -81,14 +92,21 @@ func all_customers() -> Array[CustomerDefinition]:
 	return _delegate.all_customers()
 
 
-static func _check_directory(directory: String, kind: String) -> PackedStringArray:
-	# Not named `problems`: this class exposes a problems() method, and the
-	# local would shadow it.
+## Checks a directory and returns its `.tres` paths through `out_paths`, so the
+## tree is walked once per directory rather than once here and again by the
+## caller.
+##
+## Not named `problems`: this class exposes a problems() method and the local
+## would shadow it.
+static func _check_directory(
+	directory: String, kind: String, out_paths: PackedStringArray
+) -> PackedStringArray:
 	var found: PackedStringArray = []
 	if not DirAccess.dir_exists_absolute(directory):
 		found.append("%s directory does not exist: %s" % [kind, directory])
 		return found
-	if _resource_paths(directory).is_empty():
+	out_paths.append_array(_resource_paths(directory))
+	if out_paths.is_empty():
 		found.append("%s directory contains no .tres files: %s" % [kind, directory])
 	return found
 
