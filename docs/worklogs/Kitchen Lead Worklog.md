@@ -972,7 +972,7 @@ partially, and `AGENTS.md` records which rules rely on review instead.
 **Summary**
 
 Resolved issue #3. Typed `.tres` definitions, a content validator, the
-`ContentRepository` port and two implementations now exist, with 39 tests
+`ContentRepository` port and two implementations now exist, with 58 tests
 including a shared contract suite both repositories must pass.
 
 **Work completed**
@@ -991,7 +991,7 @@ including a shared contract suite both repositories must pass.
 
 **Evidence**
 
-- 39 tests pass; the gate, its own eight-scenario self-verification, and the
+- 58 tests pass; the gate, its own eight-scenario self-verification, and the
   applet parity check are all green.
 - The `.tres` repository refuses to serve anything when validation fails, as
   rule 7 requires, and that is asserted rather than assumed.

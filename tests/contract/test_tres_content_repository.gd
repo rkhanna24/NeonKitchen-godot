@@ -25,7 +25,10 @@ func test_invalid_content_is_reported_and_nothing_is_served() -> void:
 	# treated as no content at all rather than something to muddle through.
 	var loader := TresContentRepository.new()
 	var problems: PackedStringArray = loader.load_from(INVALID_DIR, CUSTOMER_DIR)
-	assert_gt(problems.size(), 0, "the broken fixture should be rejected")
+	# Names the actual defect. Asserting only problems.size() > 0 passed off the
+	# no_spice customer's dangling tag reference instead, so deleting the range
+	# violation from broken.tres would have left this green.
+	assert_string_contains("\n".join(problems), "outside 0..3")
 	assert_false(loader.is_loaded())
 	assert_eq(loader.all_ingredients().size(), 0, "nothing is served after a failure")
 	assert_null(loader.find_ingredient(&"ingredient.broken"))
