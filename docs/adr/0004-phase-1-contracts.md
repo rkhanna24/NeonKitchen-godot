@@ -208,6 +208,19 @@ the dish tasted like and which boundary it crossed.
 Constraints are evaluated against ingredient identity and tags only — never
 against flavour values.
 
+**A stated boundary is absolute regardless of the reason given for it.** "No
+soy" means no soy, whether the customer describes an allergy, an intolerance, or
+a dislike. The engine cannot distinguish them and does not try to: the reason
+lives in the explanation text and carries no mechanical weight. This is why
+dietary and allergen rules are one mechanism rather than two.
+
+A consequence worth stating for content authors: a constraint may put a target
+out of reach. If the only strong Comfort partner is forbidden, the customer
+cannot be fully satisfied on Comfort, and that is the intended shape of the
+puzzle rather than a content defect. The player works within the boundary.
+Transforming an ingredient so it no longer carries a tag is a cooking-technique
+idea and is deferred.
+
 ### 6. Feedback selection
 
 - **Strongest match** — the weighted dimension with the lowest penalty.
@@ -254,14 +267,53 @@ satisfying ADR 0002 §3's ordering requirement.
 
 `CustomerReacted` carries a **localisation key**, never prose, per ADR 0002.
 
-### 9. Evaluation is two stages, not one
+### 8a. Reaction key resolution
 
-Evaluation is split into two functions with a typed value between them:
+`CustomerReacted` carries one resolved key. `CustomerDefinition.reaction_key` is
+a **prefix**, not a complete key, and the most specific available key wins:
 
 ```text
-composition:  Array[IngredientDefinition]      -> FlavorProfile
-scoring:      FlavorProfile + CustomerDefinition -> Evaluation
+<prefix>.<band>.<qualifier>   most specific — deferred, not authored in Phase 1
+<prefix>.<band>               authored in Phase 1, one per band
+<prefix>                      fallback
 ```
+
+Phase 1 authors four lines per customer, one per rating band. A single static
+reaction would praise a dish that scored `DISSATISFIED`, which the GDD's worked
+example in §2.2 shows it must not.
+
+The qualifier level exists so a reaction can later respond to a specific
+ingredient or cooking technique without changing this schema, this contract, or
+the `CustomerReacted` event. It is deliberately unimplemented.
+
+Selection is a domain concern — the band and the dish are both domain facts —
+but it belongs with whatever emits `CustomerReacted`, not with the evaluator.
+
+### 9. Evaluation is three concerns behind one entry point
+
+```text
+composition:      Array[IngredientDefinition]              -> FlavorProfile
+flavour scoring:  FlavorProfile + CustomerDefinition       -> flavour result
+constraint check: Array[IngredientDefinition] + CustomerDefinition -> constraint result
+evaluation:       Array[IngredientDefinition] + CustomerDefinition -> Evaluation
+```
+
+`evaluation` is the only entry point callers use; it orchestrates the other
+three. Its inputs and output are unchanged from the original two-stage wording.
+
+> **Corrected 2026-08-02.** This section previously read
+> `scoring: FlavorProfile + CustomerDefinition -> Evaluation`, which is
+> impossible: `Evaluation` carries `constraint_satisfied` and
+> `violated_constraint_ids`, §5 requires constraints to be evaluated against
+> ingredient identity and tags, and a `FlavorProfile` carries five integers and
+> nothing else. The formula in §3 had been verified against five vectors; the
+> **signature** had not been checked against the output it was required to
+> produce. Found by a Systems Cook at the propose-and-stop step, before any code
+> was written.
+>
+> Splitting constraints out rather than passing the dish to the scorer follows
+> this section's own rationale: a change to constraint rules should no more
+> touch flavour scoring than a change to composition does.
 
 Phase 1 ships exactly **one** composer, `SumAndClamp`, implementing §1: sum each
 dimension across the dish and clamp to `0..5`. No other composer is built.
