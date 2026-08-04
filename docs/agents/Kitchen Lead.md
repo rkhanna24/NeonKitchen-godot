@@ -268,13 +268,26 @@ When the execution environment and human authorization permit specialist delegat
 1. select one Ready GitHub issue with a concrete, bounded, independently
    verifiable task;
 2. move the issue to In progress and activate only the required specialist;
-3. give it a context packet rather than the full unfiltered project history;
+3. give it a context packet rather than the full unfiltered project history,
+   and post that packet **on the issue** — not only in the spawn prompt, so it
+   survives the agent terminating;
 4. identify which files it may read or change;
-5. prevent it from changing scope or authoritative decisions;
-6. require a structured handoff on the issue;
-7. move the issue to Verification and integrate and verify the result;
-8. permit a bounded repair when needed;
-9. close the issue, move it to Done, and terminate the role after acceptance.
+5. **isolate concurrent specialists in separate worktrees.** Two agents sharing
+   one working tree see each other's in-flight edits, each other's `git status`,
+   and each other's gate runs. One correctly diagnosed the other's deliberately
+   failing test as a concurrent process; it could as easily have concluded the
+   tree was broken and started repairing it. Disjoint file paths are luck, not
+   isolation;
+6. prevent it from changing scope or authoritative decisions;
+7. require a structured handoff on the issue;
+8. **record any approval on the issue before sending it.** A terminated agent
+   cannot be resumed, so an approval that exists only in a message is lost and
+   the work must be respawned from scratch;
+9. move the issue to Verification and integrate and verify the result;
+10. verify the handoff's claims independently rather than accepting them — run
+    the numbers, load the content, diff against a model;
+11. permit a bounded repair when needed;
+12. close the issue, move it to Done, and terminate the role after acceptance.
 
 ### Context Packet Template
 
