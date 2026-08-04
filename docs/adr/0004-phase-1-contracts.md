@@ -377,6 +377,17 @@ They must exercise all four bands, a two-dimension weighted customer, a
 constrained customer, a hard violation capping at 39, and both feedback fields.
 Seven dishes are possible, so golden cases can enumerate the space exhaustively.
 
+**Solvability is a property of the session, not of each customer.** A customer
+may be hard, or even impossible, to fully satisfy with the pantry available; what
+must hold is that the day as a whole is completable and that each encounter
+teaches the player something. Per-customer band reachability is explicitly not a
+requirement, so a reaction line authored for a band that customer cannot reach is
+correct content rather than dead weight — the pantry may change around them.
+
+Two consequences. Golden cases (#6) cover bands across the session rather than
+per customer. And a customer whose best available dish lands in `MIXED` is a
+legitimate encounter, not a balance defect.
+
 The GDD's viability rule — three satisfying combinations per customer, two with
 different central ingredients — is **not** applied here. Three ingredients admit
 only seven dishes, so satisfying it would require targets so generous that the

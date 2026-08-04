@@ -121,8 +121,11 @@ func _dishes() -> Array:
 
 
 func test_every_rating_band_is_reachable_across_the_set() -> void:
-	# ADR 0004 §11 requires this of the content, and #6's golden cases depend
-	# on it. Reachability is a property of the content plus the evaluator, so
+	# Across the SET, deliberately not per customer. ADR 0004 §11 records that
+	# solvability is a session-level property: a customer may be impossible to
+	# fully satisfy with the current pantry, and a reaction line authored for a
+	# band they cannot reach is correct content, since the pantry may change
+	# around them. Reachability needs both the content and the evaluator, so
 	# nothing short of running both can assert it.
 	var seen: Dictionary[int, bool] = {}
 	for customer: CustomerDefinition in repository.all_customers():
