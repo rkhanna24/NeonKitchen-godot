@@ -10,6 +10,11 @@
 # See docs/adr/0003-test-framework.md.
 /addons/
 
+# Godot regenerates .translation resources from their source .csv on import,
+# byte-identically, so they are build output. The .csv and its .import descriptor
+# are committed; these are not.
+*.translation
+
 # Python development environment (gdtoolkit). Pinned in requirements-dev.txt.
 .venv/
 __pycache__/

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CustomerDefinition" format=3]
+
+[ext_resource type="Script" path="res://content/schemas/customer_constraint.gd" id="1_oe84r"]
+[ext_resource type="Script" path="res://content/schemas/customer_definition.gd" id="2_8t71b"]
+
+[resource]
+script = ExtResource("2_8t71b")
+content_id = &"customer.solar_tech"
+name_key = &"customer.solar_tech.name"
+request_key = &"customer.solar_tech.request"
+reaction_key = &"customer.solar_tech.reaction"
+savory_target = 3
+comfort_target = 5
+savory_weight = 2
+comfort_weight = 3

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="CustomerDefinition" format=3]
+
+[ext_resource type="Script" path="res://content/schemas/customer_constraint.gd" id="1_rl5oc"]
+[ext_resource type="Script" path="res://content/schemas/customer_definition.gd" id="2_32g25"]
+
+[sub_resource type="Resource" id="Resource_mwkf7"]
+script = ExtResource("1_rl5oc")
+subject = &"soy"
+explanation_key = &"customer.scrap_trader.constraint.soy"
+
+[resource]
+script = ExtResource("2_32g25")
+content_id = &"customer.scrap_trader"
+name_key = &"customer.scrap_trader.name"
+request_key = &"customer.scrap_trader.request"
+reaction_key = &"customer.scrap_trader.reaction"
+spicy_target = 1
+spicy_weight = 1
+comfort_weight = 2
+constraints = Array[ExtResource("1_rl5oc")]([SubResource("Resource_mwkf7")])

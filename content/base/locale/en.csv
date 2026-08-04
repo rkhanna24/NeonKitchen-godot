@@ -1,0 +1,20 @@
+keys,en
+ingredient.neon_noodles.name,Neon Noodles
+ingredient.neon_noodles.description,"Thick wheat noodles kept warm under a cheap heat lamp — the most reliably comforting thing in the pantry."
+ingredient.umami_broth.name,Umami Broth
+ingredient.umami_broth.description,"A rich soy-based stock simmered down for depth — savory and warming, but not for anyone avoiding soy."
+ingredient.ember_chili_paste.name,Ember Chili Paste
+ingredient.ember_chili_paste.description,"Fermented chilies pounded down with citrus peel — a fresh, sharp heat for anyone chasing something adventurous."
+customer.solar_tech.name,Solar Rig Tech
+customer.solar_tech.request,"Something hearty and savory, please — I've been rewiring solar panels on the north tower all shift and I want to feel human again."
+customer.solar_tech.reaction.delighted,"Warm, filling, exactly what these hands needed."
+customer.solar_tech.reaction.satisfied,"Good and warm — hit the spot after a shift like this."
+customer.solar_tech.reaction.mixed,"Decent, but it's not quite the hearty plate I was hoping for."
+customer.solar_tech.reaction.dissatisfied,"This isn't going to cut it after the shift I've had."
+customer.scrap_trader.name,Scrap-Market Trader
+customer.scrap_trader.request,"Something comforting with just a little kick — but keep the soy out, or I'll be miserable by morning."
+customer.scrap_trader.reaction.delighted,"Good warmth, no surprises — my stomach's still on my side."
+customer.scrap_trader.reaction.satisfied,"Good warmth, good kick, and my stomach's still on my side."
+customer.scrap_trader.reaction.mixed,"It's alright, but it's not really what I asked for."
+customer.scrap_trader.reaction.dissatisfied,"This isn't it. My stomach and I are going to have words about this one."
+customer.scrap_trader.constraint.soy,"No soy, whatever you do — my stomach's been fighting it for years."

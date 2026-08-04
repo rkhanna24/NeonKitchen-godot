@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="IngredientDefinition" format=3]
+
+[ext_resource type="Script" path="res://content/schemas/ingredient_definition.gd" id="1_nahg0"]
+
+[resource]
+script = ExtResource("1_nahg0")
+content_id = &"ingredient.ember_chili_paste"
+name_key = &"ingredient.ember_chili_paste.name"
+description_key = &"ingredient.ember_chili_paste.description"
+spicy = 3
+fresh = 1
+adventurous = 2
+tags = Array[StringName]([&"fermented", &"vegan"])
