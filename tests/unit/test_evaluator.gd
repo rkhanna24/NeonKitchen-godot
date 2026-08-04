@@ -158,3 +158,22 @@ func test_band_boundaries_are_exact_at_the_hard_edges() -> void:
 	assert_eq(Evaluation.band_for_score(85), Evaluation.RatingBand.DELIGHTED)
 	assert_eq(Evaluation.band_for_score(0), Evaluation.RatingBand.DISSATISFIED)
 	assert_eq(Evaluation.band_for_score(100), Evaluation.RatingBand.DELIGHTED)
+
+
+func test_evaluation_arrays_cannot_be_mutated_by_a_caller() -> void:
+	# Evaluator passes these straight through from the two sub-results, so they
+	# are shared instances. Before this, a caller could clear() per_dimension or
+	# append to violated_constraint_ids and silently change a cached result and
+	# the event payload built from it. Verified.
+	var ingredient := IngredientDefinition.new()
+	ingredient.content_id = &"ingredient.probe"
+	ingredient.comfort = 3
+	var customer := CustomerDefinition.new()
+	customer.content_id = &"customer.probe"
+	customer.comfort_target = 3
+	customer.comfort_weight = 2
+	var dish: Array[IngredientDefinition] = [ingredient]
+
+	var evaluation: Evaluation = Evaluator.evaluate(dish, customer)
+	assert_true(evaluation.per_dimension.is_read_only(), "per_dimension must be frozen")
+	assert_true(evaluation.violated_constraint_ids.is_read_only(), "violated ids must be frozen")

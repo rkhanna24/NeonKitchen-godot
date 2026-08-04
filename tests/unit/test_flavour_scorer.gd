@@ -87,7 +87,10 @@ func test_weight_zero_excludes_a_dimension_from_score_and_feedback() -> void:
 	customer.comfort_weight = 1
 
 	# Savory is wildly off-target but unweighted; it must not move the score
-	# or ever surface as strongest match or largest miss.
+	# or surface as strongest match. It cannot surface as largest miss either,
+	# because `has_largest_miss` is false here — the raw `largest_miss` field
+	# holds SAVORY as the unset filler, which is exactly why the flag must be
+	# checked and not the field.
 	var with_savory: FlavourScorer.Result = FlavourScorer.score(_profile(5, 0, 0, 3, 0), customer)
 	var without_savory: FlavourScorer.Result = FlavourScorer.score(
 		_profile(0, 0, 0, 3, 0), customer
@@ -96,6 +99,7 @@ func test_weight_zero_excludes_a_dimension_from_score_and_feedback() -> void:
 	assert_eq(with_savory.score, without_savory.score)
 	assert_eq(with_savory.score, 100)
 	assert_ne(with_savory.strongest_match, Flavor.Dimension.SAVORY)
+	assert_false(with_savory.has_largest_miss, "a perfect weighted match has no miss")
 	assert_eq(with_savory.per_dimension.size(), 1, "only the weighted dimension is reported")
 
 

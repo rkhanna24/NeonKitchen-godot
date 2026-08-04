@@ -74,6 +74,18 @@ func _init(
 	largest_miss = p_largest_miss
 	per_dimension = p_per_dimension
 
+	# Read-only so a caller cannot mutate a result after the fact. Evaluator
+	# passes these arrays straight through from the two sub-results, so they are
+	# shared instances and mutating one mutated the other. Verified before this
+	# guard: per_dimension.clear() emptied it and violated_constraint_ids
+	# accepted an appended value.
+	#
+	# This freezes the arrays, not the DimensionScore objects inside them and not
+	# the scalar fields. Full immutability would need private backing and getters
+	# for nine fields; that is a known gap, not something this line solves.
+	violated_constraint_ids.make_read_only()
+	per_dimension.make_read_only()
+
 
 ## Maps a final 0..100 score to its rating band, per ADR 0004 section 4.
 static func band_for_score(final_score: int) -> RatingBand:

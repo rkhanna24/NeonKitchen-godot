@@ -22,6 +22,18 @@ enum Kind { REQUIRE_INGREDIENT, FORBID_INGREDIENT, REQUIRE_TAG, FORBID_TAG }
 @export var explanation_key: StringName = &""
 
 
+## Whether `kind` is one of the four declared values.
+##
+## `.tres` is editable text and Godot does not clamp an exported enum on load,
+## so an out-of-range value is reachable. `is_forbidding()` and
+## `is_ingredient_kind()` both answer `false` for one, which reads as
+## REQUIRE_TAG semantics — so an unknown kind silently inverted a FORBID_TAG
+## boundary. Callers evaluating a constraint must check this first.
+func is_valid_kind() -> bool:
+	var index: int = int(kind)
+	return index >= 0 and index < Kind.size()
+
+
 func is_ingredient_kind() -> bool:
 	return kind == Kind.REQUIRE_INGREDIENT or kind == Kind.FORBID_INGREDIENT
 

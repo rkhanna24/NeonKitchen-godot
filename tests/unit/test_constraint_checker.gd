@@ -133,3 +133,28 @@ func test_multiple_constraints_report_every_violation() -> void:
 	)
 	assert_false(result.satisfied)
 	assert_eq(result.violated_constraint_ids.size(), 2)
+
+
+func test_an_uninterpretable_kind_fails_closed() -> void:
+	# `.tres` is editable text and Godot does not clamp an exported enum on
+	# load. Before this guard, kind=99 made both is_forbidding() and
+	# is_ingredient_kind() false, which reads as REQUIRE_TAG — so a
+	# soy-forbidding customer ACCEPTED a soy dish. Verified.
+	var broth := IngredientDefinition.new()
+	broth.content_id = &"ingredient.broth"
+	broth.tags = [&"soy"]
+	var rule := CustomerConstraint.new()
+	rule.kind = 99 as CustomerConstraint.Kind
+	rule.subject = &"soy"
+	assert_false(rule.is_valid_kind(), "99 is not a declared kind")
+
+	var customer := CustomerDefinition.new()
+	customer.content_id = &"customer.probe"
+	customer.comfort_target = 3
+	customer.comfort_weight = 2
+	var rules: Array[CustomerConstraint] = [rule]
+	customer.constraints = rules
+	var dish: Array[IngredientDefinition] = [broth]
+
+	var result: ConstraintChecker.Result = ConstraintChecker.check(dish, customer)
+	assert_false(result.satisfied, "an uninterpretable boundary must fail closed")

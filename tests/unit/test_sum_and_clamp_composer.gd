@@ -35,8 +35,15 @@ func test_clamps_surplus_to_max_dish_value() -> void:
 		_ingredient(0, 0, 0, 3, 0),
 		_ingredient(0, 0, 0, 3, 0),
 	]
-	var profile: FlavorProfile = SumAndClampComposer.compose(dish)
-	assert_eq(profile.get_value(Flavor.Dimension.COMFORT), Flavor.MAX_DISH_VALUE)
+	# Asserted through compose_values, NOT through the returned FlavorProfile.
+	# FlavorProfile._init clamps independently, so going through compose() left
+	# this test green with the composer's clamp deleted entirely — verified.
+	var values: Array[int] = SumAndClampComposer.compose_values(dish)
+	assert_eq(values[int(Flavor.Dimension.COMFORT)], Flavor.MAX_DISH_VALUE)
+	# And through the public API, so the wiring is covered too.
+	assert_eq(
+		SumAndClampComposer.compose(dish).get_value(Flavor.Dimension.COMFORT), Flavor.MAX_DISH_VALUE
+	)
 
 
 func test_reordering_ingredients_does_not_change_the_result() -> void:
@@ -62,8 +69,10 @@ func test_empty_dish_composes_to_all_zero() -> void:
 
 
 func test_output_size_matches_dimension_count() -> void:
-	# The composer asserts this internally rather than relying on
-	# `FlavorProfile`'s silent size normalisation; this pins the observable
-	# consequence of that assertion holding.
-	var profile: FlavorProfile = SumAndClampComposer.compose([_ingredient(1, 1, 1, 1, 1)])
-	assert_eq(profile.to_array().size(), Flavor.DIMENSION_COUNT)
+	# Asserted on the raw values. Through `compose()` this could not fail:
+	# `FlavorProfile._init` resizes to DIMENSION_COUNT whatever it is given, so
+	# the old version of this test would have passed with the composer returning
+	# an array of any length.
+	var dish: Array[IngredientDefinition] = [_ingredient(1, 1, 1, 1, 1)]
+	assert_eq(SumAndClampComposer.compose_values(dish).size(), Flavor.DIMENSION_COUNT)
+	assert_eq(SumAndClampComposer.compose(dish).to_array().size(), Flavor.DIMENSION_COUNT)

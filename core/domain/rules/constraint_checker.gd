@@ -19,7 +19,7 @@ class Result:
 
 	## The `subject` of each violated constraint. `CustomerConstraint` carries
 	## no separate stable id of its own, so `subject` — an ingredient
-	## `content_id` or a tag, both already namespaced content identity — is
+	## `content_id` or a tag, an ingredient content_id is namespaced, a tag is not — is
 	## what identifies which boundary was crossed.
 	var violated_constraint_ids: Array[StringName]
 
@@ -41,6 +41,14 @@ static func check(ingredients: Array[IngredientDefinition], customer: CustomerDe
 static func _is_violated(
 	constraint: CustomerConstraint, ingredients: Array[IngredientDefinition]
 ) -> bool:
+	# Fail closed. An out-of-range `kind` cannot be interpreted, and both
+	# `is_forbidding()` and `is_ingredient_kind()` answer false for one, which
+	# would read as REQUIRE_TAG and silently invert a FORBID_TAG boundary — a
+	# soy-forbidding customer accepting a soy dish. Content validation rejects
+	# such a kind at load, but this function must not depend on that having run.
+	if not constraint.is_valid_kind():
+		return true
+
 	var present: bool = _dish_carries(constraint, ingredients)
 	# FORBID_* is violated when the subject is present; REQUIRE_* is violated
 	# when it is absent. See `CustomerConstraint.is_forbidding()`.
