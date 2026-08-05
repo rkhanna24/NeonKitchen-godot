@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CustomerDefinition" format=3]
+
+[ext_resource type="Script" path="res://content/schemas/customer_definition.gd" id="1_ngpoj"]
+
+[resource]
+script = ExtResource("1_ngpoj")
+content_id = &"customer.late_shift_medic"
+name_key = &"customer.late_shift_medic.name"
+request_key = &"customer.late_shift_medic.request"
+reaction_key = &"customer.late_shift_medic.reaction"
+fresh_target = 4
+comfort_target = 1
+fresh_weight = 3
+comfort_weight = 2

@@ -18,3 +18,11 @@ customer.scrap_trader.reaction.satisfied,"Good warmth, good kick, and my stomach
 customer.scrap_trader.reaction.mixed,"It's alright, but it's not really what I asked for."
 customer.scrap_trader.reaction.dissatisfied,"This isn't it. My stomach and I are going to have words about this one."
 customer.scrap_trader.constraint.soy,"No soy, whatever you do — my stomach's been fighting it for years."
+ingredient.rooftop_greens.name,Rooftop Greens
+ingredient.rooftop_greens.description,"Leafy greens pulled straight from the truck's rooftop planter — crisp, cool, and the closest thing to fresh air on this block."
+customer.late_shift_medic.name,Late-Shift Medic
+customer.late_shift_medic.request,"Something fresh and light, please — nothing heavy. I've been elbow-deep in triage since second shift and my stomach won't forgive anything rich right now."
+customer.late_shift_medic.reaction.delighted,"Light, clean, and exactly what my stomach needed after a shift like that."
+customer.late_shift_medic.reaction.satisfied,"Good and light — I can actually feel human again."
+customer.late_shift_medic.reaction.mixed,"It's alright, but heavier than I wanted after tonight."
+customer.late_shift_medic.reaction.dissatisfied,"This is way too heavy. My stomach's not going to forgive either of us for this."

@@ -18,6 +18,9 @@ extends GutTest
 const INGREDIENT_DIR: String = "res://content/base/ingredients"
 const CUSTOMER_DIR: String = "res://content/base/customers"
 
+## Per ADR 0004 §1: a dish is 1 to 3 distinct ingredients.
+const MAX_DISH_INGREDIENTS: int = 3
+
 var repository: TresContentRepository = null
 
 
@@ -41,8 +44,8 @@ func _customer(id: StringName) -> CustomerDefinition:
 
 
 func test_the_set_is_the_approved_size() -> void:
-	assert_eq(repository.all_ingredients().size(), 3)
-	assert_eq(repository.all_customers().size(), 2)
+	assert_eq(repository.all_ingredients().size(), 4)
+	assert_eq(repository.all_customers().size(), 3)
 
 
 func test_neon_noodles_values_and_tags() -> void:
@@ -63,6 +66,16 @@ func test_ember_chili_paste_values_and_tags() -> void:
 	var i: IngredientDefinition = _ingredient(&"ingredient.ember_chili_paste")
 	assert_eq(i.flavour_values(), [0, 3, 1, 0, 2] as Array[int])
 	assert_true(i.has_tag(&"fermented"))
+
+
+func test_rooftop_greens_values_and_tags() -> void:
+	var i: IngredientDefinition = _ingredient(&"ingredient.rooftop_greens")
+	# The pantry's only Fresh source above 1, and it must stay Comfort 0: the
+	# medic's "nothing heavy" target is what makes it the answer to that
+	# request rather than a second comfort ingredient.
+	assert_eq(i.flavour_values(), [0, 0, 3, 0, 0] as Array[int])
+	assert_true(i.has_tag(&"raw"))
+	assert_true(i.has_tag(&"vegan"))
 
 
 func test_only_two_ingredients_contribute_comfort() -> void:
@@ -92,6 +105,18 @@ func test_scrap_trader_targets_and_weights() -> void:
 	assert_eq(c.reaction_key, &"customer.scrap_trader.reaction")
 
 
+func test_late_shift_medic_targets_and_weights() -> void:
+	var c: CustomerDefinition = _customer(&"customer.late_shift_medic")
+	# Fresh 4 is above the per-ingredient cap of 3, so it cannot be hit by any
+	# single ingredient — that is what forces a combination. Comfort target 1
+	# with weight 2 is "nothing heavy" as an active dislike; dropping the
+	# weight to 0 would silently turn it into indifference, per §2.
+	assert_eq(c.targets(), [0, 0, 4, 1, 0] as Array[int])
+	assert_eq(c.weights(), [0, 0, 3, 2, 0] as Array[int])
+	assert_eq(c.reaction_key, &"customer.late_shift_medic.reaction", "must be a prefix, per §8a")
+	assert_eq(c.constraints.size(), 0, "a flavour preference, not a boundary")
+
+
 func test_scrap_traders_boundary_is_a_forbid_not_a_require() -> void:
 	# `kind` is absent from scrap_trader.tres because FORBID_TAG is the class
 	# default and Godot omits default-valued fields. Flipping that default to
@@ -108,6 +133,14 @@ func test_scrap_traders_boundary_is_a_forbid_not_a_require() -> void:
 	assert_eq(rule.explanation_key, &"customer.scrap_trader.constraint.soy")
 
 
+## Every legal dish: 1 to `MAX_DISH_INGREDIENTS` distinct ingredients, per
+## ADR 0004 §1.
+##
+## The size cap is load-bearing, not decorative. While the pantry held three
+## ingredients the full power set was coincidentally all legal, so an uncapped
+## enumeration looked correct. The fourth ingredient makes 4-ingredient subsets
+## reachable, and those are not dishes the game can produce — enumerating them
+## would assert reachability against input the domain never receives.
 func _dishes() -> Array:
 	var ingredients: Array[IngredientDefinition] = repository.all_ingredients()
 	var out: Array = []
@@ -116,8 +149,19 @@ func _dishes() -> Array:
 		for index: int in range(ingredients.size()):
 			if mask & (1 << index) != 0:
 				dish.append(ingredients[index])
+		if dish.size() > MAX_DISH_INGREDIENTS:
+			continue
 		out.append(dish)
 	return out
+
+
+func test_dish_enumeration_respects_the_size_cap() -> void:
+	# Guards the cap above rather than trusting it: with four ingredients an
+	# uncapped power set yields 15 subsets, one of which is illegal.
+	var dishes: Array = _dishes()
+	assert_eq(dishes.size(), 14, "1-3 ingredient subsets of a 4-ingredient pantry")
+	for dish: Array in dishes:
+		assert_between(dish.size(), 1, MAX_DISH_INGREDIENTS, "illegal dish size enumerated")
 
 
 func test_every_rating_band_is_reachable_across_the_set() -> void:
