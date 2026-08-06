@@ -152,6 +152,20 @@ Guidance, not binding rules. Use judgment.
 If a routine content addition touches domain, presentation, persistence, and
 networking code, stop and request an architecture review.
 
+## Git Boundaries
+
+**Never `git push`, and never open a pull request.** Commit freely — the human
+squashes history and decides what reaches the remote, so a local commit is always
+enough. Work on a branch and leave it there.
+
+**Commit only what you can account for.** If a file is modified or untracked and
+it was not in your pre-flight `git status`, it is not yours; leave it and say so.
+A concurrent session may be editing the same tree.
+
+Both rules are load-bearing rather than ceremonial: agents dispatched by
+`tools/run_crew.sh` run under `--permission-mode bypassPermissions`, where this
+guidance is the only thing standing between them and the remote.
+
 ## Verification
 
 Run the project gate. It is one command, and CI runs the identical script:
