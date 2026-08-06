@@ -89,8 +89,30 @@ stop a push. Work on a branch and let the human move it.
 
 - tone, canon, cultural or dietary framing — the human owns canon;
 - anything requiring an ADR or GDD change;
-- a specialist disagreeing with an ADR. That may mean the ADR is wrong, which has
-  happened: a specialist once found ADR 0004 §9 stated an impossible signature.
+- a specialist disagreeing with an ADR.
+
+## Expect the specification to be wrong
+
+**ADR 0004 has been corrected six times in Phase 1, every time at propose-and-stop
+and every time before code existed.** An impossible signature, an error code with
+no contract behind it, a type referenced but never defined, an unwritten
+command-to-event mapping, a transition no session can perform, and a resolution
+scheme needing a port nobody built.
+
+Two things follow, and both are about you rather than the specialist.
+
+**A specialist returning a contradiction instead of code has done the job.** It is
+the step working, not a stall. Do not press it to proceed on the reading that
+happens to be implementable.
+
+**Expect most findings to be yours.** Five of those six originated in decisions
+the coordinator wrote, because the coordinator is who writes contracts. Two came
+from decisions made a day apart that were each correct alone. When a specialist
+reports that your packet contradicts an ADR, or that an ADR contradicts itself,
+the base rate says check your own work first.
+
+None of these were bugs, and no test could have caught any of them. Full account
+and the five recurring shapes: `docs/agents/Phase 1 Agent Team.md`.
 
 ## The failure mode to watch for
 

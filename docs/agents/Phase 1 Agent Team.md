@@ -144,6 +144,65 @@ stage consumes the previous stage's file.
 untracked and was absent from the pre-flight `git status`, it belongs to another
 session. The first crew run met this case and correctly declined to commit.
 
+## Specifications are incomplete, and that is normal
+
+Every decision in this project was correct when it was made, against the
+information available then. Several stopped being correct once a later decision
+interacted with them, and **none of those interactions were visible until someone
+tried to implement against the combination.**
+
+Phase 1 has corrected ADR 0004 six times. Every one was found at the
+propose-and-stop step, before any code was written:
+
+| What was wrong | How it got that way |
+|---|---|
+| §9 declared a signature that could not produce its own output type | The formula had been verified against five vectors; the *signature* was never checked against what it had to return |
+| §10 specified `INVALID_PHASE` with no phase model anywhere | An error code outlived the contract it referenced |
+| `EncounterResult` was referenced by an event and never defined | The only type in the document named but not specified |
+| No command-to-event mapping existed | Derivable for four of five commands, so nobody wrote it — leaving the one that emits three events with no specified order |
+| `AWAITING_CUSTOMER → ENDED` described a transition no session can perform | Two decisions made a day apart, each correct alone; the second silently killed a branch of the first |
+| §8a described three resolution tiers requiring a port that does not exist | A scheme written for the system as imagined, not as built |
+
+### Five ways a specification goes wrong
+
+Only the first is carelessness. Knowing the other four is what makes them
+findable.
+
+1. **Referenced but never defined.** A name used as though it were specified.
+   Search for every type and error code a document names, then check each one is
+   defined somewhere.
+2. **Derivable but unwritten.** Everyone can infer it, so nobody records it — and
+   then two readers infer differently. Ask what you had to work out for yourself;
+   that is the unwritten part.
+3. **Individually correct, jointly contradictory.** The most dangerous kind,
+   because neither document is wrong on its own. Ask what a *later* decision made
+   impossible in an earlier one.
+4. **Assumes machinery that does not exist.** A contract written for one more
+   layer of system than has been built. Ask what would have to exist for this to
+   be implementable, and check that it does.
+5. **A principle illustrated too narrowly.** The rule and its example disagree,
+   and whoever implements it follows the example. Ask whether the stated principle
+   reaches further than the case given.
+
+### What this means for each role
+
+**For a specialist:** finding a contract wrong is an *expected outcome of reading
+it carefully*, not an exception and not a reason to stop. The ADR is authority,
+but authority is not correctness — it has been wrong six times. When your packet
+and a document disagree, or a document disagrees with itself, **report it rather
+than picking the reading that lets you proceed.** A confident implementation of an
+ambiguous contract is the expensive failure; a paragraph at propose time is the
+cheap one.
+
+**For the Kitchen Lead:** a specialist returning a contradiction instead of code
+has done the job, not failed it. Treat it as the step working. And expect most
+findings to be *yours* — of the six above, five originated in decisions the
+coordinator wrote, because the coordinator is who writes contracts.
+
+None of these were bugs. **No test could have caught any of them**, which is
+precisely why the propose step exists alongside the gate rather than being
+redundant with it.
+
 ## Role-to-backlog mapping
 
 Phase 1 as of 2026-08-05. Work the Kitchen Lead does directly is listed, because

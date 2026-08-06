@@ -74,3 +74,11 @@ band is correct content — the pantry may change around them.
 
 State plainly whether you ran the real evaluator or computed by hand. If a
 number surprises you, say so rather than rounding toward the answer you expect.
+
+**If the ADR itself looks wrong, report that too.** It has been corrected six
+times in Phase 1, always by someone reading it closely before building against
+it. The failures repeat in shapes worth knowing: a name referenced but never
+defined, a rule everyone can derive so nobody wrote down, two decisions that
+contradict only in combination, a scheme needing machinery nobody built, and a
+principle whose example is narrower than the rule. **The ADR is authority;
+authority is not correctness.** See `docs/agents/Phase 1 Agent Team.md`.

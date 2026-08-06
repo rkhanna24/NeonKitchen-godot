@@ -60,6 +60,41 @@ is the ADR; the code is one reading of it.
 Run `./scripts/setup.sh` then `./scripts/check.sh` before changing anything, so
 you know the tree was green when you started.
 
+### Read expecting the specification to be incomplete
+
+**ADR 0004 has been corrected six times in Phase 1, every time at this step.**
+Each decision was correct when made; several stopped being correct once a later
+one interacted with them, and no interaction was visible until someone tried to
+implement against the combination.
+
+Five things to look for. Only the first is carelessness — the rest are structural
+and will keep happening:
+
+1. **Referenced but never defined.** Check that every type and error code the
+   document names is defined somewhere. `EncounterResult` was referenced by an
+   event for weeks with no fields; `INVALID_PHASE` named a phase model that did
+   not exist.
+2. **Derivable but unwritten.** Ask what you had to work out for yourself — that
+   is the unwritten part, and the next reader will work it out differently.
+   Nothing mapped commands to the events they emit, so the one command emitting
+   three had no specified order.
+3. **Individually correct, jointly contradictory.** Ask what a *later* decision
+   made impossible in an earlier one. A phase table and a validation rule written
+   a day apart left one transition unreachable, and neither was wrong alone.
+4. **Assumes machinery that does not exist.** Ask what would have to exist for
+   this to be implementable, then check that it does. §8a specified three
+   resolution tiers requiring a port nobody has built.
+5. **A principle illustrated too narrowly.** Ask whether the stated rule reaches
+   further than its example. A precedence rule given only for one command was
+   implemented only for that command.
+
+Finding one is **an expected outcome of reading carefully**, not an exception and
+not a reason to stop early. Report it in your proposal. The ADR is authority, and
+authority is not correctness.
+
+None of these were bugs, and **no test could have caught any of them.** That is
+why this step exists alongside the gate rather than duplicating it.
+
 ### 2. Propose — then STOP
 
 Before writing implementation code, hand back a short proposal:

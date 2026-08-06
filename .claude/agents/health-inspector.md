@@ -72,3 +72,9 @@ Your report is worthless without the actual command output. Include:
 If content will not load or validate, say exactly what failed and stop. A clear
 `FAIL` with the validator's message is worth more than content that loads because
 you quietly changed it.
+
+The same applies to the specification. **If a section of ADR 0004 cannot be
+satisfied as written, report that rather than choosing the reading that lets you
+finish.** It has been corrected six times in Phase 1, every time by someone
+reading it closely before building against it, and every time before the mistake
+reached code. See `docs/agents/Phase 1 Agent Team.md`.

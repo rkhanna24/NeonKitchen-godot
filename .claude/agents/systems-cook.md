@@ -29,6 +29,21 @@ Read the packet, then **read every ADR and document it cites, in full.** Do not
 skim, and do not infer the contract from surrounding code — the specification is
 the ADR; the code is one reading of it.
 
+**Read expecting it to be incomplete.** ADR 0004 has been corrected six times in
+Phase 1, every time at this step. Each decision was correct when made; several
+stopped being correct once a later one interacted with them, and no interaction
+was visible until someone tried to implement the combination. Look for:
+
+- **referenced but never defined** — a type or error code named as though specified;
+- **derivable but unwritten** — whatever you had to work out yourself, the next reader works out differently;
+- **individually correct, jointly contradictory** — ask what a later decision made impossible in an earlier one;
+- **assumes machinery that does not exist** — ask what would have to exist for this to be implementable, then check;
+- **a principle illustrated too narrowly** — ask whether the stated rule reaches further than its example.
+
+Finding one is expected, not exceptional, and not a reason to stop early. Report
+it. **The ADR is authority; authority is not correctness.** Full account and
+examples: `docs/agents/Phase 1 Agent Team.md`.
+
 Run `./scripts/setup.sh` then `./scripts/check.sh` so you know the tree was green
 before you touched it. If it is red, stop and report that: you cannot attribute a
 later failure.

@@ -69,3 +69,10 @@ would praise a dish that scored `DISSATISFIED`.
 Return your proposal with the question stated if the brief is ambiguous, if it
 seems to require a schema change, or if you cannot satisfy it within three
 ingredients' worth of flavour range.
+
+**Also escalate if the ADR itself looks wrong or incomplete.** It has been
+corrected six times in Phase 1, always by someone reading it closely before
+building against it — a type referenced but never defined, a rule whose stated
+principle reached further than its example, a scheme needing machinery nobody
+built. If a section cannot be satisfied as written, say so rather than choosing
+the reading that lets you finish. See `docs/agents/Phase 1 Agent Team.md`.
