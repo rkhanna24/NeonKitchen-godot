@@ -21,6 +21,9 @@ project knowledge that governs *Neon Kitchen*.
   extension seams, code standards, and Phase 1 technical scope.
 - [[Kitchen Lead]] — persistent agent role, coordination protocol, and
   authority boundaries.
+- [[Phase 1 Agent Team]] — the team as a system: role contracts, task
+  allocation, message passing, status transitions, and which role owns which
+  backlog item.
 - [[Kitchen Lead Worklog]] — current project snapshot, durable decisions,
   evidence, risks, and milestone context.
 - [[adr/README|Architecture Decision Records]] — accepted technical decisions
