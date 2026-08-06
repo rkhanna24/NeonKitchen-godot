@@ -90,7 +90,9 @@ func test_constraint_violation_caps_score_at_39_but_keeps_flavour_feedback() -> 
 	assert_eq(evaluation.score, 39, "a hard violation caps the score at 39")
 	assert_eq(evaluation.band, Evaluation.RatingBand.DISSATISFIED)
 	assert_false(evaluation.constraint_satisfied)
-	assert_eq(evaluation.violated_constraint_ids, [&"spice"] as Array[StringName])
+	assert_eq(evaluation.violated_constraints.size(), 1)
+	assert_eq(evaluation.violated_constraints[0].subject, &"spice")
+	assert_eq(evaluation.violated_constraints[0].kind, CustomerConstraint.Kind.FORBID_TAG)
 	# The flavour match itself is unaffected by the cap: feedback and the
 	# per-dimension breakdown still reflect the same good match the worked
 	# example produced, proving the flavour score was computed and reported
@@ -163,7 +165,7 @@ func test_band_boundaries_are_exact_at_the_hard_edges() -> void:
 func test_evaluation_arrays_cannot_be_mutated_by_a_caller() -> void:
 	# Evaluator passes these straight through from the two sub-results, so they
 	# are shared instances. Before this, a caller could clear() per_dimension or
-	# append to violated_constraint_ids and silently change a cached result and
+	# append to violated_constraints and silently change a cached result and
 	# the event payload built from it. Verified.
 	var ingredient := IngredientDefinition.new()
 	ingredient.content_id = &"ingredient.probe"
@@ -176,4 +178,6 @@ func test_evaluation_arrays_cannot_be_mutated_by_a_caller() -> void:
 
 	var evaluation: Evaluation = Evaluator.evaluate(dish, customer)
 	assert_true(evaluation.per_dimension.is_read_only(), "per_dimension must be frozen")
-	assert_true(evaluation.violated_constraint_ids.is_read_only(), "violated ids must be frozen")
+	assert_true(
+		evaluation.violated_constraints.is_read_only(), "violated constraints must be frozen"
+	)

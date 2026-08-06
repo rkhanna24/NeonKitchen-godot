@@ -206,7 +206,8 @@ func test_the_soy_boundary_actually_caps_a_good_dish() -> void:
 	var capped: Evaluation = Evaluator.evaluate(dish, customer)
 	assert_false(capped.constraint_satisfied, "soy must be detected")
 	assert_eq(capped.score, 39, "a violation caps at 39")
-	assert_eq(capped.violated_constraint_ids, [&"soy"] as Array[StringName])
+	assert_eq(capped.violated_constraints.size(), 1)
+	assert_eq(capped.violated_constraints[0].subject, &"soy")
 
 	var safe: Array[IngredientDefinition] = [
 		_ingredient(&"ingredient.neon_noodles"), _ingredient(&"ingredient.ember_chili_paste")

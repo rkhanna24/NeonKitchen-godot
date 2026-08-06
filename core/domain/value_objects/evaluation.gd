@@ -40,10 +40,34 @@ class DimensionScore:
 		penalty = p_penalty
 
 
+## A value copy of one violated boundary, per ADR 0004 section 9's amendment.
+## Carries `kind`, `subject`, and `explanation_key` from the authored
+## `CustomerConstraint` — never a reference to it, for the same reason
+## `DimensionScore` is a copy: content Resources are shared and must be
+## treated as immutable at runtime (AGENTS.md rule 7).
+##
+## `kind` is what makes a violation identifiable: `REQUIRE_INGREDIENT(soy)`
+## and `FORBID_TAG(soy)` share a `subject` but are different boundaries, and a
+## bare subject could not tell them apart when both fire.
+class ViolatedConstraint:
+	extends RefCounted
+
+	var kind: CustomerConstraint.Kind
+	var subject: StringName
+	var explanation_key: StringName
+
+	func _init(
+		p_kind: CustomerConstraint.Kind, p_subject: StringName, p_explanation_key: StringName
+	) -> void:
+		kind = p_kind
+		subject = p_subject
+		explanation_key = p_explanation_key
+
+
 var score: int
 var band: RatingBand
 var constraint_satisfied: bool
-var violated_constraint_ids: Array[StringName]
+var violated_constraints: Array[ViolatedConstraint]
 var has_strongest_match: bool
 var strongest_match: Flavor.Dimension
 var has_largest_miss: bool
@@ -57,7 +81,7 @@ func _init(
 	p_score: int,
 	p_band: RatingBand,
 	p_constraint_satisfied: bool,
-	p_violated_constraint_ids: Array[StringName],
+	p_violated_constraints: Array[ViolatedConstraint],
 	p_has_strongest_match: bool,
 	p_strongest_match: Flavor.Dimension,
 	p_has_largest_miss: bool,
@@ -67,7 +91,7 @@ func _init(
 	score = p_score
 	band = p_band
 	constraint_satisfied = p_constraint_satisfied
-	violated_constraint_ids = p_violated_constraint_ids
+	violated_constraints = p_violated_constraints
 	has_strongest_match = p_has_strongest_match
 	strongest_match = p_strongest_match
 	has_largest_miss = p_has_largest_miss
@@ -77,13 +101,14 @@ func _init(
 	# Read-only so a caller cannot mutate a result after the fact. Evaluator
 	# passes these arrays straight through from the two sub-results, so they are
 	# shared instances and mutating one mutated the other. Verified before this
-	# guard: per_dimension.clear() emptied it and violated_constraint_ids
+	# guard: per_dimension.clear() emptied it and violated_constraints
 	# accepted an appended value.
 	#
-	# This freezes the arrays, not the DimensionScore objects inside them and not
-	# the scalar fields. Full immutability would need private backing and getters
-	# for nine fields; that is a known gap, not something this line solves.
-	violated_constraint_ids.make_read_only()
+	# This freezes the arrays, not the DimensionScore/ViolatedConstraint objects
+	# inside them and not the scalar fields. Full immutability would need
+	# private backing and getters for nine fields; that is a known gap, not
+	# something this line solves.
+	violated_constraints.make_read_only()
 	per_dimension.make_read_only()
 
 

@@ -134,11 +134,16 @@ func test_requiring_and_forbidding_the_same_thing_is_reported_once() -> void:
 	var ingredients: Array[IngredientDefinition] = [_ingredient("ingredient.noodles")]
 	var customers: Array[CustomerDefinition] = [customer]
 
+	var problems: PackedStringArray = _problems(ingredients, customers)
 	var matches: int = 0
-	for problem: String in _problems(ingredients, customers):
+	for problem: String in problems:
 		if problem.contains("both requires and forbids"):
 			matches += 1
 	assert_eq(matches, 1, "a contradiction should be reported exactly once")
+	assert_false(
+		_joined(problems).contains("authored twice"),
+		"a genuine contradiction is not the redundancy message"
+	)
 
 
 func test_an_ingredient_id_and_a_tag_sharing_text_are_not_a_contradiction() -> void:
@@ -159,6 +164,26 @@ func test_an_ingredient_id_and_a_tag_sharing_text_are_not_a_contradiction() -> v
 	assert_false(
 		joined.contains("both requires and forbids"),
 		"different namespaces must not be treated as a contradiction"
+	)
+
+
+func test_two_identical_forbid_tag_constraints_are_rejected() -> void:
+	# Two constraints stating the same boundary are not a richer boundary,
+	# they are the same boundary authored twice, and a violation report can't
+	# tell them apart. ADR 0004 section 5's amendment (DEC-021).
+	var customer := _customer("customer.mina")
+	var rules: Array[CustomerConstraint] = [
+		_constraint(CustomerConstraint.Kind.FORBID_TAG, &"noodle"),
+		_constraint(CustomerConstraint.Kind.FORBID_TAG, &"noodle"),
+	]
+	customer.constraints = rules
+	var ingredients: Array[IngredientDefinition] = [_ingredient("ingredient.noodles")]
+	var customers: Array[CustomerDefinition] = [customer]
+
+	var joined: String = _joined(_problems(ingredients, customers))
+	assert_string_contains(joined, "authored twice")
+	assert_false(
+		joined.contains("both requires and forbids"), "a redundant duplicate is not a contradiction"
 	)
 
 

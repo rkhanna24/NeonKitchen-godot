@@ -33,7 +33,7 @@ static func evaluate(
 		final_score,
 		Evaluation.band_for_score(final_score),
 		constraints.satisfied,
-		constraints.violated_constraint_ids,
+		constraints.violated_constraints,
 		flavour.has_strongest_match,
 		flavour.strongest_match,
 		flavour.has_largest_miss,

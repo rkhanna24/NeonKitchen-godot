@@ -209,12 +209,22 @@ static func _validate_customer_constraints(
 				)
 			)
 
-	# A customer who both requires and forbids the same thing can never be
-	# satisfied, and the contradiction is easy to author by accident.
+	# Two constraints sharing a `subject` and a side of the identity/tag
+	# divide are always rejected, regardless of direction, per ADR 0004
+	# section 5's amendment (DEC-021) — this is what makes `subject` plus
+	# `kind` unique within a customer, so a violation can be identified
+	# without an authored id. Kinds must also agree on namespace, since an
+	# ingredient id and a tag are different things that may share text.
+	#
+	# The message branches on direction, because the two cases are different
+	# authoring mistakes with different fixes: a REQUIRE paired with a FORBID
+	# on the same subject is a contradiction the customer can never satisfy,
+	# while two constraints agreeing on direction are a redundant duplicate —
+	# harmless mechanically, but still a boundary authored twice, which makes
+	# a violation report ambiguous for no benefit.
 	#
 	# Compare each unordered pair once: walking ordered pairs reported every
-	# contradiction twice. Kinds must also agree on namespace, since an
-	# ingredient id and a tag are different things that may share text.
+	# duplicate twice.
 	var count: int = customer.constraints.size()
 	for i: int in range(count):
 		var outer: CustomerConstraint = customer.constraints[i]
@@ -231,6 +241,10 @@ static func _validate_customer_constraints(
 			if outer.is_forbidding() != inner.is_forbidding():
 				problems.append(
 					"customer '%s': both requires and forbids '%s'" % [id, outer.subject]
+				)
+			else:
+				problems.append(
+					"customer '%s': same boundary on '%s' authored twice" % [id, outer.subject]
 				)
 	return problems
 

@@ -17,24 +17,29 @@ class Result:
 
 	var satisfied: bool
 
-	## The `subject` of each violated constraint. `CustomerConstraint` carries
-	## no separate stable id of its own, so `subject` — an ingredient
-	## `content_id` or a tag, an ingredient content_id is namespaced, a tag is not — is
-	## what identifies which boundary was crossed.
-	var violated_constraint_ids: Array[StringName]
+	## A value copy of each violated constraint — its `kind`, `subject`, and
+	## `explanation_key` — never a reference to the authored
+	## `CustomerConstraint`. See `Evaluation.ViolatedConstraint`.
+	var violated_constraints: Array[Evaluation.ViolatedConstraint]
 
-	func _init(p_satisfied: bool, p_violated_constraint_ids: Array[StringName]) -> void:
+	func _init(
+		p_satisfied: bool, p_violated_constraints: Array[Evaluation.ViolatedConstraint]
+	) -> void:
 		satisfied = p_satisfied
-		violated_constraint_ids = p_violated_constraint_ids
+		violated_constraints = p_violated_constraints
 
 
 ## Checks `ingredients` against every constraint `customer` carries (0-2, per
 ## section 5). `satisfied` is true only when none is violated.
 static func check(ingredients: Array[IngredientDefinition], customer: CustomerDefinition) -> Result:
-	var violated: Array[StringName] = []
+	var violated: Array[Evaluation.ViolatedConstraint] = []
 	for constraint: CustomerConstraint in customer.constraints:
 		if _is_violated(constraint, ingredients):
-			violated.append(constraint.subject)
+			violated.append(
+				Evaluation.ViolatedConstraint.new(
+					constraint.kind, constraint.subject, constraint.explanation_key
+				)
+			)
 	return Result.new(violated.is_empty(), violated)
 
 

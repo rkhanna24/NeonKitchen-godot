@@ -26,12 +26,23 @@ static func _customer_with(constraints: Array[CustomerConstraint]) -> CustomerDe
 	return customer
 
 
+## The `subject` of each violated constraint, in report order. Extracted
+## rather than comparing arrays directly: `ViolatedConstraint` is a
+## `RefCounted` value copy with no equality override, so array equality would
+## compare by identity, not content.
+static func _subjects(violated: Array[Evaluation.ViolatedConstraint]) -> Array[StringName]:
+	var subjects: Array[StringName] = []
+	for entry: Evaluation.ViolatedConstraint in violated:
+		subjects.append(entry.subject)
+	return subjects
+
+
 func test_no_constraints_is_always_satisfied() -> void:
 	var result: ConstraintChecker.Result = ConstraintChecker.check(
 		[_ingredient(&"ingredient.noodles")], _customer_with([])
 	)
 	assert_true(result.satisfied)
-	assert_eq(result.violated_constraint_ids.size(), 0)
+	assert_eq(result.violated_constraints.size(), 0)
 
 
 func test_require_ingredient_is_violated_when_absent() -> void:
@@ -42,7 +53,7 @@ func test_require_ingredient_is_violated_when_absent() -> void:
 		[_ingredient(&"ingredient.chili_crisp")], customer
 	)
 	assert_false(result.satisfied)
-	assert_eq(result.violated_constraint_ids, [&"ingredient.noodles"] as Array[StringName])
+	assert_eq(_subjects(result.violated_constraints), [&"ingredient.noodles"] as Array[StringName])
 
 
 func test_require_ingredient_is_satisfied_when_present() -> void:
@@ -63,7 +74,9 @@ func test_forbid_ingredient_is_violated_when_present() -> void:
 		[_ingredient(&"ingredient.chili_crisp")], customer
 	)
 	assert_false(result.satisfied)
-	assert_eq(result.violated_constraint_ids, [&"ingredient.chili_crisp"] as Array[StringName])
+	assert_eq(
+		_subjects(result.violated_constraints), [&"ingredient.chili_crisp"] as Array[StringName]
+	)
 
 
 func test_forbid_ingredient_is_satisfied_when_absent() -> void:
@@ -108,7 +121,7 @@ func test_forbid_tag_is_violated_when_any_ingredient_carries_it() -> void:
 	]
 	var result: ConstraintChecker.Result = ConstraintChecker.check(dish, customer)
 	assert_false(result.satisfied)
-	assert_eq(result.violated_constraint_ids, [&"spice"] as Array[StringName])
+	assert_eq(_subjects(result.violated_constraints), [&"spice"] as Array[StringName])
 
 
 func test_forbid_tag_is_satisfied_when_no_ingredient_carries_it() -> void:
@@ -132,7 +145,41 @@ func test_multiple_constraints_report_every_violation() -> void:
 		[_ingredient(&"ingredient.chili_crisp", [&"spice"] as Array[StringName])], customer
 	)
 	assert_false(result.satisfied)
-	assert_eq(result.violated_constraint_ids.size(), 2)
+	assert_eq(result.violated_constraints.size(), 2)
+
+
+## The measured case DEC-021 identifies: a REQUIRE_INGREDIENT and a
+## FORBID_TAG on the same subject can both fire, and a bare subject could not
+## tell them apart. `kind` distinguishes them.
+func test_require_ingredient_and_forbid_tag_on_the_same_subject_are_distinguishable() -> void:
+	var customer: CustomerDefinition = _customer_with(
+		[
+			_constraint(CustomerConstraint.Kind.REQUIRE_INGREDIENT, &"soy"),
+			_constraint(CustomerConstraint.Kind.FORBID_TAG, &"soy"),
+		]
+	)
+	# No ingredient has content_id "soy" (so REQUIRE_INGREDIENT fails), but the
+	# dish carries the "soy" tag (so FORBID_TAG fails too) — both fire.
+	var dish: Array[IngredientDefinition] = [
+		_ingredient(&"ingredient.broth", [&"soy"] as Array[StringName])
+	]
+	var result: ConstraintChecker.Result = ConstraintChecker.check(dish, customer)
+
+	assert_false(result.satisfied)
+	assert_eq(result.violated_constraints.size(), 2)
+	var kinds: Array[CustomerConstraint.Kind] = []
+	for entry: Evaluation.ViolatedConstraint in result.violated_constraints:
+		assert_eq(entry.subject, &"soy", "both violations share the subject 'soy'")
+		assert_eq(
+			entry.explanation_key,
+			&"fixture.constraint",
+			"explanation_key must be reachable without re-scanning customer.constraints"
+		)
+		kinds.append(entry.kind)
+	assert_true(
+		kinds.has(CustomerConstraint.Kind.REQUIRE_INGREDIENT), "the require must be identifiable"
+	)
+	assert_true(kinds.has(CustomerConstraint.Kind.FORBID_TAG), "the forbid must be identifiable")
 
 
 func test_an_uninterpretable_kind_fails_closed() -> void:
