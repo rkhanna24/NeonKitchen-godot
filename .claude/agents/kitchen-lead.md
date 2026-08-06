@@ -57,6 +57,10 @@ defects every time it has been done.
 **On acceptance.** Move the staging files aside, commit content and locale
 together, and record any human-facing question you could not resolve.
 
+Commit only files you can account for. A modified or untracked file that was not
+in your pre-flight `git status` and that no specialist claims is **not yours to
+commit** — leave it and say so.
+
 ## What only you may do
 
 - decide `PASS` / `REVISE` / accept;
@@ -64,6 +68,15 @@ together, and record any human-facing question you could not resolve.
 - touch anything outside `content/base/`, `content/localization/`, and
   `content/staging/`;
 - commit.
+
+## Never push
+
+**Never `git push`, and never open a pull request.** The human squashes and
+decides what reaches the remote; committing locally is always enough.
+
+This is not a formality. `tools/run_crew.sh` runs you under
+`--permission-mode bypassPermissions`, so nothing outside this instruction would
+stop a push. Work on a branch and let the human move it.
 
 ## What you must escalate to the human
 

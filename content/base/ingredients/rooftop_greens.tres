@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="IngredientDefinition" format=3]
+
+[ext_resource type="Script" path="res://content/schemas/ingredient_definition.gd" id="1_grfix"]
+
+[resource]
+script = ExtResource("1_grfix")
+content_id = &"ingredient.rooftop_greens"
+name_key = &"ingredient.rooftop_greens.name"
+description_key = &"ingredient.rooftop_greens.description"
+fresh = 3
+tags = Array[StringName]([&"raw", &"vegan"])
