@@ -208,6 +208,18 @@ the dish tasted like and which boundary it crossed.
 Constraints are evaluated against ingredient identity and tags only — never
 against flavour values.
 
+**A customer may not carry two constraints with the same `subject` on the same
+side of the identity/tag divide.** `ContentValidator` rejects the content set if
+one does. Two identical `FORBID_TAG(soy)` constraints are not a richer boundary,
+they are the same boundary authored twice, and they make a violation report
+ambiguous for no benefit. An ingredient `content_id` and a tag may share text
+without conflict, because they are different things — that pair is permitted, and
+§9's `ViolatedConstraint` records `kind` so a report can still distinguish them.
+
+This rule is what makes a boundary identifiable without inventing an authored id
+field. With duplicates unauthorable, `subject` plus `kind` is unique within a
+customer by construction.
+
 **A stated boundary is absolute regardless of the reason given for it.** "No
 soy" means no soy, whether the customer describes an allergy, an intolerance, or
 a dislike. The engine cannot distinguish them and does not try to: the reason
@@ -343,13 +355,44 @@ Output — `Evaluation`:
 | `score` | `int`, 0–100 |
 | `band` | `RatingBand` |
 | `constraint_satisfied` | `bool` |
-| `violated_constraint_ids` | `Array[StringName]` |
+| `violated_constraints` | `ViolatedConstraint` for each violated boundary |
 | `strongest_match` | `Dimension` or absent |
 | `largest_miss` | `Dimension` or absent |
 | `per_dimension` | target, actual, weight, penalty for each weighted dimension |
 
 `per_dimension` exists so tests and a future debug view can show the arithmetic
 without the evaluator formatting anything. It carries no display strings.
+
+`violated_constraints` carries a **value copy** of each violated boundary — its
+`kind`, `subject`, and `explanation_key` — not a reference to the authored
+`CustomerConstraint`. A copy for the same reason `per_dimension` is one: the
+evaluation is a statement about a moment, and content Resources are shared and
+must be treated as immutable at runtime (`AGENTS.md` rule 7).
+
+> **Amended 2026-08-05, superseding `violated_constraint_ids: Array[StringName]`.**
+> That field carried each violated constraint's `subject`, which cannot identify a
+> boundary. Measured on 4.7.1:
+>
+> ```text
+> two identical FORBID_TAG(soy)                 -> [&"soy", &"soy"]   validator: []
+> REQUIRE_INGREDIENT(soy) plus FORBID_TAG(soy)  -> [&"soy", &"soy"]
+> ```
+>
+> In the second case **both constraints genuinely fire** — the require fails
+> because no ingredient has that `content_id`, the forbid fails because the dish
+> carries the tag. Two identical entries stating opposite things: "you left soy
+> out" and "you put soy in". A presenter cannot tell them apart, cannot reach the
+> `explanation_key` holding the player-facing reason, and cannot distinguish
+> require from forbid.
+>
+> The `subject` was also documented as "already namespaced content identity",
+> which is false: `ContentValidator` applies `ID_PATTERN` to `content_id` only,
+> and a tag is checked for non-emptiness alone. Shipped tags are `soy`, `vegan`,
+> `gluten`, `fermented` — none namespaced. The docstring was corrected in
+> `688a337`; this amendment fixes the contract underneath it.
+>
+> §5 gains the duplicate-rejection rule that makes the remaining identity
+> question moot.
 
 ### 10. Invalid actions
 
