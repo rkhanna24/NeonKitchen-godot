@@ -266,14 +266,35 @@ golden cases pin the exact encounter sequence.
 Five phases. A command issued in a phase that does not list it is rejected with
 `INVALID_PHASE` (§10) and emits no event.
 
-| Phase | Legal commands | On success |
-|---|---|---|
-| `NOT_STARTED` | `StartSession` | → `AWAITING_CUSTOMER` |
-| `AWAITING_CUSTOMER` | `PresentCustomer` | → `BUILDING_DISH`, or → `ENDED` if the roster is exhausted |
-| `BUILDING_DISH` | `SelectIngredient`, `RemoveIngredient` | phase unchanged |
-| `BUILDING_DISH` | `SubmitDish` | → `SHOWING_RESULT` |
-| `SHOWING_RESULT` | `PresentCustomer` | → `BUILDING_DISH`, or → `ENDED` if the roster is exhausted |
-| `ENDED` | none | — |
+| Phase | Command | Emits, in order | On success |
+|---|---|---|---|
+| `NOT_STARTED` | `StartSession` | `SessionStarted` | → `AWAITING_CUSTOMER` |
+| `AWAITING_CUSTOMER` | `PresentCustomer` | `CustomerPresented`, or `SessionEnded` when the roster is exhausted | → `BUILDING_DISH`, or → `ENDED` |
+| `BUILDING_DISH` | `SelectIngredient` | `IngredientSelected` | phase unchanged |
+| `BUILDING_DISH` | `RemoveIngredient` | `IngredientRemoved` | phase unchanged |
+| `BUILDING_DISH` | `SubmitDish` | `DishSubmitted`, `DishEvaluated`, `CustomerReacted` | → `SHOWING_RESULT` |
+| `SHOWING_RESULT` | `PresentCustomer` | `CustomerPresented`, or `SessionEnded` when the roster is exhausted | → `BUILDING_DISH`, or → `ENDED` |
+| `ENDED` | none | — | — |
+
+The mapping was previously derivable but unwritten, which left the one command
+that emits more than one event unspecified. `SubmitDish`'s three events are
+ordered by causality: the dish is submitted, that submission is evaluated, and
+the customer reacts to that evaluation. Golden cases (#6) pin event sequences, so
+this order is contract, not convention.
+
+**`sequence` starts at 1 and increments per event, not per command.** A
+`SubmitDish` that emits three events consumes three numbers. It is unique and
+monotonic within one session and never reused, so a gap in the numbering means an
+event was lost rather than that a command was rejected — rejections emit nothing
+and consume nothing.
+
+**`CustomerPresented.index` is 0-based into the roster** given to `StartSession`,
+so it indexes that array directly.
+
+**The dish is cleared on `PresentCustomer`, not on `SubmitDish`.** During
+`SHOWING_RESULT` the dish that was just served is still readable, which is what
+lets a presenter show what the reaction was to. Clearing on submit would erase it
+at the moment it becomes worth displaying.
 
 `SessionEnded` is emitted on the transition into `ENDED`, which happens when
 `PresentCustomer` is issued with no customer remaining. The session does not end
@@ -461,6 +482,8 @@ implementation detail — replays must not contain rejected input.
 
 | Condition | Error |
 |---|---|
+| Unknown customer id in a `StartSession` roster | `UNKNOWN_CUSTOMER` |
+| Empty `StartSession` roster | `EMPTY_ROSTER` |
 | Unknown ingredient id | `UNKNOWN_INGREDIENT` |
 | Ingredient already selected | `DUPLICATE_INGREDIENT` |
 | Dish already holds three | `DISH_FULL` |
@@ -469,6 +492,18 @@ implementation detail — replays must not contain rejected input.
 | Any command in the wrong phase | `INVALID_PHASE` |
 
 Per AGENTS.md, these are recoverable player errors and must not use `assert`.
+
+**A repeated customer id in a roster is legal.** The same customer visiting twice
+in one shift is a plausible day, not an authoring mistake, and forbidding it would
+foreclose a design option that has not been considered yet. This differs
+deliberately from DEC-021's stance on duplicate *constraints*, which are rejected:
+two identical boundaries on one customer are the same boundary written twice and
+say nothing new, whereas two visits are two encounters with their own dishes and
+their own `EncounterResult`.
+
+`UNKNOWN_CUSTOMER` and `EMPTY_ROSTER` were added in DEC-023. `StartSession`
+receives its roster from the caller rather than from validated content, so the
+handler cannot assume the ids resolve — `ContentValidator` never sees this input.
 
 ### 11. Minimal fixture set (resolves Q-001)
 
