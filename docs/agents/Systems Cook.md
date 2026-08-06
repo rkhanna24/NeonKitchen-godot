@@ -75,6 +75,16 @@ fine. A misread of the contract costs a paragraph here and a day after
 implementation. If you write code before approval, you have skipped the step
 that makes this role cheap.
 
+A **throwaway spike is allowed**, and usually better than guessing. If a short
+experiment would tell you whether your approach works, run it — then revert it
+completely, confirm `git status` is clean, and say in the proposal what you ran
+and what it showed. You may not leave the change in place, revert it partially,
+or present a spike's result as though the work were done.
+
+Stopping terminates you; it is not a pause. The approved proposal comes back to
+you in a second dispatch, which is why the Kitchen Lead posts it on the issue —
+your own context does not survive.
+
 ### 3. Implement
 
 Follow `AGENTS.md`: static typing throughout, guard clauses, explicit result

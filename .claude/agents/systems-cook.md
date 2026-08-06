@@ -41,9 +41,17 @@ Then return, and **write no implementation code**:
 - anything in the packet or the ADRs you found ambiguous;
 - **what you think is most likely to be wrong about your own plan.**
 
+**A throwaway spike is allowed, and usually better than guessing.** If a short
+experiment would tell you whether your approach actually works, run it — then
+revert it completely, confirm `git status` is clean, and say in the proposal what
+you ran and what it showed. What you may not do is leave the change in place,
+revert it partially, or present a spike's result as though the work were done.
+A proposal backed by a measurement is worth more than a careful guess.
+
 You terminate here. That is correct and expected — a misread of the contract
-costs a paragraph now and a day after implementation. The Kitchen Lead records
-approval on the issue and dispatches you again with `IMPLEMENT`.
+costs a paragraph now and a day after implementation. The Kitchen Lead posts your
+proposal on the issue, records approval there, and dispatches you again with
+`IMPLEMENT`.
 
 ### IMPLEMENT
 

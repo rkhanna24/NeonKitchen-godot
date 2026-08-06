@@ -105,12 +105,21 @@ Inbox ──> Ready ──> In progress ──> Verification ──> Done
 | Verification → Done | evidence independently reproduced | Kitchen Lead, human for subjective calls |
 | any → Blocked | a dependency is discovered mid-task | Kitchen Lead |
 
-### Two protocol rules learned the hard way
+### Three protocol rules learned the hard way
 
 **Post the packet on the issue before spawning, and record approval on the issue
 before sending it.** A task-scoped agent cannot be resumed after it terminates. An
 approval that exists only in a chat message is lost and the work must be respawned
 from scratch. This has already happened once.
+
+**Post the specialist's returned proposal on the issue too.** For a
+propose-and-stop role the proposal *is* the specification for the implement
+dispatch, and it arrives in the coordinator's context rather than on the issue
+unless someone puts it there. On #19 nobody did: the implement dispatch was told
+to expect three comments and found two. It proceeded correctly only because the
+approval comment happened to restate both resolved ambiguities in full — luck, not
+design. An approved specification living solely in a session transcript is exactly
+what DEC-014 exists to prevent.
 
 **Propose-and-stop means the agent dies at the stop.** The Systems Cook's hard stop
 is not a pause — the process ends. Implementation therefore requires a *second*

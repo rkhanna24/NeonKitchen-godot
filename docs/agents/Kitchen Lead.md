@@ -287,9 +287,13 @@ When the execution environment and human authorization permit specialist delegat
    isolation;
 6. prevent it from changing scope or authoritative decisions;
 7. require a structured handoff on the issue;
-8. **record any approval on the issue before sending it.** A terminated agent
-   cannot be resumed, so an approval that exists only in a message is lost and
-   the work must be respawned from scratch;
+8. **post the specialist's returned proposal on the issue, then record the
+   approval there before sending it.** For a propose-and-stop role the proposal
+   *is* the specification for the next dispatch. A terminated agent cannot be
+   resumed, so a proposal or an approval that exists only in a session transcript
+   is lost and the work must be respawned from scratch. This has now happened to
+   both — an approval once, and #19's proposal, which survived only because the
+   approval comment happened to restate it in full;
 9. move the issue to Verification and integrate and verify the result;
 10. verify the handoff's claims independently rather than accepting them — run
     the numbers, load the content, diff against a model;
