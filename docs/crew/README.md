@@ -31,6 +31,69 @@ Output: typed Godot `.tres` resources in `content/base/`, plus localisation rows
 that load through the game's real repository, pass the game's real validator, and
 score through the game's real evaluator.
 
+## It has been run
+
+On 2026-08-05, against exactly the brief above, via `./tools/run_crew.sh`. Exit
+code 0, project gate green at 110 tests.
+
+The path it actually took was not a straight line:
+
+```
+Pantry Keeper -> Analyst (REVISE) -> Pantry Keeper -> Analyst (PASS)
+              -> Health Inspector (FAIL) -> Kitchen Lead repair -> accepted
+```
+
+**What it produced**
+
+| Output | Value |
+|---|---|
+| `ingredient.rooftop_greens` | Fresh 3, all else 0, tags `raw` `vegan` |
+| `customer.late_shift_medic` | Fresh target 4 weight 3, Comfort target 1 weight 2, no constraints |
+| `content/base/localization/en.csv` | 8 rows: name, description, request, four reaction bands |
+| `tests/content/test_phase_1_content.gd` | catalogue size, pinning tests, dish-enumeration cap |
+
+**What the game said about it** — `TresContentRepository.load_from` returned zero
+problems with `is_loaded()` true; `ContentValidator.validate` returned zero
+problems; every `Evaluator` score matched the Analyst's independent enumeration
+exactly; `scripts/check.sh` green at 110 tests.
+
+### Both round-trips were earned
+
+This is the part worth reading, because it is where the role boundaries stopped
+being a diagram and did some work.
+
+**The Analyst caught the Pantry Keeper in a false claim.** The proposal stated
+`scrap_trader`'s best existing dish was `ember_chili_paste + neon_noodles` at 80.
+The real best is `neon_noodles` alone at **90** — correct arithmetic attached to a
+strictly dominated dish and labelled "best". The Pantry Keeper has no `Bash`, so
+it hand-enumerated and missed a dish; the Analyst ran the engine over the whole
+dish space and found it. **Neither role catches this alone**, which is the entire
+argument for splitting them.
+
+**The Health Inspector refused twice, both times correctly.** Once because
+`balance.md` still recorded `REVISE` — the Kitchen Lead had decided `PASS` in
+conversation but never wrote it to the artifact, and the Inspector declined to act
+on its supervisor's say-so. Once on a real gate failure inside `tests/`, which is
+outside its boundary; it reported the failure instead of editing itself green.
+
+**The Kitchen Lead's own verification found a third defect** that no specialist
+reported: the test harness was enumerating illegal 4-ingredient dishes. The bug
+had been invisible while the pantry held three ingredients, because the full power
+set was then *coincidentally* legal.
+
+### What it refused to decide
+
+Both of the medic's top-scoring dishes require `ember_chili_paste`, so delighting
+someone who asked for "fresh and light, nothing heavy" required fiery fermented
+chili paste. Mechanically legal — the medic's Spicy weight is 0, so Spicy is
+ignored rather than disliked — but a contradiction between the model and the
+fiction. The crew escalated it as a tone call and deliberately did **not** resolve
+it by re-weighting Spicy. The human later did exactly that, on `main`.
+
+Full artifacts, including the Analyst's verbatim evaluator output:
+[`docs/worklogs/crew-runs/2026-08-05-late-shift-medic/`](../worklogs/crew-runs/2026-08-05-late-shift-medic/)
+— `proposal.md`, `balance.md`, `verification.md`, `acceptance.md`.
+
 ## The crew
 
 ```mermaid
