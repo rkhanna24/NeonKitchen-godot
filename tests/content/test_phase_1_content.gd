@@ -109,10 +109,18 @@ func test_late_shift_medic_targets_and_weights() -> void:
 	var c: CustomerDefinition = _customer(&"customer.late_shift_medic")
 	# Fresh 4 is above the per-ingredient cap of 3, so it cannot be hit by any
 	# single ingredient — that is what forces a combination. Comfort target 1
-	# with weight 2 is "nothing heavy" as an active dislike; dropping the
-	# weight to 0 would silently turn it into indifference, per §2.
+	# and Spicy target 0, both with non-zero weight, are "nothing heavy" and
+	# "nothing fiery" as active dislikes; dropping either weight to 0 would
+	# silently turn it into indifference, per §2.
+	#
+	# Spicy weight 2 is why this customer cannot reach DELIGHTED: Fresh 4 is
+	# only reachable as rooftop_greens(3) + ember_chili_paste(1), and the chili
+	# carries Spicy 3, so the only path to a perfect Fresh score is also the one
+	# the Spicy weight penalises. Their ceiling is 84 on rooftop_greens alone or
+	# with umami_broth. That is deliberate, and legal under §11 — solvability is
+	# a session property, so a customer may be impossible to fully satisfy.
 	assert_eq(c.targets(), [0, 0, 4, 1, 0] as Array[int])
-	assert_eq(c.weights(), [0, 0, 3, 2, 0] as Array[int])
+	assert_eq(c.weights(), [0, 2, 3, 2, 0] as Array[int])
 	assert_eq(c.reaction_key, &"customer.late_shift_medic.reaction", "must be a prefix, per §8a")
 	assert_eq(c.constraints.size(), 0, "a flavour preference, not a boundary")
 

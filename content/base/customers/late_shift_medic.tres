@@ -10,5 +10,6 @@ request_key = &"customer.late_shift_medic.request"
 reaction_key = &"customer.late_shift_medic.reaction"
 fresh_target = 4
 comfort_target = 1
+spicy_weight = 2
 fresh_weight = 3
 comfort_weight = 2
