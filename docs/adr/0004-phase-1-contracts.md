@@ -261,6 +261,38 @@ terms remains deferred by ADR 0002 §3.
 `StartSession` takes an explicit roster rather than reading a global default, so
 golden cases pin the exact encounter sequence.
 
+### 7a. Session phases (added 2026-08-06)
+
+Five phases. A command issued in a phase that does not list it is rejected with
+`INVALID_PHASE` (§10) and emits no event.
+
+| Phase | Legal commands | On success |
+|---|---|---|
+| `NOT_STARTED` | `StartSession` | → `AWAITING_CUSTOMER` |
+| `AWAITING_CUSTOMER` | `PresentCustomer` | → `BUILDING_DISH`, or → `ENDED` if the roster is exhausted |
+| `BUILDING_DISH` | `SelectIngredient`, `RemoveIngredient` | phase unchanged |
+| `BUILDING_DISH` | `SubmitDish` | → `SHOWING_RESULT` |
+| `SHOWING_RESULT` | `PresentCustomer` | → `BUILDING_DISH`, or → `ENDED` if the roster is exhausted |
+| `ENDED` | none | — |
+
+`SessionEnded` is emitted on the transition into `ENDED`, which happens when
+`PresentCustomer` is issued with no customer remaining. The session does not end
+on its own after the last submit: ending is an accepted fact caused by a command,
+like every other event.
+
+`AWAITING_CUSTOMER` and `SHOWING_RESULT` accept the same single command, and that
+redundancy is deliberate. They differ in what a presenter should be showing —
+an empty counter versus the previous customer's reaction — and collapsing them
+would force a presenter to infer "have I already served someone?" from state
+outside the phase. `AWAITING_CUSTOMER` is entered once, immediately after
+`StartSession`; every later wait is a `SHOWING_RESULT`.
+
+> This section resolves a contract gap rather than adding a feature. §10 has
+> specified `INVALID_PHASE` since the original ADR, while no document defined
+> what a phase was or which commands belonged to one — an error code with no
+> contract behind it. Found while decomposing #5, before any application-layer
+> code existed. DEC-022.
+
 ### 8. Events
 
 Eight are active. Every event carries a monotonic `sequence: int` per session,
@@ -278,6 +310,33 @@ satisfying ADR 0002 §3's ordering requirement.
 | `SessionEnded` | `results: Array[EncounterResult]` |
 
 `CustomerReacted` carries a **localisation key**, never prose, per ADR 0002.
+
+`EncounterResult` (defined 2026-08-06, DEC-022) is one served encounter, recorded
+so an end-of-session summary needs no re-evaluation:
+
+| Field | Type |
+|---|---|
+| `customer_id` | `StringName` |
+| `ingredient_ids` | `Array[StringName]` — the dish as served |
+| `score` | `int`, 0–100 |
+| `band` | `RatingBand` |
+| `constraint_satisfied` | `bool` |
+
+It carries the dish rather than only the outcome, so a summary can say *what* was
+served to whom — which the first playtest (§12, #10) needs in order to discuss a
+specific encounter rather than a score.
+
+It is a **value copy**, not an `Evaluation` reference, for the same reason
+`per_dimension` and `violated_constraints` are copies (§9). It deliberately omits
+`per_dimension` and `violated_constraints`: `DishEvaluated` already carried those
+at the moment they were computed, and duplicating them into the session summary
+would make `SessionEnded` the heaviest event in the system for no reader that
+needs it. An encounter that must be re-examined in that much detail should be
+replayed from its events.
+
+> `EncounterResult` was referenced by `SessionEnded` from the original ADR with
+> its fields never specified — the only type in this document named but not
+> defined. Found while decomposing #5.
 
 ### 8a. Reaction key resolution
 
