@@ -269,7 +269,7 @@ Five phases. A command issued in a phase that does not list it is rejected with
 | Phase | Command | Emits, in order | On success |
 |---|---|---|---|
 | `NOT_STARTED` | `StartSession` | `SessionStarted` | → `AWAITING_CUSTOMER` |
-| `AWAITING_CUSTOMER` | `PresentCustomer` | `CustomerPresented`, or `SessionEnded` when the roster is exhausted | → `BUILDING_DISH`, or → `ENDED` |
+| `AWAITING_CUSTOMER` | `PresentCustomer` | `CustomerPresented` | → `BUILDING_DISH` |
 | `BUILDING_DISH` | `SelectIngredient` | `IngredientSelected` | phase unchanged |
 | `BUILDING_DISH` | `RemoveIngredient` | `IngredientRemoved` | phase unchanged |
 | `BUILDING_DISH` | `SubmitDish` | `DishSubmitted`, `DishEvaluated`, `CustomerReacted` | → `SHOWING_RESULT` |
@@ -295,6 +295,23 @@ so it indexes that array directly.
 `SHOWING_RESULT` the dish that was just served is still readable, which is what
 lets a presenter show what the reaction was to. Clearing on submit would erase it
 at the moment it becomes worth displaying.
+
+**Only `SHOWING_RESULT` can reach `ENDED`.** This is a consequence of two other
+rules rather than a rule of its own, and it is stated because it is not obvious:
+`AWAITING_CUSTOMER` is entered once, immediately after `StartSession`, and §10's
+`EMPTY_ROSTER` guarantees a successful `StartSession` left at least one customer
+in the roster. So the first `PresentCustomer` always has someone to present and
+can never observe an exhausted roster.
+
+> **Corrected 2026-08-06.** The table previously showed `AWAITING_CUSTOMER`
+> transitioning to either `BUILDING_DISH` or `ENDED`, mirroring `SHOWING_RESULT`.
+> The `ENDED` branch is unreachable from that phase, so the table described a
+> transition no session can perform and an acceptance criterion demanded a test
+> for dead code. Found by a Systems Cook at the propose-and-stop step, which
+> declined to fabricate a `SessionState` the domain's own rules forbid.
+>
+> **If `EMPTY_ROSTER` is ever removed, restore the branch.** The unreachability
+> depends entirely on it.
 
 `SessionEnded` is emitted on the transition into `ENDED`, which happens when
 `PresentCustomer` is issued with no customer remaining. The session does not end
@@ -380,6 +397,23 @@ the `CustomerReacted` event. It is deliberately unimplemented.
 
 Selection is a domain concern — the band and the dish are both domain facts —
 but it belongs with whatever emits `CustomerReacted`, not with the evaluator.
+
+**In Phase 1 the resolver produces `<prefix>.<band>` unconditionally.** "Most
+specific *available*" requires knowing which keys are authored, and nothing in the
+domain can know that: there is no `LocalizationPort`, and asking
+`TranslationServer` would put a localisation dependency inside the domain, which
+ADR 0002 forbids. The qualifier tier has no field to build from, and the bare
+`<prefix>` tier can only be reached when a band key is missing — which the domain
+cannot detect.
+
+So Phase 1 implements one tier, not three. **Do not write the other two as
+unreachable branches.** A fallback that cannot be exercised cannot be proven to
+fail, and this repository has already shipped a guard whose comment described
+protection it did not provide. The tiers become real when a `LocalizationPort`
+exists to answer "is this key authored?", and that is when to build them.
+
+> Clarified 2026-08-06, after a Systems Cook declined to write a fallback branch
+> it could not honestly claim to have tested.
 
 ### 9. Evaluation is three concerns behind one entry point
 
