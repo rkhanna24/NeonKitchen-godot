@@ -14,6 +14,10 @@ config/name="Neon Kitchen"
 config/description="Recipe-composition puzzle set in a cyberpunk food truck."
 config/features=PackedStringArray("4.7")
 
+[internationalization]
+
+locale/translations=PackedStringArray("res://content/base/localization/en.en.translation")
+
 [debug]
 
 gdscript/warnings/shadowed_variable=2
