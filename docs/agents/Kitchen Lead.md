@@ -237,15 +237,20 @@ Only the Kitchen Lead is expected to remain active across Phase 1 sessions.
 
 | Role | Activate when | Do not activate when |
 |---|---|---|
-| **Systems Cook** | A bounded GDScript module, data loader, evaluator, terminal runner, or session-state task is ready to implement. | The problem is still an unresolved design decision. |
-| **Health Inspector** | Acceptance criteria exist and a rules, data, regression, or headless-execution check is needed. | The question is whether the game feels enjoyable; that requires human playtesting. |
+| **Systems Cook** | A bounded GDScript module, data loader, evaluator, adapter, config change, or test task is ready to implement. **Owns its own proofs** — its working loop requires demonstrating every check it adds failing first. | The problem is still an unresolved design decision. |
+| **Pantry Keeper** | A design brief needs candidate ingredients or customers proposed. Has no shell, so it cannot compute scores — that separation is what makes the Analyst's check worth anything. | The question is code, configuration, or anything outside `content/`. |
 | **Recipe-Space Analyst** | Enough ingredient and customer data exists to enumerate combinations or detect dominance and impossible requests. | Only a tiny evaluator spike exists and combination analysis would not affect the next decision. |
+| **Health Inspector** | Accepted content must become real `.tres` files and be proven to load, validate, and score. **Content only.** | Code, tests, or configuration need verifying — that is the Systems Cook's own Prove step, not a separate role. |
+
+Health Inspector was formerly defined as a general verification specialist. It is
+now content-scoped, because that description overlapped the Systems Cook's
+mandatory red-path proof, and because two different jobs shared one name once
+`.claude/agents/health-inspector.md` existed. DEC-020.
 
 ### Dormant until the Godot UI or content phase
 
 - Expeditor
 - Worldkeeper
-- Pantry Keeper
 - Service Cook
 - Ingredient Designer
 - Customer Designer
@@ -257,7 +262,9 @@ Only the Kitchen Lead is expected to remain active across Phase 1 sessions.
 The responsibilities of dormant agents are not discarded. During Phase 1:
 
 - the Kitchen Lead preserves a minimal setting-and-tone statement instead of activating a Worldkeeper;
-- authoritative ingredient and customer data preserve future Pantry Keeper state;
+- the Pantry Keeper proposes both ingredients and customers, so Ingredient Designer
+  and Customer Designer stay dormant rather than splitting a role that has not yet
+  proven too large for one agent;
 - asset and media work remains deferred;
 - the Kitchen Lead decomposes simple work without an Expeditor.
 

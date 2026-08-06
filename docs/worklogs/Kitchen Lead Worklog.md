@@ -68,6 +68,7 @@ tags:
 | DEC-017 | Lock the Phase 1 evaluator contract: normalised weighted distance to per-dimension targets with integer arithmetic; weight 0 means the dimension is ignored; four hard constraint kinds capping at 39; deterministic feedback selection; five commands and eight events with typed fields; rejected commands emit no events; three ingredients and two customers as contract fixtures. | Approved | Human and [ADR 0004](../adr/0004-phase-1-contracts.md) |
 | DEC-018 | Use the repository `docs/` directory as the canonical, version-controlled Obsidian vault for game design, architecture, agent definitions, and durable project memory. | Approved | Human |
 | DEC-019 | Activate the task-scoped Systems Cook via [[Systems Cook]], with a propose-and-stop loop, mandatory red-path proof, an adversarial pass aimed at unchecked claims, and Kitchen Lead `/code-review` before acceptance. Run specialists on Sonnet. Commit subjects ≤72 characters and bodies ≤15 lines, with detail on the issue per DEC-014. | Approved | Human |
+| DEC-020 | Ratify the Phase 1 agent team in [[Phase 1 Agent Team]]: one persistent coordinator and four task-scoped specialists, centralised task allocation, file- and issue-mediated message passing, and no peer-to-peer specialist channel. Narrow **Health Inspector** to content only — its former general-verification scope overlapped the Systems Cook's mandatory red-path proof, and two jobs had come to share one name. Promote **Pantry Keeper** from dormant to active, since the content crew activated it; Ingredient Designer and Customer Designer stay dormant rather than splitting a role not yet proven too large. Make Systems Cook executable as `.claude/agents/systems-cook.md`, with its packet stating `PROPOSE` or `IMPLEMENT` because the propose-and-stop hard stop terminates the process rather than pausing it. | Approved | Human |
 
 ### Phase 1 Scope
 
@@ -164,6 +165,8 @@ New questions are added here as they arise.
 | [[Neon Kitchen - Game Design Document]] | Authoritative game design and MAS architecture | Active |
 | [[Kitchen Lead]] | Stable Kitchen Lead operating definition | Active |
 | [[Systems Cook]] | Task-scoped GDScript implementation role | Active |
+| [[Phase 1 Agent Team]] | The team as a system: role contracts, coordination protocol, status transitions, and role-to-backlog mapping | Active |
+| `.claude/agents/` | Executable agent definitions; frontmatter tool grants are the enforcement | Active |
 | [[Kitchen Lead Worklog]] | Current state, decisions, evidence, and handoffs | Active |
 | [[technical_architecture\|Technical Architecture]] | Proposed modular architecture, extension seams, and GDScript/C# standards | Proposed v0.2 |
 | [[Home]] | Repository documentation-vault entry point | Active |
