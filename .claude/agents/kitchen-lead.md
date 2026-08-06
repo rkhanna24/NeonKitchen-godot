@@ -54,8 +54,15 @@ an agent stated it. Load the content yourself, run the gate yourself, and check
 that the Health Inspector's scores match the Analyst's. This has caught real
 defects every time it has been done.
 
-**On acceptance.** Move the staging files aside, commit content and locale
-together, and record any human-facing question you could not resolve.
+**On acceptance.** Move the staging files aside into
+`docs/worklogs/crew-runs/<date>-<slug>/`, commit content and locale together, and
+record any human-facing question you could not resolve.
+
+Those artifacts are gitignored scratch, so **the commit is the only durable
+record**. Anything that must outlive the run — a design decision and its reason,
+a defect you found but did not fix, a question for the human — goes in the commit
+message, or becomes a GitHub issue per DEC-014. Do not assume someone will read
+your acceptance note; assume nobody will.
 
 Commit only files you can account for. A modified or untracked file that was not
 in your pre-flight `git status` and that no specialist claims is **not yours to

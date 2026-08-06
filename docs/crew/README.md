@@ -132,7 +132,11 @@ is what makes that recoverable: anything the crew writes comes back with
 `git checkout . && git clean -fd`. Each specialist is still confined to its own
 `tools:` grant.
 
-Transcripts land in `docs/worklogs/crew-runs/latest.md`.
+Transcripts land in `docs/worklogs/crew-runs/latest.md`, which is **gitignored**.
+The artifacts a run hands between its agents — proposal, balance report,
+verification report, acceptance note — are scratch working notes, not durable
+records. Anything in them worth keeping belongs in a commit message, an ADR, or a
+GitHub issue (DEC-014).
 
 ### One thing that will bite you
 
@@ -149,7 +153,7 @@ a fresh process for exactly this reason.
 | `.claude/commands/crew.md` | the `/crew` slash command |
 | `tools/run_crew.sh` | headless runner, re-runs the gate afterwards |
 | `content/staging/` | the artifacts agents hand to each other |
-| `docs/worklogs/crew-runs/` | recorded runs |
+| `docs/worklogs/crew-runs/` | run transcripts and artifacts, gitignored |
 
 ## Design intent, for the curious
 

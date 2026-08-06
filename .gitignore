@@ -19,6 +19,13 @@
 .venv/
 __pycache__/
 
+# Content-crew run artifacts: the proposal, balance report, verification report
+# and acceptance note a crew run hands between its agents. Scratch working notes,
+# not durable records — anything worth keeping belongs in a commit message, an
+# ADR, or a GitHub issue (DEC-014). Ignoring them also keeps tools/run_crew.sh
+# from poisoning its own dirty-tree guard on a second run.
+/docs/worklogs/crew-runs/
+
 # OS / editor artifacts
 .DS_Store
 *.swp
