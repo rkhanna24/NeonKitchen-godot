@@ -7,8 +7,8 @@
 ## normalisation.
 extends GutTest
 
-const NOODLES: StringName = &"ingredient.neon_noodles"
-const GREENS: StringName = &"ingredient.rooftop_greens"
+const NOODLES: StringName = &"ingredient.thick_wheat_noodles"
+const GREENS: StringName = &"ingredient.rooftop_lettuce"
 const ALPHA: StringName = &"customer.alpha"
 
 
@@ -18,14 +18,14 @@ static func _content() -> ContentRepository:
 	# these resolve rather than echoing back.
 	var noodles := IngredientDefinition.new()
 	noodles.content_id = NOODLES
-	noodles.name_key = &"ingredient.neon_noodles.name"
-	noodles.description_key = &"ingredient.neon_noodles.description"
+	noodles.name_key = &"ingredient.thick_wheat_noodles.name"
+	noodles.description_key = &"ingredient.thick_wheat_noodles.description"
 	noodles.comfort = 3
 
 	var greens := IngredientDefinition.new()
 	greens.content_id = GREENS
-	greens.name_key = &"ingredient.rooftop_greens.name"
-	greens.description_key = &"ingredient.rooftop_greens.description"
+	greens.name_key = &"ingredient.rooftop_lettuce.name"
+	greens.description_key = &"ingredient.rooftop_lettuce.description"
 	greens.fresh = 3
 
 	var alpha := CustomerDefinition.new()
@@ -119,7 +119,7 @@ func test_list_shows_the_dish_under_construction_by_display_name() -> void:
 
 	# The id is what you type; the name is what you read. Every other line this
 	# adapter prints uses the display name, and this one must not be the odd one.
-	assert_true(joined.contains("Dish: Neon Noodles"), "dish must list display names")
+	assert_true(joined.contains("Dish: Thick Wheat Noodles"), "dish must list display names")
 	assert_false(joined.contains("Dish: %s" % NOODLES), "dish must not print raw ids")
 
 
@@ -172,25 +172,27 @@ func test_a_rejected_duplicate_select_leaves_state_usable_for_a_correct_one() ->
 
 func test_select_accepts_a_bare_ingredient_name() -> void:
 	var session: TerminalSession = _session_in_building_dish()
-	var bare: TerminalSession.LineResult = session.handle_line("select neon_noodles")
+	var bare: TerminalSession.LineResult = session.handle_line("select thick_wheat_noodles")
 	assert_false(bare.should_quit)
 	assert_string_contains("\n".join(bare.output), "Added")
 
 
 func test_select_accepts_the_full_ingredient_id() -> void:
 	var session: TerminalSession = _session_in_building_dish()
-	var full: TerminalSession.LineResult = session.handle_line("select ingredient.neon_noodles")
+	var full: TerminalSession.LineResult = session.handle_line(
+		"select ingredient.thick_wheat_noodles"
+	)
 	assert_false(full.should_quit)
 	assert_string_contains("\n".join(full.output), "Added")
 
 
 func test_a_bare_name_and_its_full_id_select_the_same_ingredient() -> void:
 	var bare_session: TerminalSession = _session_in_building_dish()
-	bare_session.handle_line("select neon_noodles")
+	bare_session.handle_line("select thick_wheat_noodles")
 	var bare_result: TerminalSession.LineResult = bare_session.handle_line("submit")
 
 	var full_session: TerminalSession = _session_in_building_dish()
-	full_session.handle_line("select ingredient.neon_noodles")
+	full_session.handle_line("select ingredient.thick_wheat_noodles")
 	var full_result: TerminalSession.LineResult = full_session.handle_line("submit")
 
 	assert_eq(bare_result.output, full_result.output, "both spellings must reach the same dish")

@@ -67,11 +67,29 @@ land once. If every customer arrives depleted, none of them read as depleted —
 they read as a tone setting. Reserve the heavy notes for the encounters meant to
 carry them, and let most customers simply be hungry, specific, and in a hurry.
 
+**6. Names are plain; descriptions carry the world.** An ingredient is called
+what it is — *thick wheat noodles*, *soy broth*, *rooftop lettuce*. A modifier is
+fine when it says something true about the thing (rooftop, pickled, smoked,
+citrus); a modifier that supplies atmosphere is not. "Neon Noodles" and "Ember
+Chili Paste" put the setting in the name, which front-loads theme before the
+player has read anything and leaves the description with nothing to do.
+
+This is rule 1 one level up, and it has a second benefit: **a plain name can make
+a constraint legible without any prose telegraphing it.** `soy_broth` announces
+its own tag, so its description no longer has to say "not for anyone avoiding
+soy" — the inference the constraint mechanic exists to create survives intact.
+
+The GDD's own provisional twelve are all plain: noodles, tofu, mushrooms, kimchi,
+pepper paste, chili crisp, coconut milk, pickled cucumber, chickpeas, flatbread,
+citrus herbs, smoked fish. Modifier plus noun, no atmosphere.
+
 ## The test
 
 A description passes when a player who reads it can guess what the ingredient
 might be good for **without being told**, and would still be right after the
 pantry doubles.
+
+A name passes when it would look unremarkable on a real menu.
 
 ## Why this exists
 

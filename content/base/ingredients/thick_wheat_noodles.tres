@@ -4,9 +4,9 @@
 
 [resource]
 script = ExtResource("1_phlrf")
-content_id = &"ingredient.neon_noodles"
-name_key = &"ingredient.neon_noodles.name"
-description_key = &"ingredient.neon_noodles.description"
+content_id = &"ingredient.thick_wheat_noodles"
+name_key = &"ingredient.thick_wheat_noodles.name"
+description_key = &"ingredient.thick_wheat_noodles.description"
 savory = 1
 comfort = 3
 tags = Array[StringName]([&"gluten", &"vegan"])

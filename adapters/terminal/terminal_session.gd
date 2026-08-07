@@ -141,7 +141,7 @@ func _handle_present() -> LineResult:
 
 
 ## A bare ingredient name (no `.`) is prefixed with `ingredient.` before it is
-## looked up, so `select neon_noodles` and `select ingredient.neon_noodles`
+## looked up, so `select thick_wheat_noodles` and `select ingredient.thick_wheat_noodles`
 ## both resolve to the same command. This is one deterministic rule, not an
 ## alias table -- it exists because ids are namespaced, and an id that still
 ## does not resolve after the prefix is added reaches `CommandHandler`

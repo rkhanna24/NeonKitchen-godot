@@ -15,11 +15,11 @@
 ## | Customer           | Dish                    | Score | Band         |
 ## |--------------------|--------------------------|-------|--------------|
 ## | late_shift_medic    | noodles + greens         | 77    | SATISFIED    |
-## | scrap_trader        | umami_broth              | 39    | DISSATISFIED |
+## | scrap_trader        | soy_broth              | 39    | DISSATISFIED |
 ## | solar_tech          | noodles + broth          | 100   | DELIGHTED    |
 ##
 ## `scrap_trader`'s 39 is a flavour score of 70 capped by `FORBID_TAG(soy)` --
-## `umami_broth` carries the `soy` tag. All three numbers, and the
+## `soy_broth` carries the `soy` tag. All three numbers, and the
 ## `evaluator` internals behind them, were hand-verified against the real
 ## content before this test was written (see the approved proposal on #5).
 ##
@@ -66,27 +66,29 @@ func test_scripted_session_matches_asserted_output() -> void:
 		false
 	)
 
-	_assert_line(session, "select ingredient.neon_noodles", ["Added Neon Noodles."], false)
+	_assert_line(
+		session, "select ingredient.thick_wheat_noodles", ["Added Thick Wheat Noodles."], false
+	)
 
 	# The deliberately duplicated select: rejected, and state must survive it.
 	_assert_line(
 		session,
-		"select ingredient.neon_noodles",
+		"select ingredient.thick_wheat_noodles",
 		["That ingredient is already in the dish."],
 		false
 	)
 
-	_assert_line(session, "select ingredient.rooftop_greens", ["Added Rooftop Greens."], false)
+	_assert_line(session, "select ingredient.rooftop_lettuce", ["Added Rooftop Lettuce."], false)
 
 	_assert_line(
 		session,
 		"submit",
 		[
-			"Serving: Neon Noodles, Rooftop Greens",
+			"Serving: Thick Wheat Noodles, Rooftop Lettuce",
 			"Result: Satisfied -- 77",
 			"Strongest match: Fresh",
 			"Largest miss: Comfort",
-			"Good and light — I can actually feel human again.",
+			"Good and light. First thing all shift that hasn't sat like a stone.",
 		],
 		false
 	)
@@ -105,13 +107,13 @@ func test_scripted_session_matches_asserted_output() -> void:
 		false
 	)
 
-	_assert_line(session, "select ingredient.umami_broth", ["Added Umami Broth."], false)
+	_assert_line(session, "select ingredient.soy_broth", ["Added Soy Broth."], false)
 
 	_assert_line(
 		session,
 		"submit",
 		[
-			"Serving: Umami Broth",
+			"Serving: Soy Broth",
 			"Result: Dissatisfied -- 39",
 			"Strongest match: Spicy",
 			"Largest miss: Comfort",
@@ -138,14 +140,16 @@ func test_scripted_session_matches_asserted_output() -> void:
 		false
 	)
 
-	_assert_line(session, "select ingredient.neon_noodles", ["Added Neon Noodles."], false)
-	_assert_line(session, "select ingredient.umami_broth", ["Added Umami Broth."], false)
+	_assert_line(
+		session, "select ingredient.thick_wheat_noodles", ["Added Thick Wheat Noodles."], false
+	)
+	_assert_line(session, "select ingredient.soy_broth", ["Added Soy Broth."], false)
 
 	_assert_line(
 		session,
 		"submit",
 		[
-			"Serving: Neon Noodles, Umami Broth",
+			"Serving: Thick Wheat Noodles, Soy Broth",
 			"Result: Delighted -- 100",
 			"Strongest match: Comfort",
 			"Largest miss: none -- every weighted dimension matched",
@@ -159,9 +163,9 @@ func test_scripted_session_matches_asserted_output() -> void:
 		"present",
 		[
 			"== Session Summary ==",
-			"1. Late-Shift Medic -- Satisfied 77 -- Neon Noodles, Rooftop Greens -- constraint met",
-			"2. Scrap-Market Trader -- Dissatisfied 39 -- Umami Broth -- constraint violated",
-			"3. Solar Rig Tech -- Delighted 100 -- Neon Noodles, Umami Broth -- constraint met",
+			"1. Late-Shift Medic -- Satisfied 77 -- Thick Wheat Noodles, Rooftop Lettuce -- constraint met",
+			"2. Scrap-Market Trader -- Dissatisfied 39 -- Soy Broth -- constraint violated",
+			"3. Solar Rig Tech -- Delighted 100 -- Thick Wheat Noodles, Soy Broth -- constraint met",
 		],
 		false
 	)

@@ -33,18 +33,18 @@ func test_select_requires_exactly_one_argument() -> void:
 	assert_eq(extra.verb, TerminalInputParser.Verb.INVALID)
 
 	var exact: TerminalInputParser.ParsedLine = TerminalInputParser.parse(
-		"select ingredient.neon_noodles"
+		"select ingredient.thick_wheat_noodles"
 	)
 	assert_eq(exact.verb, TerminalInputParser.Verb.SELECT)
-	assert_eq(exact.argument, "ingredient.neon_noodles")
+	assert_eq(exact.argument, "ingredient.thick_wheat_noodles")
 
 
 func test_remove_requires_exactly_one_argument() -> void:
 	var parsed: TerminalInputParser.ParsedLine = TerminalInputParser.parse(
-		"remove ingredient.neon_noodles"
+		"remove ingredient.thick_wheat_noodles"
 	)
 	assert_eq(parsed.verb, TerminalInputParser.Verb.REMOVE)
-	assert_eq(parsed.argument, "ingredient.neon_noodles")
+	assert_eq(parsed.argument, "ingredient.thick_wheat_noodles")
 
 
 func test_an_unknown_verb_is_invalid() -> void:
@@ -55,7 +55,7 @@ func test_an_unknown_verb_is_invalid() -> void:
 
 func test_surrounding_whitespace_is_ignored() -> void:
 	var parsed: TerminalInputParser.ParsedLine = TerminalInputParser.parse(
-		"   select   ingredient.neon_noodles   "
+		"   select   ingredient.thick_wheat_noodles   "
 	)
 	assert_eq(parsed.verb, TerminalInputParser.Verb.SELECT)
-	assert_eq(parsed.argument, "ingredient.neon_noodles")
+	assert_eq(parsed.argument, "ingredient.thick_wheat_noodles")

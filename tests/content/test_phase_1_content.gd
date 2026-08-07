@@ -48,28 +48,28 @@ func test_the_set_is_the_approved_size() -> void:
 	assert_eq(repository.all_customers().size(), 3)
 
 
-func test_neon_noodles_values_and_tags() -> void:
-	var i: IngredientDefinition = _ingredient(&"ingredient.neon_noodles")
+func test_thick_wheat_noodles_values_and_tags() -> void:
+	var i: IngredientDefinition = _ingredient(&"ingredient.thick_wheat_noodles")
 	assert_eq(i.flavour_values(), [1, 0, 0, 3, 0] as Array[int])
 	assert_true(i.has_tag(&"gluten"))
 	assert_true(i.has_tag(&"vegan"))
 
 
-func test_umami_broth_values_and_tags() -> void:
-	var i: IngredientDefinition = _ingredient(&"ingredient.umami_broth")
+func test_soy_broth_values_and_tags() -> void:
+	var i: IngredientDefinition = _ingredient(&"ingredient.soy_broth")
 	assert_eq(i.flavour_values(), [2, 0, 0, 2, 0] as Array[int])
 	# This tag is what scrap_trader's boundary matches on.
 	assert_true(i.has_tag(&"soy"), "the forbidden tag must exist or the constraint is vacuous")
 
 
-func test_ember_chili_paste_values_and_tags() -> void:
-	var i: IngredientDefinition = _ingredient(&"ingredient.ember_chili_paste")
+func test_citrus_chili_paste_values_and_tags() -> void:
+	var i: IngredientDefinition = _ingredient(&"ingredient.citrus_chili_paste")
 	assert_eq(i.flavour_values(), [0, 3, 1, 0, 2] as Array[int])
 	assert_true(i.has_tag(&"fermented"))
 
 
-func test_rooftop_greens_values_and_tags() -> void:
-	var i: IngredientDefinition = _ingredient(&"ingredient.rooftop_greens")
+func test_rooftop_lettuce_values_and_tags() -> void:
+	var i: IngredientDefinition = _ingredient(&"ingredient.rooftop_lettuce")
 	# The pantry's only Fresh source above 1, and it must stay Comfort 0: the
 	# medic's "nothing heavy" target is what makes it the answer to that
 	# request rather than a second comfort ingredient.
@@ -114,10 +114,10 @@ func test_late_shift_medic_targets_and_weights() -> void:
 	# silently turn it into indifference, per §2.
 	#
 	# Spicy weight 2 is why this customer cannot reach DELIGHTED: Fresh 4 is
-	# only reachable as rooftop_greens(3) + ember_chili_paste(1), and the chili
+	# only reachable as rooftop_lettuce(3) + citrus_chili_paste(1), and the chili
 	# carries Spicy 3, so the only path to a perfect Fresh score is also the one
-	# the Spicy weight penalises. Their ceiling is 84 on rooftop_greens alone or
-	# with umami_broth. That is deliberate, and legal under §11 — solvability is
+	# the Spicy weight penalises. Their ceiling is 84 on rooftop_lettuce alone or
+	# with soy_broth. That is deliberate, and legal under §11 — solvability is
 	# a session property, so a customer may be impossible to fully satisfy.
 	assert_eq(c.targets(), [0, 0, 4, 1, 0] as Array[int])
 	assert_eq(c.weights(), [0, 2, 3, 2, 0] as Array[int])
@@ -201,7 +201,7 @@ func test_the_soy_boundary_actually_caps_a_good_dish() -> void:
 	# player their strongest ingredient.
 	var customer: CustomerDefinition = _customer(&"customer.scrap_trader")
 	var dish: Array[IngredientDefinition] = [
-		_ingredient(&"ingredient.neon_noodles"), _ingredient(&"ingredient.umami_broth")
+		_ingredient(&"ingredient.thick_wheat_noodles"), _ingredient(&"ingredient.soy_broth")
 	]
 	var capped: Evaluation = Evaluator.evaluate(dish, customer)
 	assert_false(capped.constraint_satisfied, "soy must be detected")
@@ -210,7 +210,8 @@ func test_the_soy_boundary_actually_caps_a_good_dish() -> void:
 	assert_eq(capped.violated_constraints[0].subject, &"soy")
 
 	var safe: Array[IngredientDefinition] = [
-		_ingredient(&"ingredient.neon_noodles"), _ingredient(&"ingredient.ember_chili_paste")
+		_ingredient(&"ingredient.thick_wheat_noodles"),
+		_ingredient(&"ingredient.citrus_chili_paste")
 	]
 	var allowed: Evaluation = Evaluator.evaluate(safe, customer)
 	assert_true(allowed.constraint_satisfied)

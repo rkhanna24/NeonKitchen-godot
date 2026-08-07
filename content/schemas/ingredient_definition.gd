@@ -6,7 +6,7 @@
 class_name IngredientDefinition
 extends Resource
 
-## Stable, namespaced, and immutable — for example `ingredient.neon_noodles`.
+## Stable, namespaced, and immutable — for example `ingredient.thick_wheat_noodles`.
 ## Never a filename, resource path, UID, or translated name.
 @export var content_id: StringName = &""
 

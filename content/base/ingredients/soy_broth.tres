@@ -4,9 +4,9 @@
 
 [resource]
 script = ExtResource("1_pa81a")
-content_id = &"ingredient.umami_broth"
-name_key = &"ingredient.umami_broth.name"
-description_key = &"ingredient.umami_broth.description"
+content_id = &"ingredient.soy_broth"
+name_key = &"ingredient.soy_broth.name"
+description_key = &"ingredient.soy_broth.description"
 savory = 2
 comfort = 2
 tags = Array[StringName]([&"soy", &"vegan"])

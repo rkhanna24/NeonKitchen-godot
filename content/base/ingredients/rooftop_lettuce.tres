@@ -4,8 +4,8 @@
 
 [resource]
 script = ExtResource("1_grfix")
-content_id = &"ingredient.rooftop_greens"
-name_key = &"ingredient.rooftop_greens.name"
-description_key = &"ingredient.rooftop_greens.description"
+content_id = &"ingredient.rooftop_lettuce"
+name_key = &"ingredient.rooftop_lettuce.name"
+description_key = &"ingredient.rooftop_lettuce.description"
 fresh = 3
 tags = Array[StringName]([&"raw", &"vegan"])
