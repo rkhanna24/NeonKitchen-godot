@@ -31,10 +31,43 @@ static func welcome_lines() -> Array[String]:
 	return (
 		[
 			"Neon Kitchen -- terminal prototype.",
-			"Commands: start, present, select <id>, remove <id>, submit, quit.",
+			"Commands: start, present, list, select <id>, remove <id>, submit, quit.",
 		]
 		as Array[String]
 	)
+
+
+## The pantry and the dish under construction, for the adapter-only `list`
+## query. Answers "what can I type?", which nothing else did -- ids had to be
+## remembered or read out of `content/base/`.
+##
+## Descriptions, never flavour values. GDD section 2.4 requires ingredient
+## descriptions to stay available through a session, and section 2.2 shows the
+## player reasoning from them ("Noodles contribute strongly to Comfort").
+## Printing the five integers instead would let a player compute the score
+## rather than learn the pantry, which is the puzzle rather than a convenience.
+static func present_pantry(
+	ingredients: Array[IngredientDefinition], current_dish: Array[StringName]
+) -> Array[String]:
+	var lines: Array[String] = ["Pantry:"]
+	var names_by_id: Dictionary[StringName, String] = {}
+	for ingredient: IngredientDefinition in ingredients:
+		var name: String = _translate(ingredient.name_key)
+		names_by_id[ingredient.content_id] = name
+		lines.append("  %s -- %s" % [ingredient.content_id, name])
+		lines.append("      %s" % _translate(ingredient.description_key))
+
+	if current_dish.is_empty():
+		lines.append("Dish: empty")
+		return lines
+
+	# Display names, matching every other line this file prints. The id is
+	# what you type; the name is what you read.
+	var names: Array[String] = []
+	for ingredient_id: StringName in current_dish:
+		names.append(names_by_id.get(ingredient_id, String(ingredient_id)))
+	lines.append("Dish: %s" % ", ".join(names))
+	return lines
 
 
 static func present_session_started(event: SessionStarted) -> Array[String]:

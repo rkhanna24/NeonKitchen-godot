@@ -65,7 +65,23 @@ func _dispatch(parsed: TerminalInputParser.ParsedLine) -> LineResult:
 		return LineResult.new(false, [parsed.error_message] as Array[String])
 	if parsed.verb == TerminalInputParser.Verb.QUIT:
 		return LineResult.new(true, ["Goodbye."] as Array[String])
+	if parsed.verb == TerminalInputParser.Verb.LIST:
+		return _handle_list()
 	return _dispatch_command(parsed)
+
+
+## `list` is a query, not a command: it reads content and session state,
+## changes neither, and emits no event. So it is answered here rather than
+## routed to `CommandHandler` — sending it there would mean inventing a sixth
+## command ADR 0004 section 7 does not have.
+##
+## Legal in every phase, including `NOT_STARTED` and `ENDED`. There is no
+## phase in which "what is in the pantry?" is an invalid question, and
+## `INVALID_PHASE` exists for commands that would change state.
+func _handle_list() -> LineResult:
+	return LineResult.new(
+		false, TerminalPresenter.present_pantry(_content.all_ingredients(), _state.current_dish)
+	)
 
 
 func _dispatch_command(parsed: TerminalInputParser.ParsedLine) -> LineResult:

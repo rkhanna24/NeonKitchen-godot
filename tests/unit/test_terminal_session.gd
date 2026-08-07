@@ -13,12 +13,19 @@ const ALPHA: StringName = &"customer.alpha"
 
 
 static func _content() -> ContentRepository:
+	# Real shipped localisation keys, so `list` resolves display names the same
+	# way the terminal does. The project registers its translation (#19), so
+	# these resolve rather than echoing back.
 	var noodles := IngredientDefinition.new()
 	noodles.content_id = NOODLES
+	noodles.name_key = &"ingredient.neon_noodles.name"
+	noodles.description_key = &"ingredient.neon_noodles.description"
 	noodles.comfort = 3
 
 	var greens := IngredientDefinition.new()
 	greens.content_id = GREENS
+	greens.name_key = &"ingredient.rooftop_greens.name"
+	greens.description_key = &"ingredient.rooftop_greens.description"
 	greens.fresh = 3
 
 	var alpha := CustomerDefinition.new()
@@ -85,6 +92,35 @@ func test_a_non_blank_line_resets_the_consecutive_blank_counter() -> void:
 	assert_false(second_after.should_quit, "still only two consecutive blanks")
 	var third_after: TerminalSession.LineResult = session.handle_line("")
 	assert_true(third_after.should_quit, "three consecutive blanks since the reset")
+
+
+func test_list_is_answered_without_reaching_the_domain() -> void:
+	# `list` is a query, not a command. It must work in NOT_STARTED, where every
+	# one of the five real commands except `start` is rejected as INVALID_PHASE
+	# -- there is no phase in which "what is in the pantry?" is invalid.
+	var state := SessionState.new()
+	var session := TerminalSession.new(state, _content())
+
+	var result: TerminalSession.LineResult = session.handle_line("list")
+
+	assert_false(result.should_quit)
+	assert_eq(state.phase, SessionState.Phase.NOT_STARTED, "list must not change phase")
+	assert_true(state.current_dish.is_empty(), "list must not change the dish")
+	var joined: String = "\n".join(result.output)
+	assert_true(joined.contains(String(NOODLES)), "the pantry must name the ids a player types")
+	assert_true(joined.contains("Dish: empty"))
+
+
+func test_list_shows_the_dish_under_construction_by_display_name() -> void:
+	var session: TerminalSession = _session_in_building_dish()
+	session.handle_line("select %s" % NOODLES)
+
+	var joined: String = "\n".join(session.handle_line("list").output)
+
+	# The id is what you type; the name is what you read. Every other line this
+	# adapter prints uses the display name, and this one must not be the odd one.
+	assert_true(joined.contains("Dish: Neon Noodles"), "dish must list display names")
+	assert_false(joined.contains("Dish: %s" % NOODLES), "dish must not print raw ids")
 
 
 func test_quit_command_ends_the_session_immediately() -> void:
