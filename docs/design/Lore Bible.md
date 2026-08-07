@@ -1,0 +1,342 @@
+---
+type: lore
+display-name: Lore Bible
+status: draft
+phase: phase-1
+version: 0.1
+updated: 2026-08-07
+governed-by: "[[Neon Kitchen - Game Design Document]]"
+tags:
+  - neon-kitchen
+  - lore
+  - worldbuilding
+---
+
+# Neon Kitchen: Lore Bible
+
+## Status and Authority
+
+Nothing in this document is canon. The Worldkeeper drafts and reviews world
+content; the human is the final authority on canon (GDD §4.1, Worldkeeper
+boundary). Every claim below is labeled:
+
+- **ESTABLISHED** — traceable to a cited line of the GDD or to a file under
+  `content/base/`. These are facts already true of the shipped game.
+- **PROPOSED** — invented for this draft, consistent with what is established,
+  and not usable as a fact by any other agent or document until a human
+  approves it.
+
+Sections are written to stand alone under retrieval. A section pulled out of
+context should not require the rest of this document to make sense.
+
+## The City
+
+**ESTABLISHED**
+
+- The game is set inside a cyberpunk city (GDD §1, "The Game").
+- The city is dark, industrial, and lit by corporate neon (GDD §1, "Art
+  Direction").
+- The wider fiction contrasts this hostile environment with community-scale
+  solarpunk care and improvisation (GDD §1, "Three Game Design Pillars,"
+  Pillar 3: "Community Within a Hostile City").
+- The city has no established name. Neither the GDD nor any shipped content
+  names it.
+
+**PROPOSED**
+
+- None. Whether to name the city at all is an open question — see "Open
+  Questions for the Human" below.
+
+## Corporate Neon Against Community Solarpunk
+
+**ESTABLISHED.** This contrast is the game's central tonal frame, not
+background color. The GDD states it as a pillar: "The larger game contrasts a
+harsh cyberpunk environment with care, improvisation, and community-scale
+solarpunk. Phase 1 expresses this primarily through customer voice and
+ingredient descriptions rather than a separate narrative system" (GDD §1,
+Pillar 3). The Art Direction section carries the same split into the truck
+itself: dark, industrial, corporate-neon city outside; warm lighting, repaired
+technology, reclaimed materials, exposed cables, solar panels, hand-painted
+signs, and small planters on the truck (GDD §1, "Art Direction").
+
+Any new district, faction, or character proposed in this document should sit
+somewhere on that line between corporate and community, the same way the truck
+itself does. Nothing below should be written as simply "neutral city
+infrastructure" — that would flatten the pillar the rest of the game is built
+to express.
+
+## The Truck
+
+**ESTABLISHED.** The player operates a nomad food truck (GDD §1, "The Game").
+It is warm where the city is cold: repaired technology, reclaimed materials,
+exposed cables, solar panels, hand-painted signs, and small planters (GDD §1,
+"Art Direction"). It has its own rooftop planter — the shipped ingredient
+Rooftop Greens is described as "pulled straight from the truck's rooftop
+planter" (`content/base/ingredients/rooftop_greens.tres`;
+`content/base/localization/en.csv`, `ingredient.rooftop_greens.description`).
+
+**PROPOSED.** None needed here; the truck's established facts are sufficient
+to write from.
+
+## The Truck's Name
+
+**PROPOSED — needs human decision.** "Neon Kitchen" is established as the
+game's title but nothing in the GDD or shipped content confirms it is also
+the truck's in-fiction, hand-painted name. It is a reasonable guess given the
+truck has hand-painted signs (GDD §1, "Art Direction"), but a guess is all it
+is. See "Open Questions for the Human."
+
+## This Block
+
+**ESTABLISHED.** The phrase appears once, in the shipped description of
+Rooftop Greens: "the closest thing to fresh air on this block"
+(`content/base/localization/en.csv`, `ingredient.rooftop_greens.description`).
+
+**PROPOSED — a constraint on how this phrase is used going forward.** The
+truck is nomadic (GDD §1, "The Game"). "This block" should be read as a
+floating reference to wherever the truck is currently parked, not as the name
+of one fixed neighborhood the truck always returns to. If a future document
+invents a permanent, named district called something like "The Block," with
+its own residents and history, that would quietly contradict the nomadic
+premise unless someone explicitly decides the truck now has a home base. Until
+that decision is made, keep "this block" generic and lowercase, describing
+wherever the truck happens to be that night — not a place name.
+
+## The North Tower
+
+**ESTABLISHED.** The Solar Rig Tech's request is the only source: "I've been
+rewiring solar panels on the north tower all shift and I want to feel human
+again" (`content/base/customers/solar_tech.tres`;
+`content/base/localization/en.csv`, `customer.solar_tech.request`).
+
+**PROPOSED.** The North Tower is a fixed landmark, unlike "this block" — it
+does not move with the truck. Its panels are being "rewired," which reads as
+retrofit or repair rather than routine corporate maintenance, and that fits
+the truck's own "repaired technology" motif (GDD §1, "Art Direction") rather
+than corporate-neon polish. A plausible reading: the North Tower is old
+infrastructure — corporate-built or otherwise — that the Solar Rig Tech and
+others now keep running by hand, sitting exactly on the seam between
+corporate neon and community solarpunk (see "Corporate Neon Against Community
+Solarpunk" above). Whether the tower is currently corporate property,
+abandoned, or informally reclaimed is not decided. See "Open Questions for the
+Human."
+
+## The Scrap Market
+
+**ESTABLISHED.** The customer's shipped name is "Scrap-Market Trader"
+(`content/base/customers/scrap_trader.tres`, `content_id` =
+`customer.scrap_trader`, `name_key`; `content/base/localization/en.csv`,
+`customer.scrap_trader.name`). No dialogue line describes the market itself —
+only the trader's name implies it exists.
+
+**PROPOSED.** A market where reclaimed parts and materials change hands. It is
+a plausible source for the truck's own "reclaimed materials" (GDD §1, "Art
+Direction"), though that connection is inference, not an established fact —
+nothing currently says the truck buys from this market specifically. Whether
+the Scrap Market is a formal, licensed market or an informal gray-market trade
+is undecided. See "Open Questions for the Human."
+
+## Shift Work
+
+**ESTABLISHED.** Two shipped customers describe their lives by shift. The
+Solar Rig Tech has been "rewiring solar panels on the north tower all shift"
+(`customer.solar_tech.request`). The Late-Shift Medic has been "elbow-deep in
+triage since second shift" (`content/base/customers/late_shift_medic.tres`,
+`content_id` = `customer.late_shift_medic`;
+`content/base/localization/en.csv`, `customer.late_shift_medic.request`). A
+third, the Scrap-Market Trader, does not use the word "shift" but frames their
+request around timing too — comfort food that won't leave them "miserable by
+morning" (`customer.scrap_trader.request`).
+
+**PROPOSED.** Read together, these suggest a city that runs on continuous,
+overlapping shift labor, and a truck whose service hours are built around
+feeding people between shifts rather than at conventional mealtimes. This is
+a synthesis across three data points, not a quoted fact, and should be treated
+as a soft framing assumption rather than a rule.
+
+## The Night Courier
+
+**ESTABLISHED — narrative content, not yet shipped as a customer.** GDD §2.2,
+"Moment-to-Moment Play," works its central example around a night courier:
+"I need something comforting with enough spice to wake me up. Nothing
+fermented tonight—my stomach is already arguing with me." This is GDD prose,
+not a `content/base/` file — there is no `night_courier.tres`. It establishes
+that a night courier exists as a voice in the fiction, available to be
+formalized into the eighth-customer roster without inventing a new archetype
+from nothing.
+
+## The Late-Shift Medic's Workplace
+
+**ESTABLISHED.** The Late-Shift Medic does "triage" and works "second shift"
+(`customer.late_shift_medic.request`, cited above). No org, building, or name
+for where this happens is established anywhere.
+
+**PROPOSED — needs human decision.** A name is needed before this customer's
+world-context can be written consistently elsewhere. One candidate,
+consistent with "this block" already existing as a floating term (see above):
+call it the **Block Clinic** — an informal, community-run triage point rather
+than a corporate or municipal hospital, which would fit the community-care
+side of Pillar 3. This is a proposal, not a decision: whether the medic works
+somewhere informal, corporate, or municipal changes what kind of city this is,
+and that choice belongs to the human. See "Open Questions for the Human."
+
+## Community Mutual Aid (a Proposed Faction Shape)
+
+**PROPOSED — no faction of any kind is established anywhere in the GDD or
+shipped content.** This section proposes a shape, not a name or history: a
+loose, informal network of neighbors, off-the-books technicians, and traders
+who keep the North Tower's panels running, might staff something like the
+Block Clinic, and might supply the Scrap Market. This would be the human
+infrastructure behind "community-scale solarpunk" (GDD §1, "Art Direction") —
+the reason repair happens at all in a city that otherwise reads as corporate
+and hostile (GDD §1, Pillar 3). Whether this network gets a name, a visible
+structure, or stays deliberately informal and unnamed is a human decision. See
+"Open Questions for the Human."
+
+## Corporate Power (a Proposed Faction Shape)
+
+**PROPOSED — no faction of any kind is established anywhere in the GDD or
+shipped content.** This section proposes a shape only: an unnamed corporate
+or utility presence that built infrastructure like the North Tower and now
+maintains a distant or absent relationship to its upkeep, which is one way to
+explain why the tower's panels need informal rewiring rather than a corporate
+service crew. Whether corporate power should be a felt threat, an absent
+landlord, or simply unaddressed background is undecided. See "Open Questions
+for the Human."
+
+## Candidate Occupations for the Remaining Customers
+
+**PROPOSED — shapes for the Kitchen Lead and a future Customer Designer to
+choose from, not written customers.** The GDD plans eight customer
+encounters; three are shipped (Solar Rig Tech, Scrap-Market Trader, Late-Shift
+Medic) and GDD §2.2's night courier is an established but unshipped fourth
+voice. These are unassigned starting points tied to places already
+established above, each a single sentence — no dialogue, no constraint, no
+flavor target, since those belong to the Customer Designer and Pantry Keeper
+respectively:
+
+- A second worker from the North Tower, alongside the Solar Rig Tech, with a
+  different relationship to that work.
+- A second presence at the Scrap Market, distinct from the trader already
+  shipped.
+- A colleague of the Late-Shift Medic on a different shift, at whatever the
+  medic's workplace is decided to be.
+- The GDD §2.2 night courier, formalized into shipped content.
+- A resident who grows food elsewhere in the city, in parallel to the truck's
+  own rooftop planter — someone the truck might trade with rather than only
+  serve.
+
+None of these come with a cultural, ethnic, or personal background attached.
+See "Escalation: Cultural Origins of the Provisional Ingredients" below for
+why that attachment is deliberately left blank here.
+
+## The Provisional Twelve-Ingredient Roster
+
+**ESTABLISHED.** GDD §2.3 names the Phase 1 pantry: "noodles, tofu, mushrooms,
+kimchi, pepper paste, chili crisp, coconut milk, pickled cucumber, chickpeas,
+flatbread, citrus herbs, and smoked fish." The same section flags this roster
+as "provisional and must be checked for tag accuracy and distinct gameplay
+roles before external playtesting" (GDD §2.3).
+
+**Flag, not a claim — for the Kitchen Lead.** The four ingredients shipped so
+far are Neon Noodles, Umami Broth, Ember Chili Paste, and Rooftop Greens
+(`content/base/ingredients/`). Three of those four names — Umami Broth,
+Rooftop Greens, and arguably Ember Chili Paste — do not appear on the GDD §2.3
+list by that name. Before the remaining eight ingredients are commissioned,
+someone should confirm whether the shipped four are renamed versions of items
+already on the GDD's list of twelve, or additions to it — otherwise the next
+content run may commission twelve new ingredients on top of four that were
+already meant to count toward that total.
+
+## Escalation: Cultural Origins of the Provisional Ingredients
+
+**Escalating, not answering.** The GDD's mandate for this document is that
+"ingredients and recipes can communicate neighborhoods, migration, family
+traditions, trade, scarcity, and relationships" (GDD §1, "Art Direction"). The
+twelve named ingredients in GDD §2.3 draw on real, distinct culinary
+traditions. Naming those traditions here is descriptive, not an assignment of
+any of them to a specific in-fiction person, neighborhood, or migration
+history:
+
+- kimchi and pepper paste draw on Korean culinary tradition.
+- tofu draws on East Asian culinary tradition broadly.
+- coconut milk appears across Southeast Asian, South Asian, Caribbean, and
+  West African traditions.
+- chickpeas and flatbread appear across Mediterranean, Middle Eastern, and
+  South Asian traditions.
+- pickled cucumber appears across Eastern and Central European and East
+  Asian traditions.
+- smoked fish appears across Nordic, Eastern European, Pacific Northwest, and
+  Caribbean traditions, among others.
+- citrus herbs, mushrooms, and noodles are shared across many traditions with
+  no single attribution.
+
+This is exactly the territory the Worldkeeper is not authorized to settle:
+"this game's ingredients cross real culinary traditions, and who eats what,
+where it came from, and how it is described are exactly the calls the human
+reserved" (Worldkeeper role definition). The GDD names the same risk
+directly: "Ingredient values encode stereotypes... ground later worldbuilding
+in specific people and histories" (GDD §5.5, Risks) and "Flavor values and
+food constraints can become reductive or inaccurate... require human review
+of descriptions, tags, allergens, and customer framing" (GDD §5.4,
+Constraints). Three questions follow, listed in "Open Questions for the
+Human" below rather than answered here.
+
+## A Framework for Grounding Future Ingredients (Proposed Process, Not Content)
+
+**PROPOSED — a writing aid, not a mechanic, tag, or rule.** For whoever drafts
+the next ingredient descriptions: before writing the sensory description
+itself, it may help to privately answer three questions the description
+should never state outright, per Content Voice Rule 1 ("Describe the thing,
+not its role"):
+
+- Which established place does this plausibly move through — the North
+  Tower, the Scrap Market, elsewhere in the city, or the truck's own planter?
+- Who in this world might this matter to?
+- Does it carry a note of trade, scarcity, or care?
+
+The answers inform the writer. None of them belong in the printed description
+— that is what Content Voice Rules 1 through 4 already forbid.
+
+## The Cook (Player Character)
+
+**Thin — flagging explicitly rather than filling in.** No name, appearance,
+background, or pronoun for the player character is established anywhere. The
+GDD refers only to "the player" throughout. This is one of the least-answered
+points in the entire document. See "Open Questions for the Human."
+
+## Open Questions for the Human
+
+Consolidated from the escalations above, each pointing back to its section:
+
+1. Should the city itself be named? ("The City")
+2. Is "Neon Kitchen" the truck's in-fiction, hand-painted name, or only the
+   game's title? ("The Truck's Name")
+3. Is the North Tower corporate property, abandoned, or informally reclaimed
+   — and is its upkeep official or improvised? ("The North Tower")
+4. Is the Scrap Market a formal, licensed market or a gray-market trade, and
+   does the truck actually source from it? ("The Scrap Market")
+5. What should the Late-Shift Medic's workplace be called, and how formal is
+   it — hospital, municipal clinic, or informal community triage point?
+   ("The Late-Shift Medic's Workplace")
+6. Should community mutual aid and/or corporate power be named, structured
+   factions, or remain deliberately unnamed background forces? ("Community
+   Mutual Aid" / "Corporate Power")
+7. Which occupations (from the candidate list, or others) should be
+   commissioned for the remaining five customers, and should the GDD §2.2
+   night courier be formalized as one of the eight? ("Candidate Occupations")
+8. Do the four shipped ingredients replace or sit alongside the GDD §2.3
+   provisional twelve-name list, given three of the four shipped names do not
+   appear on it? ("The Provisional Twelve-Ingredient Roster")
+9. Should any of the twelve ingredients' real-world culinary traditions —
+   Korean, East/Southeast/South Asian, Mediterranean/Middle Eastern, Eastern
+   European, Nordic, Caribbean, West African, and others — be attributed to
+   specific in-fiction people, neighborhoods, or migration histories, and on
+   whose authority and with what review? ("Escalation: Cultural Origins")
+10. Should this city be written as deliberately mixed and diasporic with no
+    one-to-one neighborhood-to-tradition mapping, or does it have specific,
+    human-authored neighborhoods each tied to a real tradition? ("Escalation:
+    Cultural Origins")
+11. Who is the Cook — name, background, relationship to the truck — and how
+    much of that should ever surface on screen, given Phase 1 has no separate
+    narrative system (GDD §1, Pillar 3)? ("The Cook")
