@@ -84,7 +84,7 @@ func test_scripted_session_matches_asserted_output() -> void:
 		[
 			"Serving: Neon Noodles, Rooftop Greens",
 			"Result: Satisfied -- 77",
-			"Strongest match: Spicy",
+			"Strongest match: Fresh",
 			"Largest miss: Comfort",
 			"Good and light — I can actually feel human again.",
 		],

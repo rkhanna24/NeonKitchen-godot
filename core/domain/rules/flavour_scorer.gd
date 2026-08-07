@@ -64,6 +64,9 @@ static func score(profile: FlavorProfile, customer: CustomerDefinition) -> Resul
 		sum_penalty += penalty
 		sum_max_penalty += max_penalty
 
+		if _is_unengaged(entry):
+			continue
+
 		if best_strongest == null or _is_lower_penalty(entry, best_strongest):
 			best_strongest = entry
 		if best_largest == null or _is_higher_penalty(entry, best_largest):
@@ -100,6 +103,14 @@ static func score(profile: FlavorProfile, customer: CustomerDefinition) -> Resul
 		largest_miss,
 		per_dimension
 	)
+
+
+## A dimension with target 0 and actual 0 was never engaged by the player,
+## per ADR 0004 section 6 (DEC-025). It stays in `per_dimension` and its
+## penalty (always 0) still contributes to the score, but it is never a
+## candidate for either feedback selection.
+static func _is_unengaged(entry: Evaluation.DimensionScore) -> bool:
+	return entry.target == 0 and entry.actual == 0
 
 
 ## Strongest match is the weighted dimension with the lowest penalty. Ties

@@ -272,6 +272,12 @@ golden cases cannot be stable.
 >
 > Found by playing the game, not by a test. No check could have caught it: every
 > figure was correct.
+>
+> **This section's `Verification` entry is unaffected.** The GDD §2.2 worked
+> example reports largest miss as "Spicy was slightly lower than requested",
+> which means Spicy carried a non-zero target — an engaged dimension, and still
+> a candidate. Checked rather than assumed, because that entry is the one place
+> this document pins a strongest match and a largest miss by name.
 
 ### 7. Commands
 
