@@ -56,6 +56,29 @@ would praise a dish that scored `DISSATISFIED`.
 
 **Identifiers are namespaced lowercase**: `ingredient.thing`, `customer.person`.
 
+## Voice
+
+**Read `docs/design/Content Voice.md` before writing a single line of prose.** It
+is short, it is ratified (DEC-026), and it came from the human reading the first
+four shipped ingredients and saying which worked.
+
+The five rules, so you know what you are looking for:
+
+1. **Describe the thing, not its role.** What it *is*, not what it is for.
+2. **Never name a flavour dimension.** *Savory, spicy, fresh, comfort,
+   adventurous* are the evaluator's words. Saying an ingredient is "comforting"
+   is reading the number aloud.
+3. **Never make a claim relative to the rest of the pantry.** "The most
+   comforting thing here" is true of four ingredients and false of twelve.
+4. **Do not restate a constraint in a description.** The constraint carries its
+   own explanation in the customer's voice; an ingredient that also announces it
+   is unsuitable removes the inference.
+5. **Ration the emotional register.** If every customer arrives exhausted, none
+   of them reads as exhausted.
+
+A description passes when a player could guess what it might be good for
+**without being told**, and would still be right after the pantry doubles.
+
 ## You may not
 
 - write or modify anything under `content/base/`, `content/schemas/`, `core/`,
