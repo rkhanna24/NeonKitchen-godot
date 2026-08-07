@@ -240,10 +240,38 @@ idea and is deferred.
   as absent when every penalty is zero.
 - Unweighted dimensions are never reported; "largest *relevant* miss" means
   relevant to this customer.
+- **A dimension whose target and actual value are both 0 is never reported
+  either**, and is excluded from both selections. Reported as absent when no
+  candidate remains.
 
 Ties break by higher weight first, then by the fixed dimension order in §1.
 Both tie-breaks are mandatory: without them, feedback is non-deterministic and
 golden cases cannot be stable.
+
+> **Amended 2026-08-06 (DEC-025).** The exclusion above is new. A weighted
+> dimension with target 0 and actual 0 has a penalty of 0, so it won the
+> strongest-match selection outright — and the first hands-on session reported
+> `Strongest match: Spicy` in **every** encounter, including a spice-free dish
+> served to a customer who had asked for "a little kick".
+>
+> Nothing was computed wrongly. Zero penalty *is* a perfect match. But it reads
+> as "the spiciness was the best part" where it means "spicy was the least wrong
+> thing", so the feedback line most able to teach something instead said nothing
+> on most dishes — and §12's advance gate turns on a tester explaining a result
+> in ingredient and customer terms.
+>
+> A dimension the player never engaged with should not win by default. Absence of
+> a flavour the customer did not want is a boundary respected, not a flavour
+> matched.
+>
+> **Feedback only.** `strongest_match` and `largest_miss` do not enter the score,
+> so no score, band, or balance changes. In practice this affects strongest match
+> alone: a zero-penalty dimension can only be the *largest* miss when every
+> penalty is zero, and that case was already reported as absent. The rule is
+> stated for both so the exclusion has one definition rather than two.
+>
+> Found by playing the game, not by a test. No check could have caught it: every
+> figure was correct.
 
 ### 7. Commands
 
