@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="IngredientDefinition" format=3]
+
+[ext_resource type="Script" path="res://content/schemas/ingredient_definition.gd" id="1_vygxv"]
+
+[resource]
+script = ExtResource("1_vygxv")
+content_id = &"ingredient.kimchi"
+name_key = &"ingredient.kimchi.name"
+description_key = &"ingredient.kimchi.description"
+savory = 1
+spicy = 1
+adventurous = 3
+tags = Array[StringName]([&"fermented", &"vegan"])

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="IngredientDefinition" format=3]
+
+[ext_resource type="Script" path="res://content/schemas/ingredient_definition.gd" id="1_glivm"]
+
+[resource]
+script = ExtResource("1_glivm")
+content_id = &"ingredient.chickpeas"
+name_key = &"ingredient.chickpeas.name"
+description_key = &"ingredient.chickpeas.description"
+savory = 1
+comfort = 2
+tags = Array[StringName]([&"legume", &"vegan"])

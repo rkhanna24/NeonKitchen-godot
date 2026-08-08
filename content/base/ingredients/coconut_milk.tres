@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="IngredientDefinition" format=3]
+
+[ext_resource type="Script" path="res://content/schemas/ingredient_definition.gd" id="1_vyqmq"]
+
+[resource]
+script = ExtResource("1_vyqmq")
+content_id = &"ingredient.coconut_milk"
+name_key = &"ingredient.coconut_milk.name"
+description_key = &"ingredient.coconut_milk.description"
+comfort = 2
+adventurous = 1
+tags = Array[StringName]([&"vegan"])

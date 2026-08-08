@@ -26,3 +26,19 @@ customer.late_shift_medic.reaction.delighted,"Light, clean, and exactly what my 
 customer.late_shift_medic.reaction.satisfied,"Good and light. First thing all shift that hasn't sat like a stone."
 customer.late_shift_medic.reaction.mixed,"It's alright, but heavier than I wanted after tonight."
 customer.late_shift_medic.reaction.dissatisfied,"This is way too heavy. My stomach's not going to forgive either of us for this."
+ingredient.mushrooms.name,Mushrooms
+ingredient.mushrooms.description,"Wild mushrooms, sliced thick, sweated down slow until they give up their own dark liquid."
+ingredient.chili_crisp.name,Chili Crisp
+ingredient.chili_crisp.description,"Dried chilies and shallots fried down in oil until they turn brittle, spooned out still warm from the pan."
+ingredient.kimchi.name,Kimchi
+ingredient.kimchi.description,"Napa cabbage packed in chili paste and left to sour in a sealed jar until the lid won't stay quiet."
+ingredient.smoked_fish.name,Smoked Fish
+ingredient.smoked_fish.description,"Fillets cured in salt, then hung over smoldering wood chips until the flesh turns a deep, glossy amber."
+ingredient.coconut_milk.name,Coconut Milk
+ingredient.coconut_milk.description,"Coconut flesh grated, soaked, and squeezed through cloth until the liquid runs rich and pale, thick enough to slow a boil."
+ingredient.pickled_cucumber.name,Pickled Cucumber
+ingredient.pickled_cucumber.description,"Cucumbers sliced thin and packed in vinegar brine until they turn translucent and snap clean in half."
+ingredient.chickpeas.name,Chickpeas
+ingredient.chickpeas.description,"Dried chickpeas soaked overnight, then simmered slow until they soften enough to mash between two fingers."
+ingredient.citrus_herbs.name,Citrus Herbs
+ingredient.citrus_herbs.description,"A fistful of soft herbs torn over citrus zest, bruised just enough to let the oils out."

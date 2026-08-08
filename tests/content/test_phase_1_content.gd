@@ -44,7 +44,9 @@ func _customer(id: StringName) -> CustomerDefinition:
 
 
 func test_the_set_is_the_approved_size() -> void:
-	assert_eq(repository.all_ingredients().size(), 4)
+	# Twelve is the roster GDD section 2.3 names and section 12 requires the first
+	# playtest to run on. Customers reach eight in #24's second run.
+	assert_eq(repository.all_ingredients().size(), 12)
 	assert_eq(repository.all_customers().size(), 3)
 
 
@@ -78,14 +80,27 @@ func test_rooftop_lettuce_values_and_tags() -> void:
 	assert_true(i.has_tag(&"vegan"))
 
 
-func test_only_two_ingredients_contribute_comfort() -> void:
-	# The design depends on this: Comfort 5 is unreachable without combining
-	# both, which is what exercises ADR 0004 §1's forced-combination mechanic.
-	var contributors: int = 0
+func test_every_dimension_has_a_full_strength_source() -> void:
+	# Replaces an earlier assertion that exactly two ingredients contributed
+	# Comfort. That held because the pantry was small, not because the design
+	# required it, and six ingredients now carry Comfort.
+	#
+	# A first replacement asserted no ingredient exceeds 3 — which `ContentValidator`
+	# already rejects at load, so no content reaching this test could ever violate
+	# it. It could not fail, which makes it not a test. Verified by injecting
+	# `savory = 4`: the repository refused to load and the assertion never ran.
+	#
+	# This is the property nothing else enforces. Every dimension needs at least
+	# one ingredient at the per-ingredient cap, or a customer targeting 4 or 5 on
+	# that dimension cannot be satisfied by any dish — and §1's forced-combination
+	# mechanic assumes the ceiling is reachable at all.
+	var strongest: Array[int] = [0, 0, 0, 0, 0]
 	for i: IngredientDefinition in repository.all_ingredients():
-		if i.value_of(Flavor.Dimension.COMFORT) > 0:
-			contributors += 1
-	assert_eq(contributors, 2)
+		var values: Array[int] = i.flavour_values()
+		for d: int in range(values.size()):
+			strongest[d] = maxi(strongest[d], values[d])
+	for d: int in range(strongest.size()):
+		assert_eq(strongest[d], 3, "no ingredient reaches 3 on %s" % Flavor.dimension_name(d))
 
 
 func test_solar_tech_targets_and_weights() -> void:
@@ -113,12 +128,16 @@ func test_late_shift_medic_targets_and_weights() -> void:
 	# "nothing fiery" as active dislikes; dropping either weight to 0 would
 	# silently turn it into indifference, per §2.
 	#
-	# Spicy weight 2 is why this customer cannot reach DELIGHTED: Fresh 4 is
-	# only reachable as rooftop_lettuce(3) + citrus_chili_paste(1), and the chili
-	# carries Spicy 3, so the only path to a perfect Fresh score is also the one
-	# the Spicy weight penalises. Their ceiling is 84 on rooftop_lettuce alone or
-	# with soy_broth. That is deliberate, and legal under §11 — solvability is
-	# a session property, so a customer may be impossible to fully satisfy.
+	# Spicy weight 2 once made this customer unable to reach DELIGHTED: the only
+	# route to Fresh 4 was rooftop_lettuce(3) + citrus_chili_paste(1), and the
+	# chili carries Spicy 3, so the perfect Fresh score cost exactly what the
+	# Spicy weight punished. Their ceiling was 84.
+	#
+	# **That is no longer true.** citrus_herbs (Fresh 1, Spicy 0) gives a
+	# spice-free route to Fresh 4, and the medic now reaches DELIGHTED. ADR 0004
+	# §11 anticipated this for reaction lines — "the pantry may change around
+	# them" — and the same applies to a claim like the one this comment used to
+	# make. The targets below are unchanged; only what they imply has moved.
 	assert_eq(c.targets(), [0, 0, 4, 1, 0] as Array[int])
 	assert_eq(c.weights(), [0, 2, 3, 2, 0] as Array[int])
 	assert_eq(c.reaction_key, &"customer.late_shift_medic.reaction", "must be a prefix, per §8a")
@@ -164,10 +183,12 @@ func _dishes() -> Array:
 
 
 func test_dish_enumeration_respects_the_size_cap() -> void:
-	# Guards the cap above rather than trusting it: with four ingredients an
-	# uncapped power set yields 15 subsets, one of which is illegal.
+	# Guards the cap above rather than trusting it. With twelve ingredients an
+	# uncapped power set yields 4095 subsets against 298 legal dishes, so an
+	# unenforced cap is now off by more than an order of magnitude rather than by
+	# the single subset it was when the pantry held four.
 	var dishes: Array = _dishes()
-	assert_eq(dishes.size(), 14, "1-3 ingredient subsets of a 4-ingredient pantry")
+	assert_eq(dishes.size(), 298, "1-3 ingredient subsets of a 12-ingredient pantry")
 	for dish: Array in dishes:
 		assert_between(dish.size(), 1, MAX_DISH_INGREDIENTS, "illegal dish size enumerated")
 
