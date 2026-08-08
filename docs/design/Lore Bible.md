@@ -293,15 +293,31 @@ flatbread, citrus herbs, and smoked fish." The same section flags this roster
 as "provisional and must be checked for tag accuracy and distinct gameplay
 roles before external playtesting" (GDD §2.3).
 
-**Flag, not a claim — for the Kitchen Lead.** The four ingredients shipped so
-far are Neon Noodles, Umami Broth, Ember Chili Paste, and Rooftop Greens
-(`content/base/ingredients/`). Three of those four names — Umami Broth,
-Rooftop Greens, and arguably Ember Chili Paste — do not appear on the GDD §2.3
-list by that name. Before the remaining eight ingredients are commissioned,
-someone should confirm whether the shipped four are renamed versions of items
-already on the GDD's list of twelve, or additions to it — otherwise the next
-content run may commission twelve new ingredients on top of four that were
-already meant to count toward that total.
+**DECIDED by the human, 2026-08-07.** The four shipped ingredients were renamed
+to plain culinary nouns matching the GDD's own modifier-plus-noun pattern, and
+they count toward the twelve:
+
+| Shipped `content_id` | Display name |
+|---|---|
+| `ingredient.thick_wheat_noodles` | Thick Wheat Noodles |
+| `ingredient.soy_broth` | Soy Broth |
+| `ingredient.citrus_chili_paste` | Citrus Chili Paste |
+| `ingredient.rooftop_lettuce` | Rooftop Lettuce |
+
+The remaining **eight are drawn from the GDD's provisional list**, which that
+section itself invites: it calls the roster "provisional and must be checked for
+tag accuracy and distinct gameplay roles."
+
+The rename resolved a question this section previously flagged as open — whether
+the shipped four were renames or additions. They are the former, and they are now
+named accordingly. `Content Voice.md` rule 6 records the principle: **names are
+plain; descriptions carry the world.** "Neon Noodles" put the setting in the name
+and left the description with nothing to do.
+
+One consequence worth stating for whoever commissions the eight: `soy_broth`
+announces its own tag, so its description does not need to warn anyone away from
+soy. A plain name can carry a constraint the prose then does not have to
+telegraph.
 
 ## Escalation: Cultural Origins of the Provisional Ingredients
 
