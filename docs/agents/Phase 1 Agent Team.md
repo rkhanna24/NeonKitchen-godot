@@ -105,7 +105,7 @@ Inbox ──> Ready ──> In progress ──> Verification ──> Done
 | Verification → Done | evidence independently reproduced | Kitchen Lead, human for subjective calls |
 | any → Blocked | a dependency is discovered mid-task | Kitchen Lead |
 
-### Three protocol rules learned the hard way
+### Four protocol rules learned the hard way
 
 **Post the packet on the issue before spawning, and record approval on the issue
 before sending it.** A task-scoped agent cannot be resumed after it terminates. An
@@ -125,6 +125,13 @@ what DEC-014 exists to prevent.
 is not a pause — the process ends. Implementation therefore requires a *second*
 dispatch carrying the approved proposal. Its packet states `PROPOSE` or
 `IMPLEMENT` for exactly this reason.
+
+**A packet must reach the agent that needs it.** Posting it on the issue is the
+durable record, but four of the five agents have no `Bash` and cannot read an
+issue. For those, mirror the packet to a file they can `Read` — generated *from*
+the issue so the two cannot diverge. A Pantry Keeper was once dispatched with a
+packet it had no way to open; it correctly refused to invent the brief and
+escalated, which cost one round trip and would have cost far more had it guessed.
 
 ### Shared state hazards
 

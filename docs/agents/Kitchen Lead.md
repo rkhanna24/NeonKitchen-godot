@@ -277,7 +277,11 @@ When the execution environment and human authorization permit specialist delegat
 2. move the issue to In progress and activate only the required specialist;
 3. give it a context packet rather than the full unfiltered project history,
    and post that packet **on the issue** — not only in the spawn prompt, so it
-   survives the agent terminating;
+   survives the agent terminating. **If the specialist has no `Bash`, it cannot
+   read the issue**: mirror the packet to a file it can `Read`, pulling that file
+   *from* the issue rather than writing it twice, so the two cannot drift. The
+   content crew has no shell by design, and a packet it cannot reach is the same
+   as no packet at all;
 4. identify which files it may read or change;
 5. **isolate concurrent specialists in separate worktrees.** Two agents sharing
    one working tree see each other's in-flight edits, each other's `git status`,
