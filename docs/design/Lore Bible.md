@@ -204,31 +204,51 @@ service crew. Whether corporate power should be a felt threat, an absent
 landlord, or simply unaddressed background is undecided. See "Open Questions
 for the Human."
 
-## Candidate Occupations for the Remaining Customers
+## The Remaining Five Customers
 
-**PROPOSED — shapes for the Kitchen Lead and a future Customer Designer to
-choose from, not written customers.** The GDD plans eight customer
-encounters; three are shipped (Solar Rig Tech, Scrap-Market Trader, Late-Shift
-Medic) and GDD §2.2's night courier is an established but unshipped fourth
-voice. These are unassigned starting points tied to places already
-established above, each a single sentence — no dialogue, no constraint, no
-flavor target, since those belong to the Customer Designer and Pantry Keeper
-respectively:
+**DECIDED by the human, 2026-08-07.** A third label, distinct from ESTABLISHED
+and PROPOSED: these are canon by decision rather than by citation. Recorded in
+the human's own terms. **No dialogue, constraint, flavour target, or cultural
+background is attached here** — those belong to the Pantry Keeper and the
+Customer Designer, and inventing them at this stage would put words in a
+customer's mouth before anyone decided how they speak.
 
-- A second worker from the North Tower, alongside the Solar Rig Tech, with a
-  different relationship to that work.
-- A second presence at the Scrap Market, distinct from the trader already
-  shipped.
-- A colleague of the Late-Shift Medic on a different shift, at whatever the
-  medic's workplace is decided to be.
-- The GDD §2.2 night courier, formalized into shipped content.
-- A resident who grows food elsewhere in the city, in parallel to the truck's
-  own rooftop planter — someone the truck might trade with rather than only
-  serve.
+Three customers already ship: the Solar Rig Tech, the Scrap-Market Trader, and
+the Late-Shift Medic. These five complete the eight the GDD plans.
 
-None of these come with a cultural, ethnic, or personal background attached.
-See "Escalation: Cultural Origins of the Provisional Ingredients" below for
-why that attachment is deliberately left blank here.
+**The second solar panel technician.** A colleague of the Solar Rig Tech, on a
+contract with them to fix up the North Tower rooftop. The work is contracted and
+shared, not solitary.
+
+**The corporate office worker.** Slipped out of stuffy corporate catering to find
+something interesting. Their reason for standing at the truck is an appetite the
+provided food does not meet.
+
+**The night courier.** Between deliveries. Establishes GDD §2.2's worked-example
+voice as a shipped customer.
+
+**The block's gangster.** His gang controls the block the truck is parked on, and
+the truck needed their approval to be there safely. In his own neighbourhood he
+is relaxed and off watch — but always on guard.
+
+**The old local.** Lives around the block and has seen the city go through
+everything.
+
+## What the Gangster Establishes
+
+**DECIDED by the human, 2026-08-07.** A gang controls the block the truck is
+parked on, and the truck operates there by permission rather than by right.
+
+This is the first faction in the setting with a concrete relationship to the
+truck, and it is not an antagonistic one: the arrangement has already been made,
+and the gangster stands at the counter as a customer. Whether the gang is named,
+and whether other blocks work the same way, is not decided.
+
+It also supersedes the earlier concern under "This Block". A nomadic truck and a
+block that grants parking permission are not in tension — **permission is what
+parking anywhere costs.** The truck moves; each place has someone whose approval
+it needs. "This block" stays a floating reference to wherever the truck is
+tonight, and the gangster is who it answers to *tonight*.
 
 ## The Provisional Twelve-Ingredient Roster
 
@@ -307,36 +327,50 @@ points in the entire document. See "Open Questions for the Human."
 
 ## Open Questions for the Human
 
-Consolidated from the escalations above, each pointing back to its section:
+Three of the original eleven are resolved. The rest are deferred deliberately:
+each binds only if new content *references* it, so none blocks the next content
+run. **Content generation may not resolve one by inventing an answer** — a
+proposal that needs the medic's workplace named is an escalation, not a licence.
+
+### Resolved
+
+- **Who the remaining five customers are** — decided 2026-08-07. See "The
+  Remaining Five Customers".
+- **Whether the four shipped ingredients replace or sit alongside the GDD's
+  provisional twelve** — decided 2026-08-07. The four keep plain names matching
+  the GDD's modifier-plus-noun pattern; the remaining eight are drawn from its
+  list. See "The Provisional Twelve-Ingredient Roster".
+- **Whether factions exist** — partly. A gang controls the block the truck parks
+  on and the truck is there by permission. See "What the Gangster Establishes".
+  Whether it is named, and whether mutual aid or corporate power are structured
+  factions, is still open.
+
+### Answered by default, reversible
+
+- **Cultural attribution (originally 9 and 10).** The city is written as
+  deliberately mixed and diasporic, with **no one-to-one mapping from
+  neighbourhood to culinary tradition**, and no real tradition attributed to an
+  invented in-fiction group. This is the narrowable direction: a specific,
+  human-authored neighbourhood can be added later, whereas un-attributing a
+  tradition once written is much harder. The GDD's own word is *migration*, which
+  implies mixing. **Reversible on the human's say-so, and only theirs.**
+
+### Still open
 
 1. Should the city itself be named? ("The City")
 2. Is "Neon Kitchen" the truck's in-fiction, hand-painted name, or only the
    game's title? ("The Truck's Name")
-3. Is the North Tower corporate property, abandoned, or informally reclaimed
-   — and is its upkeep official or improvised? ("The North Tower")
-4. Is the Scrap Market a formal, licensed market or a gray-market trade, and
-   does the truck actually source from it? ("The Scrap Market")
-5. What should the Late-Shift Medic's workplace be called, and how formal is
-   it — hospital, municipal clinic, or informal community triage point?
+3. Is the North Tower corporate property, abandoned, or informally reclaimed —
+   and is its upkeep official or improvised? Now that two technicians are
+   contracted to fix its rooftop, *who is paying them* is the sharper form of
+   this question. ("The North Tower")
+4. Is the Scrap Market a formal, licensed market or a gray-market trade, and does
+   the truck actually source from it? ("The Scrap Market")
+5. What should the Late-Shift Medic's workplace be called, and how formal is it?
    ("The Late-Shift Medic's Workplace")
-6. Should community mutual aid and/or corporate power be named, structured
-   factions, or remain deliberately unnamed background forces? ("Community
-   Mutual Aid" / "Corporate Power")
-7. Which occupations (from the candidate list, or others) should be
-   commissioned for the remaining five customers, and should the GDD §2.2
-   night courier be formalized as one of the eight? ("Candidate Occupations")
-8. Do the four shipped ingredients replace or sit alongside the GDD §2.3
-   provisional twelve-name list, given three of the four shipped names do not
-   appear on it? ("The Provisional Twelve-Ingredient Roster")
-9. Should any of the twelve ingredients' real-world culinary traditions —
-   Korean, East/Southeast/South Asian, Mediterranean/Middle Eastern, Eastern
-   European, Nordic, Caribbean, West African, and others — be attributed to
-   specific in-fiction people, neighborhoods, or migration histories, and on
-   whose authority and with what review? ("Escalation: Cultural Origins")
-10. Should this city be written as deliberately mixed and diasporic with no
-    one-to-one neighborhood-to-tradition mapping, or does it have specific,
-    human-authored neighborhoods each tied to a real tradition? ("Escalation:
-    Cultural Origins")
-11. Who is the Cook — name, background, relationship to the truck — and how
-    much of that should ever surface on screen, given Phase 1 has no separate
-    narrative system (GDD §1, Pillar 3)? ("The Cook")
+6. Is the block's gang named? Do other blocks work the same way? Are mutual aid
+   and corporate power structured factions or unnamed background forces?
+7. Who is the Cook — name, background, relationship to the truck — and how much
+   should ever surface, given Phase 1 has no narrative system (GDD §1, Pillar 3)?
+   Still the thinnest point in the document, and still not blocking: the Cook
+   never speaks in Phase 1, and every customer addresses a generic "you".
