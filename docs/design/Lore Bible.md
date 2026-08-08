@@ -250,6 +250,41 @@ parking anywhere costs.** The truck moves; each place has someone whose approval
 it needs. "This block" stays a floating reference to wherever the truck is
 tonight, and the gangster is who it answers to *tonight*.
 
+### The approval is not a mechanic
+
+**DECIDED by the human, 2026-08-07.** The arrangement is **narrative colour and
+nothing else.** No command, event, port, constraint, or score depends on it, and
+none should in Phase 1 or in the capstone. It exists to explain why the truck is
+parked where it is, and it is already settled before the game begins — the player
+never negotiates it.
+
+This is written down because the idea invites a mechanic and the decision was to
+refuse one for now. Anyone reading "the truck operates by permission" and
+reaching for a reputation meter, a protection cost, or a territory system is
+going past what was decided.
+
+### Approval as a later system (stretch, post-capstone)
+
+**PROPOSED by the human as an area to explore, 2026-08-07 — not scheduled.** Who
+grants a truck permission to trade is a question with more in it than one
+gangster. Plausible grantors span the setting's whole power structure:
+
+- a gang leader;
+- a corporation;
+- mercenaries;
+- a community leader.
+
+Two directions are open and both are interesting: permission as a **core mechanic
+the player earns**, or as a purely **narrative frame** that colours a location
+without being played. Which grantor a block answers to would say a great deal
+about that block, either way.
+
+**Deliberately unexplored.** GDD *Stretch Goals* holds the candidates for one
+additional pressure system after the Phase 1 gate and the baseline Godot UI, and
+constrains that list to **one** addition. If this belongs there, adding it is a
+GDD amendment and the human's edit to make — it is recorded here so the idea is
+not lost, not to smuggle it into scope.
+
 ## The Provisional Twelve-Ingredient Roster
 
 **ESTABLISHED.** GDD §2.3 names the Phase 1 pantry: "noodles, tofu, mushrooms,
@@ -354,6 +389,11 @@ proposal that needs the medic's workplace named is an escalation, not a licence.
   human-authored neighbourhood can be added later, whereas un-attributing a
   tradition once written is much harder. The GDD's own word is *migration*, which
   implies mixing. **Reversible on the human's say-so, and only theirs.**
+
+  Confirmed by the human 2026-08-07, with one addition: **historic ethnic ghettos
+  are reserved as a later idea to explore, not ruled out.** The default defers
+  them rather than foreclosing them — which is exactly why it was chosen over
+  writing specific neighbourhood-to-tradition mappings now.
 
 ### Still open
 
