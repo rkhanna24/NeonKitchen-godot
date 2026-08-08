@@ -19,6 +19,12 @@
 .venv/
 __pycache__/
 
+# Content-crew handoff files. The proposal, balance report and verification report
+# agents pass between each other, plus the packet mirrored from the issue. Scratch
+# by the same reasoning as crew-runs below: the durable record is the commit, the
+# ADR, or the issue. The .gdignore is tracked; the handoffs are not.
+/content/staging/*.md
+
 # Content-crew run artifacts: the proposal, balance report, verification report
 # and acceptance note a crew run hands between its agents. Scratch working notes,
 # not durable records — anything worth keeping belongs in a commit message, an
