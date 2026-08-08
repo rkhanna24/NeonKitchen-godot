@@ -690,7 +690,15 @@ attempted.
 ## Verification
 
 - The GDD's worked example scores 81, band Satisfied, strongest match Comfort,
-  largest miss Spicy.
+  largest miss Spicy. **This is a contract vector, not a claim about shipped
+  content** — it pins the §3 formula against the synthetic profile
+  `[savory 4, spicy 2, fresh 0, comfort 5, adventurous 0]`, which is what
+  `tests/unit/test_flavour_scorer.gd` asserts. The dish GDD §2.2 narrates
+  (noodles + mushrooms + chili crisp) composes to `[5, 2, 0, 4, 0]` from the
+  shipped ingredients — savory and comfort swapped in magnitude — and therefore
+  scores differently. That divergence is accepted, not a defect: **DEC-027 rules
+  §2.2 illustrative prose rather than a specification.** Do not adjust ingredient
+  values to make the narration reproduce.
 - All seven fixture dishes have recorded golden cases.
 - Every rating band is reachable by at least one fixture dish.
 - A hard violation caps at 39 while the flavour score remains reported.
