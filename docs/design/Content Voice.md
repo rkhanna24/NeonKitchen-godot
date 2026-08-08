@@ -47,10 +47,25 @@ for from what it *is*. A description that explains its function has done the
 player's discovery for them, and discovery is the only progression Phase 1 has
 (GDD §2.4).
 
-**2. Never name a flavour dimension.** *Savory, spicy, fresh, comfort,
-adventurous* are the evaluator's words. A description saying an ingredient is
-"comforting" is reading the number aloud. Say what makes it so — warmth, weight,
-starch, a heat lamp — and let the number stay the game's business.
+**2. Never name a flavour dimension — in an ingredient description.**
+*Savory, spicy, fresh, comfort, adventurous* are the evaluator's words. A
+description saying an ingredient is "comforting" is reading the number aloud. Say
+what makes it so — warmth, weight, starch, a heat lamp — and let the number stay
+the game's business.
+
+**A customer request is the exception, and it is not a loophole.** GDD §1:
+*"Customers do not order exact menu items. They describe what they want through
+qualities such as comforting, spicy, fresh, savory, or adventurous."* That is the
+game's signal channel. A customer who says "something with real weight to it"
+instead of "savory" has not been subtle, they have been unclear — and ADR 0004
+§12's advance gate asks whether a tester can state, **before serving**, what the
+customer wants.
+
+The three shipped customers do this correctly: *"Something hearty and savory"*,
+*"comforting with just a little kick"*, *"Something fresh and light"*. Match them.
+
+Reaction lines sit with descriptions, not requests. A reaction reports how it
+went and can do that in the customer's own terms without naming a dimension.
 
 **3. Never make a claim relative to the rest of the pantry.** "The most
 comforting thing here" is true of four ingredients and false of twelve. This is
