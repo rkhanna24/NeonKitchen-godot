@@ -47,7 +47,7 @@ func test_the_set_is_the_approved_size() -> void:
 	# Twelve is the roster GDD section 2.3 names and section 12 requires the first
 	# playtest to run on. Customers reach eight in #24's second run.
 	assert_eq(repository.all_ingredients().size(), 12)
-	assert_eq(repository.all_customers().size(), 3)
+	assert_eq(repository.all_customers().size(), 8)
 
 
 func test_thick_wheat_noodles_values_and_tags() -> void:

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CustomerDefinition" format=3]
+
+[ext_resource type="Script" path="res://content/schemas/customer_constraint.gd" id="1_ccumj"]
+[ext_resource type="Script" path="res://content/schemas/customer_definition.gd" id="2_3i675"]
+
+[sub_resource type="Resource" id="Resource_rfp0a"]
+script = ExtResource("1_ccumj")
+subject = &"fermented"
+explanation_key = &"customer.night_courier.constraint.fermented"
+
+[resource]
+script = ExtResource("2_3i675")
+content_id = &"customer.night_courier"
+name_key = &"customer.night_courier.name"
+request_key = &"customer.night_courier.request"
+reaction_key = &"customer.night_courier.reaction"
+spicy_target = 3
+comfort_target = 5
+spicy_weight = 2
+comfort_weight = 3
+constraints = Array[ExtResource("1_ccumj")]([SubResource("Resource_rfp0a")])

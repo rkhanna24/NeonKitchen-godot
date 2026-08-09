@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="CustomerDefinition" format=3]
+
+[ext_resource type="Script" path="res://content/schemas/customer_constraint.gd" id="1_nildc"]
+[ext_resource type="Script" path="res://content/schemas/customer_definition.gd" id="2_j7dw7"]
+
+[sub_resource type="Resource" id="Resource_00y8c"]
+script = ExtResource("1_nildc")
+subject = &"gluten"
+explanation_key = &"customer.old_local.constraint.gluten"
+
+[resource]
+script = ExtResource("2_j7dw7")
+content_id = &"customer.old_local"
+name_key = &"customer.old_local.name"
+request_key = &"customer.old_local.request"
+reaction_key = &"customer.old_local.reaction"
+savory_target = 5
+comfort_target = 0
+savory_weight = 2
+comfort_weight = 0
+adventurous_weight = 3
+constraints = Array[ExtResource("1_nildc")]([SubResource("Resource_00y8c")])

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CustomerDefinition" format=3]
+
+[ext_resource type="Script" path="res://content/schemas/customer_definition.gd" id="2_meuhh"]
+
+[resource]
+script = ExtResource("2_meuhh")
+content_id = &"customer.office_worker"
+name_key = &"customer.office_worker.name"
+request_key = &"customer.office_worker.request"
+reaction_key = &"customer.office_worker.reaction"
+fresh_target = 5
+comfort_target = 0
+adventurous_target = 4
+fresh_weight = 3
+comfort_weight = 0
+adventurous_weight = 2

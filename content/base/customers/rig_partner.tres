@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CustomerDefinition" format=3]
+
+[ext_resource type="Script" path="res://content/schemas/customer_definition.gd" id="2_ijan4"]
+
+[resource]
+script = ExtResource("2_ijan4")
+content_id = &"customer.rig_partner"
+name_key = &"customer.rig_partner.name"
+request_key = &"customer.rig_partner.request"
+reaction_key = &"customer.rig_partner.reaction"
+spicy_target = 4
+fresh_target = 4
+comfort_target = 0
+spicy_weight = 3
+fresh_weight = 2
+comfort_weight = 0

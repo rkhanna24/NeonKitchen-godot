@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="CustomerDefinition" format=3]
+
+[ext_resource type="Script" path="res://content/schemas/customer_constraint.gd" id="1_31sn8"]
+[ext_resource type="Script" path="res://content/schemas/customer_definition.gd" id="2_ogay3"]
+
+[sub_resource type="Resource" id="Resource_4b3lr"]
+script = ExtResource("1_31sn8")
+subject = &"smoked"
+explanation_key = &"customer.block_boss.constraint.smoked"
+
+[resource]
+script = ExtResource("2_ogay3")
+content_id = &"customer.block_boss"
+name_key = &"customer.block_boss.name"
+request_key = &"customer.block_boss.request"
+reaction_key = &"customer.block_boss.reaction"
+savory_target = 5
+spicy_target = 4
+comfort_target = 0
+savory_weight = 3
+spicy_weight = 2
+comfort_weight = 0
+constraints = Array[ExtResource("1_31sn8")]([SubResource("Resource_4b3lr")])
