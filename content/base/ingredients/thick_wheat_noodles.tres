@@ -9,4 +9,4 @@ name_key = &"ingredient.thick_wheat_noodles.name"
 description_key = &"ingredient.thick_wheat_noodles.description"
 savory = 1
 comfort = 3
-tags = Array[StringName]([&"gluten", &"vegan"])
+tags = Array[StringName]([&"gluten", &"held", &"vegan"])

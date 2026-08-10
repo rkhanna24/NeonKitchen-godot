@@ -5,8 +5,8 @@
 
 [sub_resource type="Resource" id="Resource_00y8c"]
 script = ExtResource("1_nildc")
-subject = &"gluten"
-explanation_key = &"customer.old_local.constraint.gluten"
+subject = &"held"
+explanation_key = &"customer.old_local.constraint.held"
 
 [resource]
 script = ExtResource("2_j7dw7")

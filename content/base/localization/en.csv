@@ -74,4 +74,4 @@ customer.old_local.reaction.delighted,"Now that's a plate. Tastes like something
 customer.old_local.reaction.satisfied,"Good, honest food. Can't complain about that."
 customer.old_local.reaction.mixed,"It's fine. I've had better off carts that don't exist anymore."
 customer.old_local.reaction.dissatisfied,"I've outlasted worse than you on this corner, and this still isn't it."
-customer.old_local.constraint.gluten,"Nothing held under a heat lamp all shift. I've eaten off this corner long enough to tell what was made today from what's just been kept warm."
+customer.old_local.constraint.held,"Nothing held under a heat lamp all shift. I've eaten off this corner long enough to tell what was made today from what's just been kept warm."
