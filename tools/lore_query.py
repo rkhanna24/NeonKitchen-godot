@@ -26,6 +26,8 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from heading_sections import FENCE_RE, split_sections
+
 # --------------------------------------------------------------------------
 # Corpus definition
 # --------------------------------------------------------------------------
@@ -94,10 +96,10 @@ DEFAULT_RESULT_COUNT = 3
 # a new chunk; `####` and deeper are body text of the enclosing chunk (two
 # such headings exist in ADR 0004, at lines 33 and 97) unless a section
 # exceeds SECTION_LINE_CAP, in which case the nearest one becomes a
-# breadcrumb for the paragraph returned from inside it.
-_HEADING_RE = re.compile(r"^(#{1,3})\s+(.+?)\s*$")
+# breadcrumb for the paragraph returned from inside it. The split itself
+# (`HEADING_RE`, `FENCE_RE`, `split_sections`) lives in `heading_sections.py`,
+# shared with `gap_scan.py`.
 _SUBHEADING_RE = re.compile(r"^(#{4,6})\s+(.+?)\s*$")
-_FENCE_RE = re.compile(r"^\s*(```|~~~)")
 
 # A paragraph that is only a bare label -- `**ESTABLISHED**` alone on its
 # line, as the Lore Bible's "## The City" uses -- carries no claim by
@@ -160,35 +162,6 @@ class Chunk:
         return f"{self.file}:{self.start_line}-{self.end_line}"
 
 
-def _split_sections(
-    lines: list[str],
-) -> list[tuple[str, int, int, list[str]]]:
-    """Return (heading_text, start_line, end_line, body_lines) for every
-    top-level split (bare #, ##, or ###) in the file, 1-indexed inclusive
-    line numbers. Fenced code blocks suspend heading detection so a literal
-    "# ADR NNNN" inside a ```markdown template is never mistaken for a
-    real heading.
-    """
-    headings: list[tuple[str, int]] = []
-    in_fence = False
-    for idx, line in enumerate(lines, start=1):
-        if _FENCE_RE.match(line):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-        m = _HEADING_RE.match(line)
-        if m:
-            headings.append((line.rstrip("\n"), idx))
-
-    sections: list[tuple[str, int, int, list[str]]] = []
-    for i, (heading_text, start) in enumerate(headings):
-        end = headings[i + 1][1] - 1 if i + 1 < len(headings) else len(lines)
-        body = lines[start:end]  # body excludes the heading line itself
-        sections.append((heading_text, start, end, body))
-    return sections
-
-
 def _split_paragraphs(body: list[str]) -> list[tuple[int, int, list[str]]]:
     """Blank-line-delimited blocks within a section's body, fence-aware so a
     blank line inside a fenced example never splits one paragraph in two.
@@ -199,7 +172,7 @@ def _split_paragraphs(body: list[str]) -> list[tuple[int, int, list[str]]]:
     current_start = 0
     in_fence = False
     for offset, line in enumerate(body):
-        is_fence_line = bool(_FENCE_RE.match(line))
+        is_fence_line = bool(FENCE_RE.match(line))
         if is_fence_line:
             in_fence = not in_fence
         blank = (line.strip() == "") and not in_fence and not is_fence_line
@@ -257,7 +230,7 @@ def _nearest_subheading(body: list[str], up_to_offset: int) -> str | None:
     for offset, line in enumerate(body):
         if offset > up_to_offset:
             break
-        if _FENCE_RE.match(line):
+        if FENCE_RE.match(line):
             in_fence = not in_fence
             continue
         if in_fence:
@@ -274,7 +247,7 @@ def load_chunks(repo_root: Path) -> list[Chunk]:
         path = repo_root / rel_path
         text = path.read_text(encoding="utf-8")
         lines = text.splitlines(keepends=True)
-        for heading_text, start, end, body in _split_sections(lines):
+        for heading_text, start, end, body in split_sections(lines):
             total_lines = end - start + 1
             if total_lines <= SECTION_LINE_CAP:
                 chunks.append(

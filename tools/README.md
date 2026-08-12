@@ -78,6 +78,16 @@ Development` has no `##` before the next `#`, and without this a naive
 scanner would glue its milestone table onto the unrelated `## 2.4
 Progression, Failure, and Recovery` section above it.
 
+The split itself — `split_sections()`, fence-aware, returning
+`(heading_text, start_line, end_line, body_lines)` — lives in
+`heading_sections.py`, factored out during issue #30 so `gap_scan.py` could
+locate an ADR section ("5. Ports", "7. Commands", ...) by heading substring
+without duplicating this logic. Verified not to regress this tool: all
+`--verify-probes` probes passed unchanged after the move (see "Keeping it
+honest" below). The paragraph-level fallback below it — `_split_paragraphs`,
+`_nearest_subheading`, the bare-label merge — stays local to this file, since
+`gap_scan.py` only ever needs a whole section, never a paragraph inside one.
+
 Heading detection is suspended inside fenced code blocks, so the ADR
 template's own example headings inside `docs/adr/README.md`'s ` ```markdown `
 fence are never mistaken for real sections.
@@ -227,3 +237,175 @@ reverted:
 
 Every defect above made `--verify-probes` fail and exit nonzero; restoring
 the constant returned it to all-pass.
+
+## `gap_scan.py`
+
+Reads the ADRs, inventories the codebase, and reports what the documents
+require but the code does not have — distinguishing "not built yet" from
+"deliberately not built" using the documents' own words. See issue #30 for
+the goal and the approved design this implements.
+
+```bash
+python3 tools/gap_scan.py                  # offline: no network, no gh
+python3 tools/gap_scan.py --check-backlog  # + gh issue list (read-only)
+python3 tools/gap_scan.py --file-issues    # + gh issue create (mutating)
+```
+
+**A naive diff would be wrong here.** ADR 0002 §5 declares seven ports;
+`core/ports/` holds one file. A diff of declared-versus-present reports six
+gaps, and only one — `tests/golden/` in §6's layout — is real. The other six
+are ports the ADR marks "Interface only" or "Not created", with the reason
+recorded right there. The work is telling those apart, not diffing.
+
+### What "the codebase contains X" means
+
+Two independent facts, both reported, never collapsed into one boolean:
+whether a `class_name` declaration exists **anywhere** under the repo root,
+and whether it exists **at its ratified path** (`core/domain/commands/`,
+`core/domain/events/`, or `core/ports/`, per ADR 0002 §6, filename
+`snake_case(ClassName).gd`). On the current tree the two facts agree for
+every command, event, and port — so a disagreement is real but otherwise
+unexercised, and `MISLOCATED` exists to report it when it happens:
+
+```
+BUILT       both facts true, at the ratified path
+MISLOCATED  class_name found, but not at its ratified path
+DEFERRED    found nowhere, but a document licenses the absence
+GAP         found nowhere, and nothing licenses the absence
+```
+
+Proven by construction, then reverted (issue #30's approval required this
+before shipping `MISLOCATED` at all — "a status that has never been observed
+firing is the same defect as a test never seen to fail"): moving
+`start_session.gd` from `core/domain/commands/` to `core/domain/rules/`
+made `gap_scan.py` report `StartSession` as `MISLOCATED` — not `BUILT`, not
+`GAP` — quoting both the wrong and the ratified path. Reverted; the tree
+returned to reporting it `BUILT`.
+
+Session phases (ADR 0004 §7a) are a fifth category with only *one* "contains"
+fact: enum-member presence anywhere in the codebase, not tied to a specific
+enum name or file. This was a judgement call, not something the ADR
+specifies — confirmed as the working definition during approval — and it
+means `MISLOCATED` cannot occur for a phase by construction: a single fact
+has nothing to disagree with itself.
+
+### The deferral rule
+
+Applied only once a declaration is found nowhere in the code. Search in
+order, stop at first match:
+
+- **(a) another cell in the same table row states status or reason.** Only
+  the port table (ADR 0002 §5) has a status column, so this rule is
+  port-table-specific; the commands and events tables have a "Fields"
+  column, which is not a status. Whatever the cell says *is* the citation —
+  no vocabulary-hunting needed. An **empty** status cell is not a citation
+  of anything, though, and is reported `GAP` rather than a hollow
+  `DEFERRED: ""`: caught by deliberately blanking a status cell during
+  self-review, before this guard existed.
+- **(b) the declaring heading itself** carries deferral vocabulary
+  (`deferred`, `interface only`, `reserved but undefined`, `deliberately
+  unimplemented`, `contract recorded, not implemented`, `requires an ADR` —
+  measured across `docs/adr/` in issue #30's scope comment).
+- **(c) a sentence in the section body that names the declaration by its
+  exact identifier** and carries the same vocabulary.
+
+No match → `GAP`, never inferred from a section merely being *about*
+deferral. The identifier requirement is the load-bearing part, and
+`tests/golden/` is its proof, though not through rule (c) itself —
+directories go through `scan_layout`'s own exact-membership check against
+"Deferred folders", the structural analogue of rule (c) for a path rather
+than a class identifier. `tests/golden/` sits in the very ADR 0002 §6
+section whose body contains that paragraph, but the paragraph never names
+`tests/golden/` by its exact path — so it is reported `GAP`, not swallowed
+by a section that happens to discuss deferral for *other* paths. Rule (c)
+proper (`_search_deferral` in `gap_scan.py`) applies only to command, event,
+and phase identifiers, and has no live case to exercise it in the current
+tree, since none of the twelve declarations extracted from ADR 0004 is
+deferred.
+
+Rule (c) proper *was* exercised — and found wrong — during the constructed
+spike for the ranking tie-break below: table rows were being fed into the
+same sentence-splitter as prose, and an unrelated intro sentence about the
+four cooking-challenge command terms falsely matched `RemoveIngredient`
+(present three cells away, in the table). Fixed by stripping table rows
+before sentence-splitting; see `_strip_table_lines` in `gap_scan.py`.
+
+### Ranking
+
+Regressions outrank fresh gaps (proven-lost work over merely-undone work),
+then unscheduled before scheduled (name something nobody is already
+tracking), then earlier ADR position as a foundational-ness proxy, then the
+matched issue number — or, absent one, the declaration's own name — as a
+final deterministic tie-break. The output states which tier decided the
+order rather than presenting a bare list.
+
+Proven by construction, then reverted (also required before shipping,
+alongside `MISLOCATED`: today's tree has exactly one real gap, so ranking
+never has to choose): moving `remove_ingredient.gd` out of the repository
+entirely (not just to a wrong path — a true absence, unlike the `MISLOCATED`
+spike above) created a second live gap.
+
+- **Offline** (no `--check-backlog`): ranked `tests/golden/` (ADR 0002 §6)
+  ahead of `RemoveIngredient` (ADR 0004 §7), reason `"earlier in the
+  decision record (ADR 0002 §6) than the alternative(s)"` — the ADR-position
+  tier deciding, since neither had a known backlog state.
+- **With `--check-backlog`** (read-only `gh issue list`): the order flipped.
+  `RemoveIngredient` matched **closed** issue #22, which originally built it
+  — a genuine regression, not a contrived one, since the spike had just
+  deleted what #22 shipped — and ranked first with reason `"a regression:
+  closed issue #22 ... covered this, and it has reappeared"`.
+  `tests/golden/` matched **open** issue #6 and was reported `scheduled`.
+
+Both runs reverted; the tree returned to reporting the single real gap.
+
+### Dedupe against the backlog
+
+`--check-backlog` and `--file-issues` are the only network-touching paths;
+plain analysis needs neither `gh` nor credentials, for the same reason
+`lore_query.py` needs none — a grader must be able to run the reasoning
+without an authenticated session.
+
+Matching is **title-first, whole-word, case-insensitive**, against the
+declaration's own identifier (`RandomPort`) or a directory's final path
+segment (`tests/golden/` → `golden`, since a full path never appears
+verbatim in issue prose). A title match on an **open** issue is reported
+`SCHEDULED` (confident); a match found only in an issue's **body** is
+reported `POSSIBLE — verify`, never silently folded into `SCHEDULED`; a
+match on a **closed** issue is reported `REGRESSION`. `--file-issues` is
+more conservative than reporting: it skips filing on *any* match at all,
+title or body, open or closed, printing why it skipped. Erring toward
+duplicates is deliberate — a duplicate costs a human ten seconds to close; a
+gap suppressed by a false match is invisible until someone re-discovers it
+by hand.
+
+**Known limitation, not resolved by construction.** Unlike `MISLOCATED` and
+the ranking tie-break above, this is a judgement about text matching, not
+machinery with a clean pass/fail to prove. On the current tree it correctly
+matched `tests/golden/` → `golden` against open issue #6 ("golden-case
+coverage"), and — during the ranking spike, incidentally, on a temporarily
+constructed second gap — correctly matched `RemoveIngredient` against
+**closed** issue #22, which had in fact originally built it. Both are real
+positives, not contrived ones, but neither is a counter-example: nothing in
+the current tree exercises a *false* match. A generic final path segment
+(e.g. a directory literally named `core/`) would produce a weak,
+high-false-positive search term; nothing in this tool detects that case
+specially.
+
+### Keeping it honest
+
+```bash
+python3 tools/gap_scan.py
+```
+
+Checked in both directions against the live corpus, then reverted:
+
+- Blanking `RandomPort`'s status cell in ADR 0002 §5 made it report
+  `GAP` instead of `DEFERRED` (before the empty-cell guard existed, it
+  reported `DEFERRED: ""` — a hollow citation, itself a bug found and fixed
+  during this work). Restoring the cell returned it to `DEFERRED`.
+- Adding `` `tests/golden/` `` to ADR 0002 §6's "Deferred folders" paragraph
+  made it report `DEFERRED` instead of `GAP`. Removing it again returned it
+  to `GAP`.
+- The `MISLOCATED` and ranking-tie-break spikes above are the same kind of
+  proof applied to the two pieces of machinery that had no live case in the
+  current tree to exercise them.
