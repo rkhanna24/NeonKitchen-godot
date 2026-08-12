@@ -1,6 +1,5 @@
 [gd_resource type="Resource" script_class="CustomerDefinition" format=3]
 
-[ext_resource type="Script" path="res://content/schemas/customer_constraint.gd" id="1_oe84r"]
 [ext_resource type="Script" path="res://content/schemas/customer_definition.gd" id="2_8t71b"]
 
 [resource]

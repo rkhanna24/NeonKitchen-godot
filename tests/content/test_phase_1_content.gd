@@ -230,10 +230,17 @@ func test_the_soy_boundary_actually_caps_a_good_dish() -> void:
 	assert_eq(capped.violated_constraints.size(), 1)
 	assert_eq(capped.violated_constraints[0].subject, &"soy")
 
+	# The boundary must be survivable, not merely survivable-at-a-cost. This dish
+	# is soy-free and scores 100, which is the property worth pinning: respecting
+	# the constraint does not put the top band out of reach.
+	#
+	# An earlier version asserted noodles + citrus_chili_paste at 80 and called it
+	# "the intended solution". The 80 was correct arithmetic for a dish that is not
+	# the best one -- a true number with a false claim attached, which is the
+	# defect this file exists to catch, sitting inside it. Eight dishes tie at 100.
 	var safe: Array[IngredientDefinition] = [
-		_ingredient(&"ingredient.thick_wheat_noodles"),
-		_ingredient(&"ingredient.citrus_chili_paste")
+		_ingredient(&"ingredient.thick_wheat_noodles"), _ingredient(&"ingredient.kimchi")
 	]
 	var allowed: Evaluation = Evaluator.evaluate(safe, customer)
-	assert_true(allowed.constraint_satisfied)
-	assert_eq(allowed.score, 80, "the soy-free alternative is the intended solution")
+	assert_true(allowed.constraint_satisfied, "kimchi and noodles carry no soy")
+	assert_eq(allowed.score, 100, "a soy-free dish still reaches the top band")
