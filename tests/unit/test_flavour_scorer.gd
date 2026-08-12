@@ -42,6 +42,22 @@ static func _profile(
 	return FlavorProfile.new([savory, spicy, fresh, comfort, adventurous] as Array[int])
 
 
+## Every weight set explicitly, including the zeros. `CustomerDefinition` carries
+## non-zero schema defaults, so a test that sets only the weights it cares about
+## silently inherits the rest and scores against dimensions it never mentioned —
+## the exact leak that corrupted an earlier probe's figures.
+static func _customer_with_weights(
+	savory: int, spicy: int, fresh: int, comfort: int, adventurous: int
+) -> CustomerDefinition:
+	var customer := CustomerDefinition.new()
+	customer.savory_weight = savory
+	customer.spicy_weight = spicy
+	customer.fresh_weight = fresh
+	customer.comfort_weight = comfort
+	customer.adventurous_weight = adventurous
+	return customer
+
+
 func test_vector_1_night_courier_worked_example() -> void:
 	var result: FlavourScorer.Result = FlavourScorer.score(
 		_profile(4, 2, 0, 5, 0), _night_courier()
@@ -112,39 +128,75 @@ func test_weight_zero_excludes_a_dimension_from_score_and_feedback() -> void:
 	assert_eq(with_savory.per_dimension.size(), 1, "only the weighted dimension is reported")
 
 
-func test_feedback_tie_break_prefers_higher_weight_over_dimension_order() -> void:
+func test_feedback_tie_breaks_oppose_so_one_dimension_is_not_both() -> void:
 	# Savory (weight 1, error 2) and Spicy (weight 2, error 1) both land on
-	# penalty 2 — a genuine tie. Dimension order alone would favour Savory,
-	# which comes first in section 1's order; the weight tie-break must
-	# override that and pick Spicy instead, since 2 > 1.
-	var customer := CustomerDefinition.new()
+	# penalty 2 — a genuine tie. Under DEC-028 the two selections break that
+	# tie in opposite directions, so the tie separates instead of collapsing.
+	#
+	# This is the case that motivates the whole rule. Penalty is weight * error,
+	# so tied penalties with different weights mean inversely different errors:
+	# Spicy is off by 1 and Savory by 2. Naming Savory the miss and Spicy the
+	# match is therefore not an arbitrary split of a tie — it is the only split
+	# that matches how far each dimension actually sits from its target.
+	var customer := _customer_with_weights(1, 2, 0, 0, 0)
 	customer.savory_target = 3
-	customer.savory_weight = 1
 	customer.spicy_target = 3
-	customer.spicy_weight = 2
-	customer.comfort_weight = 0
 
 	var result: FlavourScorer.Result = FlavourScorer.score(_profile(5, 4, 0, 0, 0), customer)
-	# Savory: error 2, penalty 1*2=2. Spicy: error 1, penalty 2*1=2. Tied
-	# penalty; Spicy has the higher weight (2 > 1) and must win both
-	# selections despite coming later in dimension order.
-	assert_eq(result.strongest_match, Flavor.Dimension.SPICY)
-	assert_eq(result.largest_miss, Flavor.Dimension.SPICY)
+
+	assert_true(result.has_strongest_match)
+	assert_true(result.has_largest_miss)
+	assert_eq(result.strongest_match, Flavor.Dimension.SPICY, "match is the smaller error")
+	assert_eq(result.largest_miss, Flavor.Dimension.SAVORY, "miss is the larger error")
+	assert_ne(result.strongest_match, result.largest_miss)
 
 
-func test_feedback_tie_break_falls_back_to_dimension_order() -> void:
-	# Savory and Spicy tied on both penalty and weight; Savory comes first in
-	# the section 1 dimension order and must win both selections.
-	var customer := CustomerDefinition.new()
+func test_full_tie_on_penalty_and_weight_keeps_the_miss_and_drops_the_match() -> void:
+	# Savory and Spicy tied on penalty *and* weight. The opposed tie-breaks
+	# cannot separate them — both fall through to section 1's dimension order
+	# and land on Savory — so this is the one multi-candidate shape that still
+	# collides, and the collision rule has to resolve it.
+	var customer := _customer_with_weights(1, 1, 0, 0, 0)
 	customer.savory_target = 3
-	customer.savory_weight = 1
 	customer.spicy_target = 3
-	customer.spicy_weight = 1
-	customer.comfort_weight = 0
 
 	var result: FlavourScorer.Result = FlavourScorer.score(_profile(4, 4, 0, 0, 0), customer)
-	assert_eq(result.strongest_match, Flavor.Dimension.SAVORY)
+
+	assert_false(result.has_strongest_match, "a tied-worst dimension is not a match")
+	assert_true(result.has_largest_miss)
 	assert_eq(result.largest_miss, Flavor.Dimension.SAVORY)
+
+
+func test_single_engaged_dimension_off_target_reports_only_the_miss() -> void:
+	# One weighted dimension, so there is nothing to compare it against. It
+	# missed by 2, so the honest line is the miss; calling the only engaged
+	# dimension the "strongest match" when it is also the worst is the half
+	# that misleads. This is issue #29's original observed case.
+	var customer := _customer_with_weights(1, 0, 0, 0, 0)
+	customer.savory_target = 3
+
+	var result: FlavourScorer.Result = FlavourScorer.score(_profile(5, 0, 0, 0, 0), customer)
+
+	assert_false(result.has_strongest_match)
+	assert_true(result.has_largest_miss)
+	assert_eq(result.largest_miss, Flavor.Dimension.SAVORY)
+
+
+func test_single_engaged_dimension_on_target_still_reports_a_match() -> void:
+	# The boundary the collision rule must not swallow. With one weighted
+	# dimension landing exactly on target the penalty is 0, so `has_largest_miss`
+	# is already false and no collision arises — the match survives and is
+	# reported. A rule that suppressed on "one candidate" rather than on "the
+	# two selections agree" would wrongly silence this.
+	var customer := _customer_with_weights(1, 0, 0, 0, 0)
+	customer.savory_target = 3
+
+	var result: FlavourScorer.Result = FlavourScorer.score(_profile(3, 0, 0, 0, 0), customer)
+
+	assert_true(result.has_strongest_match, "a perfect match on the only engaged dimension")
+	assert_eq(result.strongest_match, Flavor.Dimension.SAVORY)
+	assert_false(result.has_largest_miss)
+	assert_eq(result.score, 100)
 
 
 func test_unengaged_dimension_is_excluded_leaving_a_real_candidate() -> void:

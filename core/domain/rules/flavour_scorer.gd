@@ -95,6 +95,19 @@ static func score(profile: FlavorProfile, customer: CustomerDefinition) -> Resul
 	if has_strongest_match:
 		strongest_match = best_strongest.dimension
 
+	# One candidate cannot be both the best and the worst thing about a dish
+	# (DEC-028). The opposed tie-breaks above separate two candidates whenever
+	# their weights differ, but two cases still resolve to one dimension: a
+	# single candidate, which has nothing to be compared against, and candidates
+	# tied on penalty *and* weight, which fall through to dimension order in both
+	# directions. The miss survives and the match is dropped: the collision only
+	# ever happens with a non-zero penalty, since `has_largest_miss` already
+	# requires one, so there is a real error to report and calling it a match
+	# would be the misleading half.
+	if has_strongest_match and has_largest_miss and strongest_match == largest_miss:
+		has_strongest_match = false
+		strongest_match = Flavor.Dimension.SAVORY
+
 	return Result.new(
 		raw_score,
 		has_strongest_match,
@@ -125,11 +138,20 @@ static func _is_lower_penalty(
 	return candidate.weight > current.weight
 
 
-## Largest miss is the weighted dimension with the highest penalty. Same two
-## tie-breaks as `_is_lower_penalty`, in the same order.
+## Largest miss is the weighted dimension with the highest penalty. Ties break
+## by **lower** weight first — the opposite of `_is_lower_penalty` — then by the
+## fixed dimension order in section 1.
+##
+## The opposition is the point, per DEC-028. Penalty is `weight * error`, so two
+## dimensions tied on penalty with different weights have inversely different
+## raw errors: the heavier one is *closer* to its target. Breaking both
+## selections toward higher weight therefore made a single dimension win both,
+## and naming the dimension nearest its target the "largest miss" would be
+## exactly backwards. Lowest weight among equals is the largest raw error, which
+## is what a miss means.
 static func _is_higher_penalty(
 	candidate: Evaluation.DimensionScore, current: Evaluation.DimensionScore
 ) -> bool:
 	if candidate.penalty != current.penalty:
 		return candidate.penalty > current.penalty
-	return candidate.weight > current.weight
+	return candidate.weight < current.weight

@@ -244,9 +244,14 @@ idea and is deferred.
   either**, and is excluded from both selections. Reported as absent when no
   candidate remains.
 
-Ties break by higher weight first, then by the fixed dimension order in §1.
-Both tie-breaks are mandatory: without them, feedback is non-deterministic and
-golden cases cannot be stable.
+Ties break by weight, in **opposite directions for the two selections** —
+strongest match toward the higher weight, largest miss toward the lower — then by
+the fixed dimension order in §1. Both tie-breaks are mandatory: without them,
+feedback is non-deterministic and golden cases cannot be stable.
+
+**No dimension is ever reported as both.** Where the two selections still resolve
+to the same dimension — a single candidate, or candidates tied on penalty *and*
+weight — the largest miss is reported and the strongest match is dropped.
 
 > **Amended 2026-08-06 (DEC-025).** The exclusion above is new. A weighted
 > dimension with target 0 and actual 0 has a penalty of 0, so it won the
@@ -278,6 +283,32 @@ golden cases cannot be stable.
 > which means Spicy carried a non-zero target — an engaged dimension, and still
 > a candidate. Checked rather than assumed, because that entry is the one place
 > this document pins a strongest match and a largest miss by name.
+
+> **Amended 2026-08-11 (DEC-028).** The opposed tie-break and the no-both rule
+> are new. Both tie-breaks previously ran toward higher weight, so a single
+> dimension could win the lowest-penalty race and the highest-penalty race at
+> once, and the terminal reported it as simultaneously the best and worst thing
+> about the dish. Found by playing: `old_local` served noodles and smoked fish
+> read `Strongest match: Savory` above `Largest miss: Savory`.
+>
+> Enumerating all 2384 dish-customer pairs over shipped content found **141**
+> such collisions, of which only 40 were the single-candidate shape DEC-025's
+> exclusion creates. The other **101** were ordinary ties on penalty, and those
+> exposed the sharper error. Penalty is `weight * error`, so two dimensions tied
+> on penalty with different weights have inversely different raw errors: the
+> heavier one is *closer* to its target. Breaking the miss toward higher weight
+> was therefore naming the dimension nearest its target the largest miss.
+>
+> Flipping it corrected 8 further pairs that were never collisions at all.
+> `late_shift_medic` wants Spicy 0 and Fresh 4; served citrus chili paste and
+> citrus herbs, Spicy is off by 3 and Fresh by 2, tied at penalty 6. The old rule
+> reported Fresh as the largest miss. The customer had asked for no spice and
+> received 3.
+>
+> **Feedback only.** `strongest_match` and `largest_miss` do not enter the score,
+> and this was demonstrated rather than assumed: score and band were dumped for
+> all 2384 pairs before and after, and the two dumps are identical. 149 pairs
+> changed which dimensions they report; none changed what they scored.
 
 ### 7. Commands
 
