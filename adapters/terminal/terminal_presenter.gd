@@ -51,11 +51,41 @@ static func present_pantry(
 ) -> Array[String]:
 	var lines: Array[String] = ["Pantry:"]
 	var names_by_id: Dictionary[StringName, String] = {}
+
+	# Grouped in `IngredientDefinition.GROUPS` order, not the order the
+	# repository happened to return. Headings only: nothing here says or implies
+	# that a dish wants one from each, because measuring that showed it is worth
+	# almost nothing on average and actively costs the player against six of the
+	# eight shipped customers (DEC-029). The groups make twelve ingredients
+	# scannable; they are not a recipe.
+	var by_group: Dictionary[StringName, Array] = {}
 	for ingredient: IngredientDefinition in ingredients:
-		var name: String = _translate(ingredient.name_key)
-		names_by_id[ingredient.content_id] = name
-		lines.append("  %s -- %s" % [ingredient.content_id, name])
-		lines.append("      %s" % _translate(ingredient.description_key))
+		if not by_group.has(ingredient.group):
+			by_group[ingredient.group] = []
+		by_group[ingredient.group].append(ingredient)
+
+	# Known groups first, in contract order; then anything left over. The
+	# validator rejects an unknown or missing group at load, so the tail is
+	# unreachable through the game — but this function is static and takes any
+	# array, and iterating only over `GROUPS` would drop such an ingredient from
+	# the listing without a word. A pantry that silently omits what you own is a
+	# worse failure than an ugly one, so the leftovers print under their raw
+	# group value rather than disappearing.
+	var ordered: Array[StringName] = []
+	for group: StringName in IngredientDefinition.GROUPS:
+		if by_group.has(group):
+			ordered.append(group)
+	for group: StringName in by_group:
+		if not ordered.has(group):
+			ordered.append(group)
+
+	for group: StringName in ordered:
+		lines.append("  %s" % _translate(StringName("pantry.group.%s" % group)))
+		for ingredient: IngredientDefinition in by_group[group]:
+			var name: String = _translate(ingredient.name_key)
+			names_by_id[ingredient.content_id] = name
+			lines.append("    %s -- %s" % [ingredient.content_id, name])
+			lines.append("        %s" % _translate(ingredient.description_key))
 
 	if current_dish.is_empty():
 		lines.append("Dish: empty")

@@ -72,7 +72,29 @@ static func _validate_ingredients(
 			if tag == &"":
 				problems.append("ingredient '%s': empty tag" % id)
 			known_tags[tag] = true
+
+		# Rejected here rather than defaulted at display time. Godot omits any
+		# exported field equal to its class default when it writes a `.tres`, so
+		# an unset group and a group deliberately written as `&""` are the same
+		# bytes on disk. A presenter that quietly bucketed those into "other"
+		# would hide a missing authored value behind a plausible-looking listing.
+		if ingredient.group == &"":
+			problems.append("ingredient '%s': missing group" % id)
+		elif not IngredientDefinition.GROUPS.has(ingredient.group):
+			problems.append(
+				(
+					"ingredient '%s': group '%s' is not one of %s"
+					% [id, ingredient.group, ", ".join(_group_names())]
+				)
+			)
 	return problems
+
+
+static func _group_names() -> Array[String]:
+	var names: Array[String] = []
+	for group: StringName in IngredientDefinition.GROUPS:
+		names.append(String(group))
+	return names
 
 
 static func _validate_customers(

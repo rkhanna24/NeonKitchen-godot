@@ -10,3 +10,4 @@ description_key = &"ingredient.coconut_milk.description"
 comfort = 2
 adventurous = 1
 tags = Array[StringName]([&"vegan"])
+group = &"broth_and_fat"

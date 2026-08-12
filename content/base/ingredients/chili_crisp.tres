@@ -10,3 +10,4 @@ description_key = &"ingredient.chili_crisp.description"
 savory = 2
 spicy = 2
 tags = Array[StringName]([&"vegan"])
+group = &"heat_and_ferment"

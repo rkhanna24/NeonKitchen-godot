@@ -10,3 +10,4 @@ description_key = &"fixture.noodles.description"
 savory = 1
 comfort = 3
 tags = Array[StringName]([&"noodle", &"vegetarian"])
+group = &"staple"

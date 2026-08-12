@@ -13,6 +13,7 @@ func _ingredient(id: String) -> IngredientDefinition:
 	i.description_key = StringName(id + ".description")
 	i.comfort = 2
 	i.tags = [&"noodle"]
+	i.group = &"staple"
 	return i
 
 

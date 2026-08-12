@@ -10,3 +10,4 @@ description_key = &"ingredient.thick_wheat_noodles.description"
 savory = 1
 comfort = 3
 tags = Array[StringName]([&"gluten", &"held", &"vegan"])
+group = &"staple"

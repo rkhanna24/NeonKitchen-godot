@@ -10,3 +10,4 @@ description_key = &"ingredient.chickpeas.description"
 savory = 1
 comfort = 2
 tags = Array[StringName]([&"legume", &"vegan"])
+group = &"staple"

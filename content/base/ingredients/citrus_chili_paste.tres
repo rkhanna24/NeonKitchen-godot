@@ -11,3 +11,4 @@ spicy = 3
 fresh = 1
 adventurous = 2
 tags = Array[StringName]([&"fermented", &"vegan"])
+group = &"heat_and_ferment"

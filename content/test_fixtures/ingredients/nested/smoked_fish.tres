@@ -10,3 +10,4 @@ description_key = &"fixture.smoked_fish.description"
 savory = 3
 adventurous = 1
 tags = Array[StringName]([&"protein"])
+group = &"fresh_and_cured"

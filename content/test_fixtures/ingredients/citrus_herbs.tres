@@ -10,3 +10,4 @@ description_key = &"fixture.herbs.description"
 fresh = 3
 adventurous = 1
 tags = Array[StringName]([&"herb", &"vegan"])
+group = &"fresh_and_cured"

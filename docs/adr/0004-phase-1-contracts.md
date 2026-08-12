@@ -310,6 +310,57 @@ weight — the largest miss is reported and the strongest match is dropped.
 > all 2384 pairs before and after, and the two dumps are identical. 149 pairs
 > changed which dimensions they report; none changed what they scored.
 
+### 6a. Pantry grouping (added 2026-08-12, DEC-029)
+
+Every ingredient carries an authored `group`, one of `IngredientDefinition.GROUPS`
+— `staple`, `broth_and_fat`, `heat_and_ferment`, `fresh_and_cured` — and the
+pantry listing prints them under headings in that array's order. The order is
+part of the contract, not incidental.
+
+**Presentation only.** The group never enters scoring, constraints, or any other
+validation. Nothing in the game rewards taking one ingredient from each group,
+and no content may imply that it does.
+
+That restraint is a measurement, not caution. Issue #28 proposed grouping so the
+pantry would hint "whether their pantry will mix well". Enumerating all 220
+three-ingredient dishes against the eight shipped customers:
+
+| | mean score | satisfied or better |
+|---|---|---|
+| one from each group | 49.3 | 27.3% |
+| every other dish | 47.4 | 24.7% |
+
+1.9 points of mean is noise. The reachability figures are worse than noise — they
+run the wrong way:
+
+| customer | best dish | best under one-from-each | cost |
+|---|---|---|---|
+| `office_worker` | 100 | 70 | **30** |
+| `late_shift_medic` | 100 | 74 | **26** |
+| `rig_partner` | 100 | 85 | 15 |
+| `night_courier` | 91 | 77 | 14 |
+| `scrap_trader` | 100 | 90 | 10 |
+| `block_boss` | 92 | 83 | 9 |
+| `old_local` | 100 | 100 | 0 |
+| `solar_tech` | 100 | 100 | 0 |
+
+Six of eight customers are served best by a dish that **concentrates** in one
+group, and two cannot reach `DELIGHTED` at all under the heuristic.
+`late_shift_medic`'s perfect dish is citrus herbs, mushrooms and rooftop lettuce
+— three from `fresh_and_cured`. The cause is structural: a customer who asks for
+Fresh 5 and Adventurous 4 is answered by three fresh things, and a slot rule
+forbids exactly that.
+
+So grouping ships as **navigation**: twelve ingredients in `content_id` order put
+`chickpeas`, `chili_crisp` and `citrus_chili_paste` adjacent, and headings make
+that scannable. A composition hint would have been teaching the player something
+the content contradicts.
+
+An unknown or empty `group` is rejected at load. Godot omits an exported field
+equal to its class default when writing a `.tres`, so "never authored" and
+"authored empty" are the same bytes on disk, and a presenter that bucketed those
+into a default heading would hide a missing value behind a plausible listing.
+
 ### 7. Commands
 
 Five are active in Phase 1. Field-level design of the four cooking-challenge

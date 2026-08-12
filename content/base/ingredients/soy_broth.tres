@@ -10,3 +10,4 @@ description_key = &"ingredient.soy_broth.description"
 savory = 2
 comfort = 2
 tags = Array[StringName]([&"soy", &"vegan"])
+group = &"broth_and_fat"

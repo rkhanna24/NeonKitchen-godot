@@ -6,6 +6,15 @@
 class_name IngredientDefinition
 extends Resource
 
+## The pantry listing's groups, in display order — so this is a contract, not
+## just a set. See the `group` export below for why it is presentation only.
+const GROUPS: Array[StringName] = [
+	&"staple",
+	&"broth_and_fat",
+	&"heat_and_ferment",
+	&"fresh_and_cured",
+]
+
 ## Stable, namespaced, and immutable — for example `ingredient.thick_wheat_noodles`.
 ## Never a filename, resource path, UID, or translated name.
 @export var content_id: StringName = &""
@@ -29,6 +38,21 @@ extends Resource
 ## Tags carry no flavour meaning.
 @export_group("Tags")
 @export var tags: Array[StringName] = []
+
+## Where this ingredient sits in the pantry listing, per DEC-029. Display order
+## is this array's order, so it is a contract and not just a set.
+##
+## **Presentation only.** The group never enters scoring, constraints, or
+## validation of any other field, and no rule rewards taking one from each. That
+## restraint is the finding rather than an omission: enumerating all 220
+## three-ingredient dishes against the eight shipped customers showed
+## one-from-each-group is worth 1.9 points of mean score, and costs up to 30
+## points of reachable best — six of eight customers are served best by a dish
+## that concentrates in one group, and two of them cannot reach DELIGHTED under
+## the heuristic at all. Grouping makes twelve ingredients scannable. It does not
+## predict a good dish, and content must not imply that it does.
+@export_group("Presentation")
+@export var group: StringName = &""
 
 
 ## Every contribution, in contract order.

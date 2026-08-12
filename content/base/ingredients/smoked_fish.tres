@@ -10,3 +10,4 @@ description_key = &"ingredient.smoked_fish.description"
 savory = 3
 comfort = 1
 tags = Array[StringName]([&"fish", &"smoked"])
+group = &"fresh_and_cured"

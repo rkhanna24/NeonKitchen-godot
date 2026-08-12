@@ -10,3 +10,4 @@ description_key = &"ingredient.mushrooms.description"
 savory = 2
 comfort = 1
 tags = Array[StringName]([&"vegan"])
+group = &"fresh_and_cured"

@@ -10,3 +10,4 @@ description_key = &"ingredient.citrus_herbs.description"
 fresh = 1
 adventurous = 2
 tags = Array[StringName]([&"raw", &"vegan"])
+group = &"fresh_and_cured"
