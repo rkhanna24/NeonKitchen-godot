@@ -1,7 +1,7 @@
 ---
 type: playtest
 display-name: Phase 1 Playtest — Run 01
-status: partial
+status: closed-partial
 phase: phase-1
 date: 2026-08-14
 issue: 10
@@ -179,11 +179,23 @@ from memory of the specific encounters named above.
 
 ## The decision
 
-- [ ] Advance to the Godot UI
+- [x] **Advance to the Godot UI**
 - [ ] Iterate on Phase 1 content or feedback, then re-run
 - [ ] Revise the core mechanic
 
-Decision: **deferred** pending points 2–4.
+Decision: **advance**, taken by the human on 2026-08-14 (DEC-030), with points 2–4
+still unrecorded. Point 5 is answered positively and the terminal has produced
+sixteen sensible dishes across two players, which is enough to justify attaching
+a UI to the same core. The reasoning: the gate asks whether a player can explain
+a result from what the screen tells them, and the terminal is the weakest
+possible screen. A UI that shows the request, the pantry, and the dish together
+may settle the question rather than answer it — so re-testing the gate belongs
+with the UI, against the interface that ships, not against the one being retired.
+
+**This is a deferral, not a pass.** The gate moves to the Phase 2 playtest, where
+GDD §3 already requires a higher bar: at least four of five testers explaining a
+result in ingredient terms, and at least four proposing two plausible dishes for
+one customer. Run 01 stands as the terminal baseline those are measured against.
 
 Regardless of that outcome, two content findings are actionable now and do not
 depend on the gate:
