@@ -24,10 +24,25 @@ does not authorise anyone to make new ones. It is the companion to
 Anything under `adapters/godot_ui/` styles against these tokens. **No hex value
 appears anywhere but the theme resource.**
 
-## The palette
+## Two halves, and only one of them is settled
 
-*Solarpunk, tempered.* Dark green-grey grounds, warm cream text, one warm
-signal held back.
+**The rules bind every theme.** They are the four below, and they apply to
+palettes nobody has written yet.
+
+**The active theme is provisional.** The values in the next table are one
+resource in `assets/themes/`, chosen against typographic mocks and expected to be
+re-tried once real art exists. Swapping it is a path change, not a rewrite:
+themes are named for their palette rather than for the game, exactly one place
+names the active one, and no screen edits when it changes (ADR 0002 §6, DEC-034).
+
+A new theme may choose different values. It may not break a rule. A theme whose
+disabled text lands at 1.38:1 is wrong however it looks, because the contrast
+floor is a rule and the hex is not.
+
+## The active theme
+
+*Solarpunk, tempered* — `assets/themes/solarpunk_tempered.tres`. Dark green-grey
+grounds, warm cream text, one warm signal held back.
 
 | Token | Value | What it is |
 |---|---|---|

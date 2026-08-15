@@ -136,18 +136,44 @@ neon-kitchen/
 │   ├── schemas/
 │   ├── base/{ingredients,customers}/
 │   └── test_fixtures/
+├── assets/                         authored presentation resources (Phase 3)
+│   └── themes/                     one Theme per palette; swappable
 ├── tests/{unit,content,contract,golden}/
 ├── addons/                         created when #7 selects a framework
 └── docs/
 ```
 
 `docs/technical_architecture.md` §6 remains the recorded **target shape**.
-Deferred folders — `features/`, `shared/`,
-`adapters/{godot_ui,localization,persistence,networking}/`,
-`content/base/{recipe_patterns,levels,localization}/`,
-`tests/{integration,smoke}/`, `core/domain/value_objects/` — are created when
-their first real file exists. Layer names are stable, so growth is additive and
-requires no restructuring.
+Deferred folders — `features/`,
+`adapters/{localization,persistence,networking}/`,
+`content/base/{recipe_patterns,levels}/`,
+`tests/integration/`,
+`assets/{fonts,sprites}/`, `assets/sprites/{ingredients,customers,backgrounds}/`
+— are created when their first real file exists. Layer names are stable, so
+growth is additive and requires no restructuring.
+
+> **Amended 2026-08-14 (DEC-034).** `assets/` is new, and the deferred list above
+> is trimmed to what is still deferred: `shared/`, `adapters/godot_ui/`,
+> `content/base/localization/`, `tests/{smoke,golden}/` and
+> `core/domain/value_objects/` have all since been created and are no longer
+> pending. Leaving built folders on a deferred list makes the list describe the
+> repository as it was rather than as it is, which is how `tools/gap_scan.py`
+> came to report a folder as licensed-absent while it sat in the tree.
+>
+> `assets/` holds **authored presentation resources** — themes, fonts, sprites.
+> It is not `content/`: content is the game's data, validated at load and
+> governed by ADR 0004, and a Theme that failed to load would not make a customer
+> invalid. Nor is it `adapters/`, which is code.
+>
+> **Themes are plural by construction.** `assets/themes/` holds one resource per
+> palette, named for the palette rather than for the game, so trying a different
+> one is a path change and not a rewrite. `docs/design/Visual Language.md` §Rules
+> are theme-independent and bind every theme; the palette table in that document
+> describes only the currently active one.
+>
+> Audio is deliberately absent. GDD §5.1 defers an original soundtrack and the
+> shipping list names no audio, so a folder for it would be a folder for
+> something out of scope.
 
 ### 7. Layout constraint (rule 10, split)
 
