@@ -17,11 +17,6 @@
 class_name KitchenScreen
 extends Control
 
-## The slice runs one customer. `solar_tech` has no constraint and eleven dishes
-## that reach 100, which makes it the gentlest possible first target -- the point
-## here is that the wiring works, not that the puzzle is hard.
-const SLICE_CUSTOMER: StringName = &"customer.solar_tech"
-
 const INGREDIENT_DIR: String = "res://content/base/ingredients"
 const CUSTOMER_DIR: String = "res://content/base/customers"
 
@@ -32,7 +27,7 @@ var _constraint_label: Label = null
 var _dish_label: Label = null
 var _feedback_label: RichTextLabel = null
 var _notice_label: Label = null
-var _serve_button: Button = null
+var _primary_button: Button = null
 var _pantry_box: VBoxContainer = null
 
 
@@ -84,10 +79,9 @@ func _build_layout() -> void:
 	_dish_label = Label.new()
 	left.add_child(_dish_label)
 
-	_serve_button = Button.new()
-	_serve_button.text = "Serve"
-	_serve_button.pressed.connect(_on_serve_pressed)
-	left.add_child(_serve_button)
+	_primary_button = Button.new()
+	_primary_button.pressed.connect(_on_primary_pressed)
+	left.add_child(_primary_button)
 
 	_notice_label = Label.new()
 	_notice_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -137,8 +131,13 @@ func _ingredient_button(ingredient: IngredientDefinition) -> Button:
 	return button
 
 
+## Every customer in repository order -- the same list `TerminalSession`
+## builds. #32 ran one customer because the slice was proving the wiring; the
+## service is the whole roster.
 func _begin() -> void:
-	var roster: Array[StringName] = [SLICE_CUSTOMER]
+	var roster: Array[StringName] = []
+	for customer: CustomerDefinition in _session.content().all_customers():
+		roster.append(customer.content_id)
 	_apply(_session.start(roster))
 	_apply(_session.present())
 
@@ -153,8 +152,15 @@ func _on_ingredient_pressed(ingredient_id: StringName) -> void:
 		_apply(_session.select(ingredient_id))
 
 
-func _on_serve_pressed() -> void:
-	_apply(_session.submit())
+## `SHOWING_RESULT` accepts `PresentCustomer`, which returns either the next
+## customer or `SessionEnded` when the roster is exhausted (ADR 0004 section 7a).
+## The screen cannot know which in advance and does not try: one button, and it
+## renders whichever event comes back.
+func _on_primary_pressed() -> void:
+	if _session.state().phase == SessionState.Phase.SHOWING_RESULT:
+		_apply(_session.present())
+	else:
+		_apply(_session.submit())
 
 
 ## The single place a `CommandResult` reaches the screen. A rejection is shown,
@@ -164,38 +170,37 @@ func _on_serve_pressed() -> void:
 func _apply(result: CommandResult) -> void:
 	if not result.is_accepted:
 		_notice_label.text = _rejection_text(result)
+		_sync_controls()
 		return
 	_notice_label.text = ""
 	for event: DomainEvent in result.events:
 		_render(event)
 	_refresh_dish()
+	_sync_controls()
+
+
+## What the player can do depends on the phase, so the screen shows only that.
+## Leaving every control live and letting `CommandHandler` reject the press is
+## how the terminal behaves, and reproducing it here would be the terminal's
+## failure mode wearing a button: the refusal arrives after the click instead of
+## the click never being offered.
+func _sync_controls() -> void:
+	var phase: SessionState.Phase = _session.state().phase
+	var building: bool = phase == SessionState.Phase.BUILDING_DISH
+	var showing: bool = phase == SessionState.Phase.SHOWING_RESULT
+
+	for child: Node in _pantry_box.get_children():
+		if child is Button:
+			(child as Button).disabled = not building
+
+	_primary_button.visible = building or showing
+	_primary_button.text = "Serve" if building else "Next customer"
 
 
 func _rejection_text(result: CommandResult) -> String:
 	if not result.has_rejection_reason:
 		return "That action was not accepted."
-
-	# One assignment and one return rather than a return per branch, to stay
-	# under the project's lint limit on returns per function.
-	var text: String = "That action was not accepted."
-	match result.rejection_reason:
-		CommandResult.Reason.DISH_FULL:
-			text = "The dish already holds %d ingredients." % Flavor.MAX_DISH_SIZE
-		CommandResult.Reason.EMPTY_DISH:
-			text = "Add at least one ingredient before serving."
-		CommandResult.Reason.DUPLICATE_INGREDIENT:
-			text = "That ingredient is already in the dish."
-		CommandResult.Reason.NOT_SELECTED:
-			text = "That ingredient is not in the dish."
-		CommandResult.Reason.INVALID_PHASE:
-			text = "Not now."
-		CommandResult.Reason.UNKNOWN_INGREDIENT:
-			text = "No such ingredient."
-		CommandResult.Reason.UNKNOWN_CUSTOMER:
-			text = "No such customer."
-		CommandResult.Reason.EMPTY_ROSTER:
-			text = "There is nobody to serve."
-	return text
+	return EncounterText.rejection_text(result.rejection_reason)
 
 
 func _render(event: DomainEvent) -> void:
@@ -203,6 +208,8 @@ func _render(event: DomainEvent) -> void:
 		_render_customer((event as CustomerPresented).customer_id)
 	elif event is DishEvaluated:
 		_render_evaluation((event as DishEvaluated).evaluation)
+	elif event is SessionEnded:
+		_render_summary((event as SessionEnded).results)
 	elif event is CustomerReacted:
 		var key: StringName = (event as CustomerReacted).reaction_key
 		_feedback_label.append_text("\n\n%s" % TranslationServer.translate(key))
@@ -228,26 +235,33 @@ func _render_customer(customer_id: StringName) -> void:
 ## Reads the evaluation it was handed. Every number here was computed by the
 ## domain and carried in the event; none of it is recomputed.
 func _render_evaluation(evaluation: Evaluation) -> void:
-	var parts: Array[String] = ["%s -- %d" % [_band_name(evaluation.band), evaluation.score]]
+	var parts: Array[String] = [
+		"%s -- %d" % [EncounterText.band_label(evaluation.band), evaluation.score]
+	]
 	if evaluation.has_strongest_match:
-		parts.append("Strongest match: %s" % Flavor.dimension_name(evaluation.strongest_match))
+		parts.append(
+			"Strongest match: %s" % EncounterText.dimension_label(evaluation.strongest_match)
+		)
 	if evaluation.has_largest_miss:
-		parts.append("Largest miss: %s" % Flavor.dimension_name(evaluation.largest_miss))
+		parts.append("Largest miss: %s" % EncounterText.dimension_label(evaluation.largest_miss))
 	for violated: Evaluation.ViolatedConstraint in evaluation.violated_constraints:
 		parts.append(String(TranslationServer.translate(violated.explanation_key)))
 	_feedback_label.text = "\n".join(parts)
 
 
-func _band_name(band: Evaluation.RatingBand) -> String:
-	match band:
-		Evaluation.RatingBand.DELIGHTED:
-			return "Delighted"
-		Evaluation.RatingBand.SATISFIED:
-			return "Satisfied"
-		Evaluation.RatingBand.MIXED:
-			return "Mixed"
-		_:
-			return "Dissatisfied"
+## The end of the night. Reads `EncounterResult` values recorded at the time
+## each dish was served -- ADR 0004 section 8 stores them by value precisely so
+## no re-evaluation is needed here, and re-deriving anything would be a second
+## scoring path.
+func _render_summary(results: Array[EncounterResult]) -> void:
+	var lines: Array[String] = ["That's the night."]
+	var position: int = 1
+	for result: EncounterResult in results:
+		lines.append("%d. %s" % [position, EncounterText.summary_line(result, _session.content())])
+		position += 1
+	_feedback_label.text = "\n".join(lines)
+	_request_label.text = ""
+	_constraint_label.text = ""
 
 
 func _refresh_dish() -> void:

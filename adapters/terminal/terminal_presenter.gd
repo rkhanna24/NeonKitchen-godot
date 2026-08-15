@@ -190,53 +190,15 @@ static func present_session_ended(event: SessionEnded, content: ContentRepositor
 
 
 static func rejection_text(reason: CommandResult.Reason) -> String:
-	match reason:
-		CommandResult.Reason.UNKNOWN_CUSTOMER:
-			return "Unknown customer id."
-		CommandResult.Reason.EMPTY_ROSTER:
-			return "The roster is empty; there is nothing to start."
-		CommandResult.Reason.UNKNOWN_INGREDIENT:
-			return "Unknown ingredient id."
-		CommandResult.Reason.DUPLICATE_INGREDIENT:
-			return "That ingredient is already in the dish."
-		CommandResult.Reason.DISH_FULL:
-			return "The dish already holds three ingredients."
-		CommandResult.Reason.NOT_SELECTED:
-			return "That ingredient is not in the dish."
-		CommandResult.Reason.EMPTY_DISH:
-			return "Add at least one ingredient before serving."
-		CommandResult.Reason.INVALID_PHASE:
-			return "That command is not valid right now."
-		_:
-			return "Rejected."
+	return EncounterText.rejection_text(reason)
 
 
 static func _summary_line(result: EncounterResult, content: ContentRepository) -> String:
-	var customer: CustomerDefinition = content.find_customer(result.customer_id)
-	var customer_name: String = (
-		_translate(customer.name_key) if customer != null else String(result.customer_id)
-	)
-	var names: Array[String] = []
-	for ingredient_id: StringName in result.ingredient_ids:
-		names.append(_ingredient_name(ingredient_id, content))
-	var constraint_word: String = "met" if result.constraint_satisfied else "violated"
-	return (
-		"%s -- %s %d -- %s -- constraint %s"
-		% [
-			customer_name,
-			_band_label(result.band),
-			result.score,
-			", ".join(names),
-			constraint_word,
-		]
-	)
+	return EncounterText.summary_line(result, content)
 
 
 static func _ingredient_name(ingredient_id: StringName, content: ContentRepository) -> String:
-	var ingredient: IngredientDefinition = content.find_ingredient(ingredient_id)
-	if ingredient == null:
-		return String(ingredient_id)
-	return _translate(ingredient.name_key)
+	return EncounterText.ingredient_name(ingredient_id, content)
 
 
 static func _constraint_line(
@@ -279,21 +241,11 @@ static func _constraint_kind_label(kind: CustomerConstraint.Kind) -> String:
 
 
 static func _band_label(band: Evaluation.RatingBand) -> String:
-	match band:
-		Evaluation.RatingBand.DELIGHTED:
-			return "Delighted"
-		Evaluation.RatingBand.SATISFIED:
-			return "Satisfied"
-		Evaluation.RatingBand.MIXED:
-			return "Mixed"
-		Evaluation.RatingBand.DISSATISFIED:
-			return "Dissatisfied"
-		_:
-			return "Unknown"
+	return EncounterText.band_label(band)
 
 
 static func _dimension_label(dimension: Flavor.Dimension) -> String:
-	return String(Flavor.dimension_name(dimension)).capitalize()
+	return EncounterText.dimension_label(dimension)
 
 
 ## `tr()` is an `Object` instance method (confirmed: calling it from a

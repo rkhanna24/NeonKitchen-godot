@@ -211,11 +211,21 @@ fi
 if [ -d "shared" ]; then
 	while IFS= read -r f; do
 		[ -n "$f" ] || continue
-		base="$(basename "$f")"
+		# Search for the token consumers actually write. A file declaring
+		# `class_name EncounterText` is referenced by that name, never by its
+		# snake_case filename, so matching on the file stem found zero consumers
+		# for every correctly-written file and this check could not pass. It had
+		# never run against a real file: `shared/` was empty from the day the
+		# rule was added until the first file landed.
+		token="$(sed -n 's/^class_name \([A-Za-z0-9_]*\).*/\1/p' "$f" | head -1)"
+		if [ -z "$token" ]; then
+			base="$(basename "$f")"
+			token="${base%.gd}"
+		fi
 		# `|| true`: with pipefail a zero-match grep fails the pipeline, so the
 		# assignment fails and the ERR trap fires on top of the correct
 		# "fewer than two consumers" diagnosis.
-		consumers="$(grep -rlw "${base%.gd}" . --include='*.gd' 2>/dev/null \
+		consumers="$(grep -rlw "$token" . --include='*.gd' 2>/dev/null \
 			| grep -v '^./shared/' | grep -v '^./addons/' | sort -u | wc -l || true)"
 		if [ "$(echo "$consumers" | tr -d ' ')" -lt 2 ]; then
 			printf '      %s has fewer than two consumers\n' "$f"
