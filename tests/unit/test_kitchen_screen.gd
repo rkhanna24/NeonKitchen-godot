@@ -239,3 +239,105 @@ func test_the_ui_adapter_contains_no_scoring_or_constraint_logic() -> void:
 				"%s must not call %s -- scoring belongs to the domain" % [file_name, symbol]
 			)
 	assert_gt(checked, 0, "there is source to check")
+
+
+## #36: one Theme, applied once at the root, no colour/size/spacing set inline
+## on any individual node (docs/design/Visual Language.md). Asserted against
+## the source rather than trusted, for the same reason as the check above --
+## the cheapest way to reintroduce a per-node override is to add it back where
+## the last one lived.
+func test_no_theme_property_is_set_inline_in_the_ui_adapter() -> void:
+	var forbidden: Array[String] = [
+		"add_theme_color_override",
+		"add_theme_font_override",
+		"add_theme_font_size_override",
+		"add_theme_icon_override",
+		"add_theme_stylebox_override",
+		"add_theme_constant_override",
+	]
+	var dir := DirAccess.open("res://adapters/godot_ui")
+	assert_not_null(dir, "the UI adapter directory exists")
+
+	var checked: int = 0
+	for file_name: String in dir.get_files():
+		if not file_name.ends_with(".gd"):
+			continue
+		checked += 1
+		var source: String = FileAccess.get_file_as_string("res://adapters/godot_ui/%s" % file_name)
+		for symbol: String in forbidden:
+			assert_false(
+				source.contains(symbol),
+				(
+					"%s must not call %s -- every value lives in the theme resource"
+					% [file_name, symbol]
+				)
+			)
+	assert_gt(checked, 0, "there is source to check")
+
+
+## The theme is applied at the root and every child resolves it -- not merely
+## that some Theme object got attached, which would pass even for the wrong
+## resource or a root nothing inherits from.
+func test_the_theme_is_applied_at_the_root_and_inherited() -> void:
+	assert_eq(_screen.theme.resource_path, KitchenScreen.THEME_PATH)
+	assert_true(
+		_screen._constraint_label.get_theme_color("font_color").is_equal_approx(Color("#EDE8D9")),
+		"text_primary reaches a child Label through inheritance"
+	)
+	assert_eq(
+		_screen._request_label.get_theme_font_size("normal_font_size"),
+		20,
+		"the request role is sized apart from body text"
+	)
+	var primary_stylebox: StyleBoxFlat = (
+		_screen._primary_button.get_theme_stylebox("normal") as StyleBoxFlat
+	)
+	assert_true(
+		primary_stylebox.bg_color.is_equal_approx(Color("#C08A47")),
+		"the primary action is styled with `accent`, named for that purpose in Visual Language.md"
+	)
+
+
+## Guards the exact hazard docs/design/Visual Language.md names by number:
+## reusing `surface` for `disabled_text` measures 1.38:1, invisible rather than
+## dim. Computed with the same relative-luminance formula the design doc's
+## own table was computed with, against the tokens actually loaded from the
+## theme resource -- not re-typed hex, so a hand-edit that drifts a value
+## would be caught here rather than only in a design document nobody re-runs.
+func test_the_measured_contrast_pairs_hold_in_the_loaded_theme() -> void:
+	var tokens := _screen.theme
+	var background: Color = tokens.get_color("background", "Tokens")
+	var surface: Color = tokens.get_color("surface", "Tokens")
+	var text_primary: Color = tokens.get_color("text_primary", "Tokens")
+	var text_muted: Color = tokens.get_color("text_muted", "Tokens")
+	var accent: Color = tokens.get_color("accent", "Tokens")
+	var signal_color: Color = tokens.get_color("signal", "Tokens")
+	var disabled_text: Color = tokens.get_color("disabled_text", "Tokens")
+
+	assert_gt(_contrast_ratio(text_primary, background), 4.5, "text_primary on background")
+	assert_gt(_contrast_ratio(text_primary, surface), 4.5, "text_primary on surface")
+	assert_gt(_contrast_ratio(text_muted, surface), 4.5, "text_muted on surface")
+	assert_gt(_contrast_ratio(signal_color, surface), 4.5, "signal on surface")
+	assert_gt(_contrast_ratio(background, accent), 4.5, "background on accent -- the Serve button")
+	assert_gt(_contrast_ratio(disabled_text, surface), 3.0, "disabled_text on surface, AA-large")
+
+
+func _relative_luminance(colour: Color) -> float:
+	var channels: Array[float] = [colour.r, colour.g, colour.b]
+	var linear_sum: float = 0.0
+	var weights: Array[float] = [0.2126, 0.7152, 0.0722]
+	for i: int in range(3):
+		var channel: float = channels[i]
+		var linear: float = (
+			channel / 12.92 if channel <= 0.03928 else pow((channel + 0.055) / 1.055, 2.4)
+		)
+		linear_sum += weights[i] * linear
+	return linear_sum
+
+
+func _contrast_ratio(a: Color, b: Color) -> float:
+	var lum_a: float = _relative_luminance(a)
+	var lum_b: float = _relative_luminance(b)
+	var lighter: float = max(lum_a, lum_b)
+	var darker: float = min(lum_a, lum_b)
+	return (lighter + 0.05) / (darker + 0.05)

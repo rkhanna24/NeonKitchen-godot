@@ -20,6 +20,11 @@ extends Control
 const INGREDIENT_DIR: String = "res://content/base/ingredients"
 const CUSTOMER_DIR: String = "res://content/base/customers"
 
+## The one place that names the active theme (docs/design/Visual Language.md,
+## ADR 0002 section 6, DEC-034). Trying a different palette is editing this
+## path, never a sweep of this file or any other.
+const THEME_PATH: String = "res://assets/themes/solarpunk_tempered.tres"
+
 var _session: KitchenSession = null
 
 var _request_label: RichTextLabel = null
@@ -56,11 +61,14 @@ func _fail_loudly(problems: PackedStringArray) -> void:
 
 
 func _build_layout() -> void:
+	# Applied once, here, at the screen root. Every child inherits it; no
+	# descendant sets its own theme or an inline colour, size, or spacing
+	# override (tests/unit/test_kitchen_screen.gd checks the source for that).
+	theme = load(THEME_PATH) as Theme
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 
 	var root := HBoxContainer.new()
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.add_theme_constant_override("separation", 24)
 	add_child(root)
 
 	var left := VBoxContainer.new()
@@ -70,6 +78,11 @@ func _build_layout() -> void:
 	_request_label = RichTextLabel.new()
 	_request_label.fit_content = true
 	_request_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	# The `request` type size (docs/design/Visual Language.md section Type):
+	# the customer speaking is the one thing on this screen sized apart from
+	# body text. A role name, not a size -- the pixel value lives only in the
+	# theme resource.
+	_request_label.theme_type_variation = &"RequestText"
 	left.add_child(_request_label)
 
 	_constraint_label = Label.new()
@@ -80,6 +93,9 @@ func _build_layout() -> void:
 	left.add_child(_dish_label)
 
 	_primary_button = Button.new()
+	# `accent` names "the primary action" (docs/design/Visual Language.md);
+	# Serve/Next customer is the only button that is one.
+	_primary_button.theme_type_variation = &"PrimaryButton"
 	_primary_button.pressed.connect(_on_primary_pressed)
 	left.add_child(_primary_button)
 
@@ -116,6 +132,9 @@ func _populate_pantry() -> void:
 			continue
 		var heading := Label.new()
 		heading.text = String(TranslationServer.translate(StringName("pantry.group.%s" % group)))
+		# The `label` type size names "group headings" by name
+		# (docs/design/Visual Language.md section Type).
+		heading.theme_type_variation = &"GroupHeading"
 		_pantry_box.add_child(heading)
 		for ingredient: IngredientDefinition in by_group[group]:
 			_pantry_box.add_child(_ingredient_button(ingredient))
