@@ -88,8 +88,21 @@ moment a painted background lands — GDD Art Direction names exposed cables,
 solar panels, hand-painted signs, planters — a fill that read on `#12140F` need
 not read on a lit sign, and every panel in the game needs rework at once.
 
-Acceptance: the customer panel and the feedback panel stay legible with an
-arbitrary mid-tone image placed behind the screen.
+**`surface` alpha is 0.92, and never below 0.80.** That floor is not taste. The
+worst backdrop that can exist is pure white, and composited over it:
+
+| alpha | composite | `text_primary` on it |
+|---|---|---|
+| 1.00 | `#1E2219` | 13.21:1 |
+| 0.92 | `#2F332B` | 10.41:1 |
+| 0.80 | `#4A4E46` | 6.90:1 |
+| 0.70 | `#61645E` | 4.89:1 |
+| 0.60 | `#787A75` | 3.53:1 — fails AA |
+
+At 0.80 the panel holds AA against **any** backdrop, so rule 2 is satisfied by
+arithmetic rather than by inspecting a picture. This matters because the art does
+not exist yet: "check it against a placeholder" cannot prove anything about the
+image that eventually ships, and this can.
 
 ### 3. The food is the most saturated thing on screen
 
@@ -115,6 +128,31 @@ constraint mechanic depends on the player noticing what they cannot use.
 
 This is why `disabled_surface` and `disabled_text` are separate tokens. Using the
 surface tone for text measures **1.38:1**, which is not dim, it is invisible.
+
+## Type
+
+One base and one ratio, so a single change rescales the screen.
+
+**Base 16px, ratio 1.25.** Three sizes, not four:
+
+| Role | Size | Where |
+|---|---|---|
+| `request` | 20 | the customer speaking |
+| `body` | 16 | everything the player reads normally |
+| `label` | 13 | group headings, secondary detail |
+
+Three rather than four because a fourth was proposed and does not survive contact
+with the screen. A `summary` size distinct from `body` would have to apply to
+`_feedback_label`, which renders the evaluation mid-service and the end-of-night
+summary **through the same node** — so a separate summary size needs either a
+runtime override, which rule *no inline styling* forbids, or size markup baked
+into rendered text, which drags styling into the text pipeline. The role that
+cannot be expressed is the role that should not exist.
+
+## Spacing
+
+**Base unit 8.** Everything is a multiple. The one spacing value already in the
+codebase is 24, which is `8 × 3` — re-expressing it invents nothing.
 
 ## Measured contrast
 
