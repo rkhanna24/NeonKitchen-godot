@@ -215,7 +215,13 @@ func _render(event: DomainEvent) -> void:
 		_feedback_label.append_text("\n\n%s" % TranslationServer.translate(key))
 
 
+## A new customer arrives to a clear counter. The feedback panel still holds the
+## previous encounter's band, score and reaction at this moment, and leaving it
+## there would attach one customer's result to the next one's request -- the
+## worst possible misreading, since the panel is exactly where the player looks
+## to decide what to cook.
 func _render_customer(customer_id: StringName) -> void:
+	_feedback_label.text = ""
 	var customer: CustomerDefinition = _session.content().find_customer(customer_id)
 	if customer == null:
 		return

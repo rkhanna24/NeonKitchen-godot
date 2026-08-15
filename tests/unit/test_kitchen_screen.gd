@@ -116,6 +116,20 @@ func test_serving_shows_the_band_and_score_from_the_event() -> void:
 	assert_eq(_screen._notice_label.text, "", "an accepted action clears the notice")
 
 
+func test_the_previous_result_does_not_follow_the_next_customer() -> void:
+	# Found by asking what a human should check by hand, which is where it
+	# should have been caught by a test instead. Every other assertion in this
+	# file checks that something is *present*; none checked that anything is
+	# gone, so a panel that never cleared satisfied all of them.
+	_serve(BLOCK_BOSS_DISH)
+	assert_string_contains(_screen._feedback_label.text, "83", "the result is shown")
+
+	_screen._primary_button.pressed.emit()
+
+	assert_eq(_screen._session.state().phase, SessionState.Phase.BUILDING_DISH)
+	assert_eq(_screen._feedback_label.text, "", "a new customer arrives to a clear feedback panel")
+
+
 func test_the_pantry_goes_inert_while_a_result_is_showing() -> void:
 	# The player has served; there is nothing to build until the next customer
 	# arrives. Leaving the buttons live and letting the domain reject the press
