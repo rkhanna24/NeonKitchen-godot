@@ -146,9 +146,9 @@ The final screen summarizes the eight recipes, rating bands, constraint results,
 | Design Lock | Before Week 1 | GDD, ingredient and customer schemas, initial pantry, and scoring rules |
 | Phase 1: Terminal Rules Prototype | Week 1 | Headless GDScript runner with the evaluator, three ingredients, two customers, constraints, and automated tests |
 | Migration and Parity Gate | Week 2 | Shared data, reusable evaluator, golden test cases, and one Godot UI customer from request through feedback |
-| Godot Game Loop | Week 3 | Functional food-truck UI with twelve ingredients, eight customers, feedback, session summary, and all-combination audit |
-| Testing and Scope Lock | Week 4 | Five observed Godot playtests, balance changes, bug fixes, accessibility pass, and feature freeze |
-| Final Polish and Release | Week 5 | Exported Godot desktop build, final assets, test report, final GDD, and presentation materials |
+| Godot Game Loop | Week 3 | Functional food-truck UI with twelve ingredients, eight customers, feedback, session summary, all-combination audit, and a locked screen design |
+| Art Pipeline, Polish, and Testing | Week 4 | Licensed art sourced and integrated, visual polish pass on the locked screen, five observed Godot playtests, balance changes, bug fixes, accessibility pass, and feature freeze |
+| Release | Week 5 | Exported Godot desktop build, remaining assets landed, test report, final GDD, and presentation materials |
 
 The Godot project structure, shared data schema, and reusable rules module begin during Phase 1. Full UI and presentation work begin after the terminal prototype passes its rules gate. Inventory, economy, cooking minigames, and progression remain outside capstone scope.
 
@@ -366,10 +366,31 @@ If usage approaches the ceiling, tasks will use smaller contexts, completed work
 | Ingredient values encode stereotypes | Review sensory descriptions and ground later worldbuilding in specific people and histories. |
 | Prototype scope expands into the full food-truck game | Enforce deferred scope and require a playtest decision gate before adding a pressure system. |
 | Terminal and Godot results diverge | Keep all rules outside both interfaces and require shared-data golden parity tests in continuous integration. |
+| Licensed asset packs do not cover this pantry | Prefer one pack that covers most of the twelve ingredients over several packs that each cover a few, since a patchwork of styles reads worse than a consistent style that misses. Accept a stylised stand-in over a photoreal mismatch, and keep the shape-and-type fallback available for anything unfound. |
+| Art arrives too late to integrate | Source and integrate in Week 4, not Week 5, and lock the screen design before sourcing so art is being fitted to a settled layout rather than a moving one. |
 | Agent work changes the design unintentionally | Require source decision IDs, role boundaries, shared-state updates, and human approval for design changes. |
 | Automated tests are mistaken for fun validation | Separate Health Inspector verification from human playtest acceptance. |
 
 # 6\. Revision History
+
+## v9 — Art pipeline and polish move into Week 4
+
+The Week 5 milestone required "final assets" while no art existed and no route to
+any had been chosen. That is the one schedule risk that cannot be absorbed by
+working faster, because sourcing is lead time rather than effort.
+
+* Moved art sourcing, integration, and the visual polish pass from Week 5 into
+  Week 4, and renamed the milestones to say so. Week 5 is now release work only.
+* Added **a locked screen design** to Week 3. Polish is only safe to schedule
+  once the interface it polishes has stopped moving; without this the reshuffle
+  would just repeat the mistake of finishing a screen that was about to be
+  replaced.
+* Recorded the art route as **licensed asset packs** (DEC-039) and its failure
+  mode in §5.5: a patchwork of packs reads worse than one consistent pack that
+  leaves gaps.
+* No change to the five observed playtests, which stay in Week 4 — they are
+  calendar time waiting on people, and run in parallel with sourcing rather than
+  competing with it.
 
 ## v8 — Stagiaire added to the specialist pool
 
