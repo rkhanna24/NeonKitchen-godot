@@ -199,9 +199,16 @@ fi
 step "Layout (no empty directories, shared/ needs two consumers)"
 layout_ok=1
 
+# Git-ignored paths are excluded. This check is about the *repository's* layout,
+# and an ignored directory is by definition not part of it -- a scratch tool or a
+# node_modules scaffold with an empty folder in it is not a layout defect. The
+# hardcoded skips remain for paths that are ignored anyway but are worth naming.
+# `git check-ignore` is the authority on what is ignored, so this cannot drift
+# from .gitignore the way a second hand-maintained list would.
 empties="$(find . -type d -empty \
 	-not -path './.git/*' -not -path './.godot/*' \
-	-not -path './.venv/*' -not -path './addons/*' 2>/dev/null)"
+	-not -path './.venv/*' -not -path './addons/*' 2>/dev/null \
+	| { grep -vxFf <(git check-ignore $(find . -type d -empty -not -path './.git/*' 2>/dev/null) 2>/dev/null || true) || true; })"
 if [ -n "$empties" ]; then
 	printf '%s\n' "$empties" | sed 's/^/      /'
 	fail "empty directories are not permitted"

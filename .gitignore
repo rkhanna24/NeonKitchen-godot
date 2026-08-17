@@ -35,3 +35,25 @@ __pycache__/
 # OS / editor artifacts
 .DS_Store
 *.swp
+
+# Reference-research tooling. The human's review site is a Next.js app that
+# happens to live under docs/design/references/; it is not project source, it
+# carries its own node_modules and build output, and one of its scaffold
+# directories is empty, which fails the layout gate. The durable artefacts are
+# the notes and screenshots beside it, not the viewer.
+/docs/design/references/review-site/
+
+# Reference screenshots. Copyrighted frames from commercial games, kept locally
+# as design evidence and cited by name in docs/design/references/*.md so a reader
+# can find the same frame themselves. The durable artefact is the analysis, not
+# the image, and this repository is public.
+/docs/design/references/*.jpg
+/docs/design/references/*.png
+/docs/design/references/*.jpeg
+
+# Working research notes kept local by the human's decision: the raw matrix,
+# source index, and superseded framing hypotheses. The conclusions they fed into
+# are committed in frame-notes-and-greybox-brief.md and godot-greybox-ideas.md.
+/docs/design/references/framing-hypotheses.md
+/docs/design/references/research-matrix.md
+/docs/design/references/source-index.md
