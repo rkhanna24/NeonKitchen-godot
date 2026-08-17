@@ -59,7 +59,13 @@ Traditional deckbuilding is an inspiration for synergy, buildcraft, and long-ter
 
 The capstone Godot game uses a scoped 2D interface with pixel-art cyberpunk and community-scale solarpunk influences. The city is dark, industrial, and illuminated by corporate neon. The food truck uses warm lighting, repaired technology, reclaimed materials, exposed cables, solar panels, hand-painted signs, and small planters.
 
-Phase 1 requires no art, animation, music, or sound. Its terminal presentation needs readable spacing, consistent commands, numbered pantry choices, clear serving confirmation, concise reactions, and optional color that is never the only carrier of meaning. The later Godot build translates those same information priorities into a customer request panel, visible ingredient choices, a proposed-dish area, a Serve action, and a feedback panel.
+Phase 1 requires no art, animation, music, or sound. Its terminal presentation needs readable spacing, consistent commands, numbered pantry choices, clear serving confirmation, concise reactions, and optional color that is never the only carrier of meaning.
+
+The later Godot build must carry the same **information priorities**: the player must be able to read who they are serving and what that person wants, see what is available to cook with, see what they have assembled so far, commit to serving it, and understand the result. Constraints must be visible before the player chooses (§2.3), and ingredient descriptions must stay available throughout a session (§2.4).
+
+**That list is a requirement, not a layout.** An earlier revision of this section named a customer request panel, an ingredient list, a proposed-dish area, a Serve action, and a feedback panel — which is the terminal's own information architecture, restated. Read as a design it produces exactly one screen, and it was built four times in Phase 3 before anyone noticed that the document, rather than the implementation, was the thing repeating itself.
+
+Where that information lives is a Phase 3 design decision and is deliberately left open here. The organising question is not *which panels* but **where the player is standing**: a food truck is a place before it is a screen — a window, a counter, someone leaning in, ingredients within reach, a pass where the dish goes. A design that answers that question and still satisfies the information priorities above is conformant, however few rectangles it contains.
 
 In the larger game, ingredients and recipes can communicate neighborhoods, migration, family traditions, trade, scarcity, and relationships. Unlocking an ingredient should feel like learning about the world rather than simply receiving a stronger stat block.
 
@@ -178,6 +184,7 @@ The Kitchen Lead is the default communication channel. The human may directly di
 | **Ingredient Designer**  | Creates a bounded batch of ingredient proposals using the Pantry Keeper’s schema and the Worldkeeper’s lore context.                               | New ingredients feel distinct, culturally grounded, and useful in several recipes.                                              | Proposals are not canon until reviewed by both stewards and approved by the human. Terminates after review.                                                                    |
 | **Customer Designer**    | Creates customer requests, constraints, reactions, and narrative framing from an approved brief.                                                   | The player encounters a specific person whose needs produce a readable puzzle.                                                  | Cannot contradict established lore or add new mechanics. Terminates after lore, ingredient, and human review.                                                                  |
 | **Recipe-Space Analyst** | Enumerates combinations, generates reference solutions, and reports impossible customers, dominant ingredients, or overly narrow puzzles.          | Customers permit several intentional recipes without allowing one universal best answer.                                        | Reference solutions validate the system; they do not become fixed player recipes. Terminates after the balance report.                                                         |
+| **Stagiaire**            | Reads design references the human has already gathered and reports the structural decisions in them. Has no web access and no shell, so it cannot choose what is worth studying — that judgement stays with the human.                | Screen designs are derived from how other kitchens actually solved the problem, rather than from one person's instinct.          | Reports observations and interpretations separately to the Kitchen Lead; never ranks references, searches for its own, or proposes a design. Terminates after the report is delivered. |
 | **Asset Scout**          | Searches for assets using a context packet containing relevant lore, art direction, target dimensions, format, license, cost, and exclusions.      | Portraits, icons, backgrounds, and sounds support the same world and visual language.                                           | Reports candidates to the Kitchen Lead; does not contact the human directly, purchase assets, approve licenses, or prepare files. Terminates after the shortlist is delivered. |
 | **Media Coach**          | Converts an approved asset choice into a repeatable preparation and Godot-import specification.                                                    | Approved media has consistent size, crop, palette treatment, looping, naming, and import behavior.                              | Defines the pipeline but does not perform all transformations. Terminates when the preparation job is specified and verified as reproducible.                                  |
 | **Prep Cook**            | Executes the Media Coach’s specification: resizing, cropping, conversion, atlas creation, loop preparation, naming, and import configuration.      | Media appears sharp, correctly framed, and technically stable in the Godot build.                                               | Cannot choose source assets or change the art direction. Terminates after prepared files and an execution report are handed off.                                               |
@@ -363,6 +370,33 @@ If usage approaches the ceiling, tasks will use smaller contexts, completed work
 | Automated tests are mistaken for fun validation | Separate Health Inspector verification from human playtest acceptance. |
 
 # 6\. Revision History
+
+## v8 — Stagiaire added to the specialist pool
+
+* Added the **Stagiaire** to §4.1's task-scoped pool. The roster had no
+  design-research role: the Asset Scout is production sourcing — it finds usable
+  images under licence, size and format constraints and returns a shortlist — and
+  pointing it at "how does this game arrange a conversation" would be using it
+  outside its charter.
+* Scoped deliberately narrow. It analyses references the human gathered and
+  cannot go looking, because choosing what is worth studying is a taste judgement
+  and taste belongs to the human. The boundary is enforced by absent tool grants
+  rather than by prose.
+
+## v7 — Art Direction stops prescribing the terminal's layout
+
+The Art Direction section listed five named panels for the Godot build. That list
+was the terminal's information architecture restated, and taking it as a design
+produced the same boxed-panel screen four times across #32, #34, #36 and the #37
+plan before the source was identified.
+
+* Rewrote the paragraph to separate **information priorities**, which are
+  binding, from **layout**, which is not. The five panels are recorded as a
+  superseded example rather than deleted, so the history of the mistake survives.
+* Named the organising question the section never asked: not which panels, but
+  where the player is standing.
+* No change to what information must reach the player. Constraints still visible
+  before choosing (§2.3), descriptions still available throughout (§2.4).
 
 ## v6 — Findings from the Flavour Explorer
 
