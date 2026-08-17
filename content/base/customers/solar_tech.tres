@@ -8,6 +8,7 @@ content_id = &"customer.solar_tech"
 name_key = &"customer.solar_tech.name"
 request_key = &"customer.solar_tech.request"
 reaction_key = &"customer.solar_tech.reaction"
+ticket_key = &"customer.solar_tech.ticket"
 savory_target = 3
 comfort_target = 5
 savory_weight = 2

@@ -8,6 +8,7 @@ content_id = &"customer.rig_partner"
 name_key = &"customer.rig_partner.name"
 request_key = &"customer.rig_partner.request"
 reaction_key = &"customer.rig_partner.reaction"
+ticket_key = &"customer.rig_partner.ticket"
 spicy_target = 4
 fresh_target = 4
 comfort_target = 0

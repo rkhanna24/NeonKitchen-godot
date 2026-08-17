@@ -8,6 +8,7 @@ content_id = &"customer.office_worker"
 name_key = &"customer.office_worker.name"
 request_key = &"customer.office_worker.request"
 reaction_key = &"customer.office_worker.reaction"
+ticket_key = &"customer.office_worker.ticket"
 fresh_target = 5
 comfort_target = 0
 adventurous_target = 4

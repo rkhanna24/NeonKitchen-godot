@@ -8,6 +8,7 @@ content_id = &"customer.late_shift_medic"
 name_key = &"customer.late_shift_medic.name"
 request_key = &"customer.late_shift_medic.request"
 reaction_key = &"customer.late_shift_medic.reaction"
+ticket_key = &"customer.late_shift_medic.ticket"
 fresh_target = 4
 comfort_target = 1
 spicy_weight = 2

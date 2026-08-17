@@ -7,12 +7,14 @@ ingredient.citrus_chili_paste.name,Citrus Chili Paste
 ingredient.citrus_chili_paste.description,"Fermented chilies pounded down with citrus peel, sharp enough to catch the back of the throat."
 customer.solar_tech.name,Solar Rig Tech
 customer.solar_tech.request,"Something hearty and savory, please — I've been rewiring solar panels on the north tower all shift and I want to feel human again."
+customer.solar_tech.ticket,Solar Rig Tech
 customer.solar_tech.reaction.delighted,"Warm, filling, exactly what these hands needed."
 customer.solar_tech.reaction.satisfied,"Good and warm — hit the spot after a shift like this."
 customer.solar_tech.reaction.mixed,"Decent, but it's not quite the hearty plate I was hoping for."
 customer.solar_tech.reaction.dissatisfied,"This isn't going to cut it after the shift I've had."
 customer.scrap_trader.name,Scrap-Market Trader
 customer.scrap_trader.request,"Something comforting with just a little kick — but keep the soy out, or I'll be miserable by morning."
+customer.scrap_trader.ticket,Scrap-Market Trader
 customer.scrap_trader.reaction.delighted,"Good warmth, no surprises — my stomach's still on my side."
 customer.scrap_trader.reaction.satisfied,"Good warmth, good kick, and my stomach's still on my side."
 customer.scrap_trader.reaction.mixed,"It's alright, but it's not really what I asked for."
@@ -22,6 +24,7 @@ ingredient.rooftop_lettuce.name,Rooftop Lettuce
 ingredient.rooftop_lettuce.description,"Lettuce pulled straight from the truck's rooftop planter — crisp, cool, and the closest thing to fresh air on this block."
 customer.late_shift_medic.name,Late-Shift Medic
 customer.late_shift_medic.request,"Something fresh and light, please — nothing heavy. I've been elbow-deep in triage since second shift and my stomach won't forgive anything rich right now."
+customer.late_shift_medic.ticket,Late-Shift Medic
 customer.late_shift_medic.reaction.delighted,"Light, clean, and exactly what my stomach needed after a shift like that."
 customer.late_shift_medic.reaction.satisfied,"Good and light. First thing all shift that hasn't sat like a stone."
 customer.late_shift_medic.reaction.mixed,"It's alright, but heavier than I wanted after tonight."
@@ -44,18 +47,21 @@ ingredient.citrus_herbs.name,Citrus Herbs
 ingredient.citrus_herbs.description,"A fistful of soft herbs torn over citrus zest, bruised just enough to let the oils out."
 customer.rig_partner.name,Rig Partner
 customer.rig_partner.request,"We've been up on the north tower together since sunup, and the heat up there doesn't let up — give me something crisp and fresh, and don't be shy putting real spice on it. I want to feel it."
+customer.rig_partner.ticket,Rig Partner
 customer.rig_partner.reaction.delighted,"Now that's worth climbing back up for. Save the recipe — my partner's going to want to know."
 customer.rig_partner.reaction.satisfied,"Solid. This'll carry both of us through the rest of the shift."
 customer.rig_partner.reaction.mixed,"It's alright. Was hoping for something with a bit more to it, honestly."
 customer.rig_partner.reaction.dissatisfied,"My partner's going to laugh when I hear what I paid for this."
 customer.office_worker.name,Office Worker
 customer.office_worker.request,"Compliance ran out of the good trays hours ago and I still needed lunch. Give me something really fresh, and don't be afraid to get adventurous with it — anything but another sad sandwich from that conference room."
+customer.office_worker.ticket,Office Worker
 customer.office_worker.reaction.delighted,"This is exactly what that conference room lunch could never be. Worth the walk."
 customer.office_worker.reaction.satisfied,"Better than anything on the catering cart. I might even make it back before the meeting starts."
 customer.office_worker.reaction.mixed,"It's a step up from the break room, at least."
 customer.office_worker.reaction.dissatisfied,"I skipped a meeting for this? I should have just eaten the sad sandwich."
 customer.night_courier.name,Night Courier
 customer.night_courier.request,"Route's got two more stops before the timer runs out. Make it comforting — really comforting — and give me actual spice this time, not just a hint. Just keep anything fermented off my plate; my stomach's already arguing with me tonight."
+customer.night_courier.ticket,Night Courier
 customer.night_courier.reaction.delighted,"Now that's fuel. I'm already thinking about the next drop."
 customer.night_courier.reaction.satisfied,"That'll hold me to the last stop. Good call."
 customer.night_courier.reaction.mixed,"It'll do. Was hoping it'd hit harder, though."
@@ -63,6 +69,7 @@ customer.night_courier.reaction.dissatisfied,"This isn't getting me through the 
 customer.night_courier.constraint.fermented,"Nothing sour or fermented tonight — my stomach's already arguing with me on this route."
 customer.block_boss.name,Block Boss
 customer.block_boss.request,"This corner's mine, so for once I get to sit and actually eat instead of just watching it. Make it savory, and put some real heat on it while you're at it — but skip anything smoked. I don't trust anything that hides what's underneath it."
+customer.block_boss.ticket,Block Boss
 customer.block_boss.reaction.delighted,"Now this is why I let you park on my corner."
 customer.block_boss.reaction.satisfied,"Not bad. You can stay another night."
 customer.block_boss.reaction.mixed,"It's fine. Don't get comfortable."
@@ -70,6 +77,7 @@ customer.block_boss.reaction.dissatisfied,"This corner's mine, and even I wouldn
 customer.block_boss.constraint.smoked,"Skip anything smoked. Smoke's for hiding what's underneath, and I don't miss what's happening on my own corner."
 customer.old_local.name,Old Local
 customer.old_local.request,"I've watched trucks come and go off this corner for years, and eaten off plenty of them. Keep it savory — hearty enough to matter — and don't try anything adventurous on me. And nothing that's been sitting under a heat lamp all shift; I can tell the difference. Just make it taste like something I'd actually recognize."
+customer.old_local.ticket,Old Local
 customer.old_local.reaction.delighted,"Now that's a plate. Tastes like something this block used to make, before everyone forgot how."
 customer.old_local.reaction.satisfied,"Good, honest food. Can't complain about that."
 customer.old_local.reaction.mixed,"It's fine. I've had better off carts that don't exist anymore."

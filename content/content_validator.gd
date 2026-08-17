@@ -128,6 +128,8 @@ static func _validate_customers(
 			problems.append("customer '%s': missing request_key" % id)
 		if customer.reaction_key == &"":
 			problems.append("customer '%s': missing reaction_key" % id)
+		if customer.ticket_key == &"":
+			problems.append("customer '%s': missing ticket_key" % id)
 
 		problems.append_array(_validate_customer_weights(customer))
 		problems.append_array(

@@ -21,6 +21,7 @@ func _customer(id: String) -> CustomerDefinition:
 	c.name_key = StringName(id + ".name")
 	c.request_key = StringName(id + ".request")
 	c.reaction_key = StringName(id + ".reaction")
+	c.ticket_key = StringName(id + ".ticket")
 	c.comfort_target = 3
 	c.comfort_weight = 3
 	return c

@@ -22,6 +22,7 @@ extends Resource
 @export var name_key: StringName = &""
 @export var request_key: StringName = &""
 @export var reaction_key: StringName = &""
+@export var ticket_key: StringName = &""
 
 @export_group("Targets")
 @export_range(0, 5) var savory_target: int = 0

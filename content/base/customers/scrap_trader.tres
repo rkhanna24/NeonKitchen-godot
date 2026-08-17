@@ -14,6 +14,7 @@ content_id = &"customer.scrap_trader"
 name_key = &"customer.scrap_trader.name"
 request_key = &"customer.scrap_trader.request"
 reaction_key = &"customer.scrap_trader.reaction"
+ticket_key = &"customer.scrap_trader.ticket"
 spicy_target = 1
 spicy_weight = 1
 comfort_weight = 2

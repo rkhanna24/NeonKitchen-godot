@@ -9,4 +9,5 @@ content_id = &"customer.plain_appetite"
 name_key = &"fixture.plain.name"
 request_key = &"fixture.plain.request"
 reaction_key = &"fixture.plain.reaction"
+ticket_key = &"fixture.plain.ticket"
 comfort_weight = 3

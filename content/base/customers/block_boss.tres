@@ -14,6 +14,7 @@ content_id = &"customer.block_boss"
 name_key = &"customer.block_boss.name"
 request_key = &"customer.block_boss.request"
 reaction_key = &"customer.block_boss.reaction"
+ticket_key = &"customer.block_boss.ticket"
 savory_target = 5
 spicy_target = 4
 comfort_target = 0
