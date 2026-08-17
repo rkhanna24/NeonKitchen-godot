@@ -289,6 +289,32 @@ else
 	fail "$uid_problems UID sidecar problem(s)"
 fi
 
+# ----------------------------------------------------------- recipe audit ----
+# GDD section 3's Week 3 all-combination audit. Regenerates the report in memory
+# and compares it against the committed copy.
+#
+# This fails on *drift* only, never on the audit's own PASS/REVISE verdict. A
+# balance finding is for the human to act on; wiring it to the gate would let a
+# known content problem block every unrelated change. See
+# bootstrap/audit_recipe_space.gd.
+step "Recipe space audit (committed report matches content)"
+if [ ! -f "bootstrap/audit_recipe_space.gd" ]; then
+	fail "bootstrap/audit_recipe_space.gd is missing"
+else
+	audit_log="$(mktemp)"
+	if "$godot_bin" --headless --path . -s bootstrap/audit_recipe_space.gd -- --check \
+		>"$audit_log" 2>&1; then
+		pass "docs/design/Recipe Space Audit.md is current"
+	else
+		# `|| true`: a zero-match grep fails the pipeline under pipefail, which
+		# would trip the ERR trap on top of the correct diagnosis below.
+		{ grep -aE 'audit:|committed:|regenerated:|content error:' "$audit_log" || true; } \
+			| sed 's/^/      /'
+		fail "stale; regenerate with: $godot_bin --headless --path . -s bootstrap/audit_recipe_space.gd"
+	fi
+	rm -f "$audit_log"
+fi
+
 # ------------------------------------------------------------------ tests ----
 # GUT v9.7.1, pinned by docs/adr/0003-test-framework.md.
 #
