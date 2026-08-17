@@ -41,7 +41,7 @@ and **Test** names something the Neon Kitchen greybox can prove or reject.
   against infrastructure rather than generic neon decoration.
 - **Don't borrow:** making exterior exploration or a cinematic city scene a
   requirement for the capstone.
-- **Test:** can the service-window view, customer silhouettes, and a small slice
+- **Test:** can the customer view, customer silhouettes, and a small slice
   of the street establish the hostile city from inside the warm truck?
 - **My note:** It has a gritty vibe that I like for the theme and background. But its at night so thats one thing to work around.
 
@@ -53,8 +53,8 @@ and **Test** names something the Neon Kitchen greybox can prove or reject.
   physical boundary; the shop remains visible behind the conversation.
 - **Don't borrow:** a large modal dialogue box and confirmation button becoming
   the permanent request presentation.
-- **Test:** can the final spoken line become a pinned ticket while the customer
-  remains visible and the work surface becomes active?
+- **Test:** can the final spoken line become a pinned ticket before the request
+  view gives way to a focused preparation view?
 - **My note:** Very similar to Good Pizza
 
 ## Galaxy Burger — preparation station
@@ -75,7 +75,7 @@ and **Test** names something the Neon Kitchen greybox can prove or reject.
 - **Borrow:** image, name, quantity, and condition are linked in a scannable
   reference; detailed information is available on demand.
 - **Don't borrow:** requiring the player to reproduce one exact recipe, or a
-  full-screen reference that hides the active customer and dish.
+  full-screen reference that hides the active ticket and dish.
 - **Test:** expand one ingredient's description beside the shelf while all other
   ingredient identities, the ticket, and the tray remain discoverable.
 - **My note:** We can have some kind of book or tablet with saved ingredient combinations and learned flavor dimensions.
@@ -101,7 +101,7 @@ and **Test** names something the Neon Kitchen greybox can prove or reject.
 - **Don't borrow:** a large crafting map, multi-step tool simulation, inventory
   economy, or workstation travel becoming required capstone systems.
 - **Test:** can ingredient inspection and composition receive most of the frame
-  while the ticket, shelf overview, and customer identity remain available?
+  while the ticket and shelf overview remain available?
 
 ## Potion Craft — customer and result
 
@@ -114,12 +114,13 @@ and **Test** names something the Neon Kitchen greybox can prove or reject.
 - **Test:** return emphasis to the customer after Serve while leaving the exact
   dish visible and annotating the ticket with the result and explanation.
 
-## First greybox brief — continuous window and worktop
+## First greybox brief — phased views inside one food truck
 
-Build one continuous food-truck workspace, not separate customer and kitchen
-screens.
+Build one encounter across two focused player-facing views in the same physical
+food truck: a customer request view and a preparation view. Do not require the
+customer and worktop to share the frame.
 
-It must show:
+Across the flow, it must show:
 
 1. the customer and a small slice of the city outside;
 2. a spoken request that becomes a persistent ticket;
@@ -131,18 +132,23 @@ It must show:
 
 ### Three states to sketch
 
-1. **Request:** customer is dominant; worktop is present but quiet.
-2. **Compose:** ticket is pinned; shelf, inspection, and tray receive focus;
-   customer and city remain visible.
-3. **Result:** dish moves to the pass; the customer reacts; the ticket receives
-   the score, constraint result, strongest match, and largest miss.
+1. **Request view:** the customer and a small slice of the city are dominant.
+   Their spoken request condenses into a ticket when the player confirms it.
+2. **Preparation view:** the customer may leave the frame. The pinned ticket,
+   shelf, ingredient inspection, tray, and Serve action own the screen.
+3. **Result view:** return to the customer framing with the served dish visible.
+   The customer reacts, and the ticket receives the score, constraint result,
+   strongest match, and largest miss.
 
 ### Transition hypothesis
 
-The final dialogue click/tap or confirm input pins the ticket and shifts emphasis
-to the worktop. It does not load another room. Serving reverses that emphasis and
-returns attention to the customer. Swipe or drag may support spatial movement,
-but is not the only input.
+The final dialogue click/tap or confirm input pins the ticket and changes from
+the request view to the preparation view. Serving returns to the customer view.
+These are distinct player-facing screens within the same physical truck and may
+be implemented inside one Godot scene; they do not imply separate rooms or a
+new domain phase. Test an instant cut, slide, and short spatial pan before
+choosing an animation. Swipe or drag may support the transition, but is not the
+only input.
 
 ### Cheap tests
 
@@ -150,9 +156,16 @@ but is not the only input.
 - Use the longest shipped request, constraint, ingredient description, and
   feedback strings rather than placeholder copy.
 - Complete one encounter with mouse only and one with keyboard only.
-- Run five-second recall: customer, desire, constraint, ingredient location,
-  commit action.
-- Compare a version with only the service-window city slice against one with a
+- Run five-second recall **per view**, since no single view now holds all of it:
+  - *Request view:* who is this, what do they want, what must they avoid?
+  - *Preparation view:* what does the ticket say they want, what must they
+    avoid, where are the ingredients, how do I commit?
+
+  The second is the load-bearing one. It is the direct test of whether the
+  ticket carries the request into preparation, which is the whole claim of the
+  two-view design. A single combined recall would be unpassable by construction
+  and would report the design working as a defect.
+- Compare a version with only the customer view's city slice against one with a
   separate establishing image. Keep the establishing image only if it changes
   what a tester understands.
 

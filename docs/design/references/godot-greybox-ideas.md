@@ -29,29 +29,38 @@ A useful scene tree would be:
 
 ```text
 GreyboxKitchenScreen (Control)
-├── CityBackdrop (ColorRect)
-├── ServiceWindow (Control)
+├── CustomerView (Control)
+│   ├── CityBackdrop (ColorRect)
 │   ├── CustomerPlaceholder (ColorRect + Label)
-│   └── Ticket (PanelContainer)
-├── Worktop (PanelContainer)
-│   └── WorktopLayout (VBoxContainer)
-│       ├── InspectionLabel (RichTextLabel)
-│       ├── PantryScroll (ScrollContainer)
-│       │   └── PantryFlow (HFlowContainer)
-│       └── CompositionRow (HBoxContainer)
-│           ├── TraySlot1
-│           ├── TraySlot2
-│           ├── TraySlot3
-│           └── ServeButton
-├── FeedbackSlip (PanelContainer)
+│   ├── DialoguePanel (PanelContainer)
+│   ├── ServedDish (PanelContainer)
+│   └── FeedbackSlip (PanelContainer)
+├── PreparationView (Control)
+│   ├── Ticket (PanelContainer)
+│   └── Worktop (PanelContainer)
+│       └── WorktopLayout (VBoxContainer)
+│           ├── InspectionLabel (RichTextLabel)
+│           ├── PantryScroll (ScrollContainer)
+│           │   └── PantryFlow (HFlowContainer)
+│           └── CompositionRow (HBoxContainer)
+│               ├── TraySlot1
+│               ├── TraySlot2
+│               ├── TraySlot3
+│               └── ServeButton
 └── AnimationPlayer
 ```
 
-This is one continuous scene. `ServiceWindow` and `Worktop` are physical regions, not two screens.
+`CustomerView` and `PreparationView` are distinct player-facing screens, with
+only one active at a time. Keeping them under one root scene is a convenient
+greybox implementation, not a design requirement. The continuity comes from
+the encounter remaining inside the same food truck and from the ticket carrying
+the request into preparation—not from showing both views simultaneously.
 
 ### 1. Establish the test frame
 
-Choose an explicit minimum window size before arranging anything. `1280×720` is a reasonable hypothesis, but it should be recorded as a hypothesis, not silently adopted.
+Choose an explicit minimum window size before arranging either view. `1280×720`
+is a reasonable hypothesis, but it should be recorded as a hypothesis, not
+silently adopted.
 
 Set the root `Control` to Full Rect. Use anchors for the large spatial zones and Containers inside those zones. Godot’s guidance is:
 
@@ -121,13 +130,17 @@ Render the resulting events. Do not reproduce scoring or constraint logic in the
 
 The existing session phases already describe the visual states:
 
-- `BUILDING_DISH`: worktop receives focus; ticket and customer remain present.
-- `SHOWING_RESULT`: plate stays visible; customer and feedback become prominent.
+- `BUILDING_DISH`: the presentation first shows `CustomerView`, then changes to
+  `PreparationView` after the player confirms the request. The ticket persists;
+  the customer does not need to remain visible.
+- `SHOWING_RESULT`: return to `CustomerView` with the plate and feedback visible.
 - `ENDED`: worktop quiets and the service summary appears.
 
 The animated request-to-ticket moment is a presentation-only substate within
-`BUILDING_DISH`; it is not a new domain phase. This preserves the existing
-command and event contract while allowing the screen to control emphasis.
+`BUILDING_DISH`; it is not a new domain phase. The screen controller owns which
+view is visible and when the preparation controls become active. This preserves
+the existing command and event contract while allowing the presentation to
+control the flow.
 
 This is an unusually good foundation for trying different presentations without
 rebuilding the game underneath them.
@@ -157,9 +170,11 @@ Initially, make state changes instantaneous. Once testers understand them, add
 one presentation-only transition:
 
 - The spoken request condenses into the persistent ticket.
-- The worktop moves slightly upward or brightens.
+- The request view cuts, slides, or pans to the preparation view.
 - Focus enters the pantry.
-- The customer never disappears.
+- The customer leaves the frame during preparation; the ticket preserves their
+  request.
+- Serving returns to the customer view with the dish and feedback visible.
 
 Use `AnimationPlayer` when the beginning and ending states are authored and predictable. Use a `Tween` for small dynamic movements such as bringing the selected ingredient forward. Godot can animate Control properties, visibility, color, and transforms. [AnimationPlayer introduction](https://docs.godotengine.org/en/stable/tutorials/animation/introduction.html)
 
@@ -174,17 +189,22 @@ Run these cases before adding art:
 - Longest request and description
 - Select, remove, revise, and serve
 - Constraint violation visible before and after serving
-- Five-second recall: customer, desire, constraint, ingredient location, commit action
+- Five-second recall, **run per view** — no single view holds all of it now:
+  request view (who, what they want, what to avoid) and preparation view (what
+  the ticket says, what to avoid, where the ingredients are, how to commit).
+  A combined recall would be unpassable by construction
 
 The 24-item test can use layout-only mock blocks; it does not need to modify the real pantry data.
 
 ## Keeping the city without building the city
 
-The service window can carry most of the worldbuilding:
+The customer view's service window can carry most of the worldbuilding:
 
 - Cold corporate neon outside; warm repaired materials inside
 - Rain, traffic light, distant signage, vents, cables, or silhouettes through the window
-- Customers visibly standing outside while the player occupies the protected truck interior
+- Customers visibly standing outside while the player occupies the protected
+  truck interior, in the customer view; during preparation the ticket stands in
+  for them
 - Ingredient descriptions and dialogue referencing where food and people come from
 - A subtle location or service-night caption
 - Ambient city sound later, if assets and time permit
@@ -195,10 +215,10 @@ as a hypothesis to evaluate, not the game's approved central metaphor.
 
 For the current greybox, use this scope ladder:
 
-- **Greybox target:** continuous customer/worktop experiment and complete recipe
-  loop
+- **Greybox target:** phased customer/preparation views and a complete recipe
+  loop inside one food-truck encounter
 - **Cheap city hypothesis:** visible exterior strip, cold/warm contrast,
-  customer writing
+  and customer writing in the customer view
 - **Optional polish:** a brief exterior establishing image of the truck
 - **Post-capstone:** isometric city map, truck movement, districts, parking, travel, and location selection
 
