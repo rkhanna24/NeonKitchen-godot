@@ -32,3 +32,15 @@ gdscript/warnings/narrowing_conversion=2
 [internationalization]
 
 locale/translations=PackedStringArray("res://content/base/localization/en.en.translation")
+
+[rendering]
+
+; Required for a macOS universal or arm64 export -- Godot refuses the preset
+; outright without it. Enabled here rather than narrowing the preset to x86_64,
+; because Apple Silicon is the common case and shipping an Intel-only build to
+; work around an import setting would be the wrong trade.
+;
+; Costs nothing today: the project has no textures at all. When art lands it
+; means each imported texture also carries an ETC2 ASTC variant, which is the
+; price of the universal binary.
+textures/vram_compression/import_etc2_astc=true

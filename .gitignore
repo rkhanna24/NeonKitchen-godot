@@ -58,3 +58,7 @@ __pycache__/
 /docs/design/references/research-matrix.md
 /docs/design/references/source-index.md
 /docs/design/references/README.md
+
+# Exported desktop builds. The README builds into these; the artifacts are
+# hundreds of megabytes and are reproducible from the committed export presets.
+/build/
