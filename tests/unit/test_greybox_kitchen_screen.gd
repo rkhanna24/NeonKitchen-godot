@@ -105,13 +105,24 @@ func test_confirming_the_request_pins_a_ticket_that_carries_it_into_preparation(
 
 	assert_false(_screen._customer_view.visible)
 	assert_true(_screen._preparation_view.visible)
+	# Header is who, body is what.
 	assert_eq(
 		_screen._ticket_header_label.text,
+		String(TranslationServer.translate(&"customer.block_boss.name"))
+	)
+	assert_eq(
+		_screen._ticket_request_label.text,
 		String(TranslationServer.translate(&"customer.block_boss.ticket"))
 	)
-	assert_string_contains(
-		_screen._ticket_request_label.text,
-		String(TranslationServer.translate(&"customer.block_boss.request")),
+	# The negative half, and the one that would have caught the original bug:
+	# this asserted the ticket *contained* the full request, which pinned
+	# rendering `request_key` here as correct. A ticket that is the request is
+	# not a ticket.
+	assert_false(
+		_screen._ticket_request_label.text.contains(
+			String(TranslationServer.translate(&"customer.block_boss.request"))
+		),
+		"the ticket condenses the request rather than reprinting it"
 	)
 	assert_string_contains(
 		_screen._ticket_avoid_label.text,
@@ -190,6 +201,22 @@ func test_the_longest_shipped_request_and_constraint_render_in_full() -> void:
 	assert_string_contains(
 		_screen._dialogue_avoid_label.text,
 		String(TranslationServer.translate(&"customer.old_local.constraint.held")),
+	)
+
+	# The worst case for the ticket, and the reason #42 exists: `old_local`'s
+	# request is the longest shipped at 319 characters. The bound is stated as a
+	# multiple of the request rather than an absolute character count, so it
+	# still means something if the request is ever rewritten.
+	_screen._confirm_button.pressed.emit()
+	var request: String = String(TranslationServer.translate(&"customer.old_local.request"))
+	var ticket: String = _screen._ticket_request_label.text
+	assert_lt(
+		ticket.length() * 3,
+		request.length(),
+		(
+			"the ticket must be a condensation, not a copy (ticket %d chars, request %d)"
+			% [ticket.length(), request.length()]
+		)
 	)
 
 

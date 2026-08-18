@@ -404,8 +404,18 @@ func _render_customer(customer_id: StringName) -> void:
 	)
 	var avoid: String = _avoid_line(customer)
 	_dialogue_avoid_label.text = avoid
-	_ticket_header_label.text = _ticket_header_text(customer)
-	_ticket_request_label.text = EncounterText.translate(customer.request_key)
+	# Header is who, body is what. The header read `ticket_key` while that field
+	# was a placeholder holding the display name; now that it carries the
+	# authored condensation, reading it here would print the order twice.
+	_ticket_header_label.text = EncounterText.translate(customer.name_key)
+	# `ticket_key`, never `request_key`. The ticket is the whole claim of the
+	# two-view design -- it is what carries the request across the cut to the
+	# preparation view -- and a ticket holding the full request is the Good
+	# Pizza failure the frame notes named: a speech bubble as the only durable
+	# record of a nuanced request. `old_local` alone is 319 characters against a
+	# 68-character ticket, and truncating it lands mid-atmosphere, after two
+	# sentences about watching trucks come and go.
+	_ticket_request_label.text = EncounterText.translate(customer.ticket_key)
 	_ticket_avoid_label.text = avoid
 
 
@@ -422,17 +432,6 @@ func _avoid_line(customer: CustomerDefinition) -> String:
 	if lines.is_empty():
 		return "Avoid: nothing this time"
 	return "Avoid: %s" % "; ".join(lines)
-
-
-## Renders `customer.<id>.ticket` when it resolves, per the context packet.
-## Every shipped and fixture customer carries a non-empty `ticket_key`
-## (`ContentValidator` requires it), so the empty-string fallback below is a
-## defensive path this content set never exercises rather than a real branch.
-func _ticket_header_text(customer: CustomerDefinition) -> String:
-	var ticket_text: String = EncounterText.translate(customer.ticket_key)
-	if not ticket_text.is_empty():
-		return ticket_text
-	return EncounterText.translate(customer.name_key)
 
 
 func _render_served_dish(ingredient_ids: Array[StringName]) -> void:

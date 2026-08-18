@@ -3,8 +3,8 @@ type: design-guidance
 display-name: Content Voice
 status: active
 phase: phase-1
-version: 1.0
-updated: 2026-08-07
+version: 1.1
+updated: 2026-08-17
 governed-by: "[[Neon Kitchen - Game Design Document]]"
 tags:
   - neon-kitchen
@@ -40,7 +40,12 @@ heat lamp and a block worth escaping, not through a sentence about the setting.
 | "but not for anyone avoiding soy" | Restates the constraint the constraint already states |
 | "I want to feel human again" | Reaches for the emotional register before earning it |
 
-## Five rules
+Rule 5 below is the general form of that last row. The line itself survived into
+`solar_tech`'s shipped request and, since 2026-08-17, onto their ticket — see
+rule 7. The judgement here was that it cannot be the register *every* customer
+arrives in, not that no customer may ever say it.
+
+## Seven rules
 
 **1. Describe the thing, not its role.** The player infers what an ingredient is
 for from what it *is*. A description that explains its function has done the
@@ -98,6 +103,32 @@ The GDD's own provisional twelve are all plain: noodles, tofu, mushrooms, kimchi
 pepper paste, chili crisp, coconut milk, pickled cucumber, chickpeas, flatbread,
 citrus herbs, smoked fish. Modifier plus noun, no atmosphere.
 
+**7. A ticket condenses what the customer *said*. It never translates what they
+*meant*.** The ticket carries the request into the preparation view, so it is
+allowed to be terse and it inherits rule 2's exemption — naming a quality is the
+game's signal channel and `Savory with real heat` is correct ticket text.
+
+What it may not do is finish the player's thinking. Working out that *"I want to
+feel human again"* means comfort is **the puzzle**, and a ticket reading
+`deeply comforting` has solved it on the player's behalf and simplified the game.
+The line stays *"Wants to feel human again"*, and translating it remains the
+player's job.
+
+The practical test is mechanical: **every quality word on a ticket should already
+appear in that customer's own request.** Seven of the eight shipped tickets pass
+that on the first draft; the eighth was `solar_tech`, whose request signals
+comfort only through the feeling, and it was the only one that needed correcting.
+
+A corollary: a ticket cannot warn about something the request never mentions.
+`late_shift_medic` carries a real dislike of spice that they never speak aloud, and
+no honest ticket can surface it — writing it in would rewrite the request through
+the back door. That gap is content work, or a repeat-customer mechanic where the
+quirk is something the player *discovers*, not a ticket defect.
+
+Evaluator vocabulary is still banned outright. `Savory 5, weight 2` is the answer
+key, and `tests/content/test_customer_ticket.gd` fails on any digit or on the
+words *dimension*, *weight*, *target*, *score*, and *penalty*.
+
 ## The test
 
 A description passes when a player who reads it can guess what the ingredient
@@ -105,6 +136,10 @@ might be good for **without being told**, and would still be right after the
 pantry doubles.
 
 A name passes when it would look unremarkable on a real menu.
+
+A ticket passes when a player who reads only it — never the full request — can
+state what the customer wants and what they must avoid, **and still has to do the
+translating themselves.**
 
 ## Why this exists
 
