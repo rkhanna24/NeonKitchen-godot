@@ -1,6 +1,6 @@
 ## The preparation view's spatial layout, per #44.
 ##
-## Split out of `test_greybox_kitchen_screen.gd` only because that file hit the
+## Split out of `test_kitchen_screen.gd` only because that file hit the
 ## 20-public-method lint cap. These are layout claims rather than flow claims:
 ## that the worktop is a place with stations around a dominant centre, and not
 ## the three stacked bands it replaced.
@@ -10,16 +10,16 @@
 ## person can run that.
 extends GutTest
 
-var _screen: GreyboxKitchenScreen = null
+var _screen: KitchenScreen = null
 
 
 func before_each() -> void:
-	_screen = GreyboxKitchenScreen.new()
+	_screen = KitchenScreen.new()
 	add_child_autofree(_screen)
 
 
-func _find_block(ingredient_id: StringName) -> GreyboxIngredientBlock:
-	for block: GreyboxIngredientBlock in _screen._ingredient_blocks:
+func _find_block(ingredient_id: StringName) -> IngredientBlock:
+	for block: IngredientBlock in _screen._ingredient_blocks:
 		if block.content_id == ingredient_id:
 			return block
 	return null
@@ -34,8 +34,8 @@ func _find_block(ingredient_id: StringName) -> GreyboxIngredientBlock:
 ## `_GROUP_SILHOUETTE` table, so a station whose container squeezes a block
 ## below the floor is caught too, not only a bad constant.
 func test_every_ingredient_block_meets_the_interaction_floor() -> void:
-	var floor_size: float = GreyboxKitchenScreen.MIN_INTERACTION_TARGET
-	for block: GreyboxIngredientBlock in _screen._ingredient_blocks:
+	var floor_size: float = KitchenScreen.MIN_INTERACTION_TARGET
+	for block: IngredientBlock in _screen._ingredient_blocks:
 		assert_gte(
 			block.custom_minimum_size.x,
 			floor_size,
@@ -59,7 +59,7 @@ func test_every_ingredient_block_meets_the_interaction_floor() -> void:
 ## this requires one per station, which is what the design claims.
 func test_the_stations_do_not_all_share_one_silhouette() -> void:
 	var shapes: Dictionary[Vector2, bool] = {}
-	for block: GreyboxIngredientBlock in _screen._ingredient_blocks:
+	for block: IngredientBlock in _screen._ingredient_blocks:
 		shapes[block.custom_minimum_size] = true
 	assert_eq(
 		shapes.size(),
@@ -78,7 +78,7 @@ func test_every_ingredient_sits_in_its_own_group_station() -> void:
 		"one station per declared group"
 	)
 	for ingredient: IngredientDefinition in _screen._session.content().all_ingredients():
-		var block: GreyboxIngredientBlock = _find_block(ingredient.content_id)
+		var block: IngredientBlock = _find_block(ingredient.content_id)
 		assert_not_null(block, "%s has a block" % ingredient.content_id)
 		assert_eq(
 			block.get_parent(),
@@ -91,15 +91,13 @@ func test_every_ingredient_sits_in_its_own_group_station() -> void:
 ## every choice the player has made, and in the version this replaces it was
 ## the least prominent thing on screen -- three small labels reading "(empty)".
 func test_the_dish_surface_is_the_largest_single_region() -> void:
-	var pass_area: float = (
-		GreyboxKitchenScreen._PASS_ZONE.size.x * GreyboxKitchenScreen._PASS_ZONE.size.y
-	)
+	var pass_area: float = KitchenScreen._PASS_ZONE.size.x * KitchenScreen._PASS_ZONE.size.y
 	for group: StringName in IngredientDefinition.GROUPS:
-		var zone: Rect2 = GreyboxKitchenScreen._STATION_ZONE[group]
+		var zone: Rect2 = KitchenScreen._STATION_ZONE[group]
 		assert_gt(
 			pass_area, zone.size.x * zone.size.y, "the pass is larger than the %s station" % group
 		)
-	for zone: Rect2 in [GreyboxKitchenScreen._TICKET_ZONE, GreyboxKitchenScreen._INSPECTION_ZONE]:
+	for zone: Rect2 in [KitchenScreen._TICKET_ZONE, KitchenScreen._INSPECTION_ZONE]:
 		assert_gt(
 			pass_area, zone.size.x * zone.size.y, "the pass is larger than the reference column"
 		)
@@ -110,7 +108,7 @@ func test_the_dish_surface_is_the_largest_single_region() -> void:
 ## Godot's automatic guess is geometric, and with four stations around a centre
 ## it hops in an order matching nothing on screen.
 func test_the_focus_chain_is_explicit_and_closes_through_serve() -> void:
-	var blocks: Array[GreyboxIngredientBlock] = _screen._ingredient_blocks
+	var blocks: Array[IngredientBlock] = _screen._ingredient_blocks
 	assert_gt(blocks.size(), 0, "there are blocks to chain")
 	for index: int in range(blocks.size() - 1):
 		assert_eq(
@@ -118,7 +116,7 @@ func test_the_focus_chain_is_explicit_and_closes_through_serve() -> void:
 			blocks[index + 1].get_path(),
 			"block %d hands focus to block %d" % [index, index + 1]
 		)
-	var last: GreyboxIngredientBlock = blocks[blocks.size() - 1]
+	var last: IngredientBlock = blocks[blocks.size() - 1]
 	assert_eq(last.focus_next, _screen._serve_button.get_path(), "the last block reaches Serve")
 	assert_eq(
 		_screen._serve_button.focus_next,
@@ -140,12 +138,12 @@ func test_the_focus_chain_is_explicit_and_closes_through_serve() -> void:
 ## Every zone in the preparation view, in the order they are declared.
 func _all_zones() -> Array[Rect2]:
 	var zones: Array[Rect2] = [
-		GreyboxKitchenScreen._TICKET_ZONE,
-		GreyboxKitchenScreen._INSPECTION_ZONE,
-		GreyboxKitchenScreen._PASS_ZONE,
+		KitchenScreen._TICKET_ZONE,
+		KitchenScreen._INSPECTION_ZONE,
+		KitchenScreen._PASS_ZONE,
 	]
 	for group: StringName in IngredientDefinition.GROUPS:
-		zones.append(GreyboxKitchenScreen._STATION_ZONE[group])
+		zones.append(KitchenScreen._STATION_ZONE[group])
 	return zones
 
 
@@ -188,11 +186,11 @@ func test_the_project_launches_this_screen() -> void:
 	var main_scene: String = str(setting)
 	assert_eq(
 		main_scene,
-		"res://adapters/godot_ui/greybox/greybox_kitchen_screen.tscn",
+		"res://adapters/godot_ui/kitchen_screen.tscn",
 		"the project's main scene is this screen"
 	)
 	var packed: PackedScene = load(main_scene)
 	assert_not_null(packed, "and that path still resolves to a scene")
 	var instance: Node = packed.instantiate()
 	add_child_autofree(instance)
-	assert_true(instance is GreyboxKitchenScreen)
+	assert_true(instance is KitchenScreen)

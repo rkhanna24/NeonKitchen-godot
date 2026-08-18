@@ -1,9 +1,9 @@
-## A reusable pantry block for the greybox preparation view (docs/design/
-## references/godot-greybox-ideas.md §3).
+## A reusable pantry block for the preparation view (docs/design/references/
+## godot-greybox-ideas.md §3).
 ##
 ## A plain `Button` subclass built and configured in code -- not a `.tscn` --
-## for the same reason `KitchenScreen` builds its buttons in code: a scene file
-## is not usefully diff-reviewable, and this type has exactly one caller.
+## because a scene file is not usefully diff-reviewable and this type has
+## exactly one caller.
 ##
 ## Carries the stable `content_id` the session commands need, and a
 ## presentation-only `set_selected()` marker. Selection is shown as a text
@@ -11,7 +11,7 @@
 ## requires selection to survive greyscale, and a text marker survives it
 ## trivially without any inline theme override (forbidden project-wide) and
 ## without a "selected" style this theme resource does not define.
-class_name GreyboxIngredientBlock
+class_name IngredientBlock
 extends Button
 
 ## Prefix marking a selected block. ASCII rather than a check-glyph so the
@@ -38,7 +38,7 @@ var _display_name: String = ""
 ## admired: a shelf that relies on silhouette alone is not a readable pantry.
 ##
 ## The caller owns the interaction floor
-## (`GreyboxKitchenScreen.MIN_INTERACTION_TARGET`) and it is not enforced here,
+## (`KitchenScreen.MIN_INTERACTION_TARGET`) and it is not enforced here,
 ## because a clamp in this function would make the test that asserts the floor
 ## unable to fail.
 func setup(ingredient: IngredientDefinition, silhouette: Vector2) -> void:

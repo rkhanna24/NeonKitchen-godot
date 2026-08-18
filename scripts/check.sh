@@ -20,6 +20,30 @@
 set -o pipefail
 
 readonly EXPECTED_GODOT_VERSION="4.7.1.stable.official.a13da4feb"
+
+# Floors for the test run. Bump them deliberately when tests are added, and
+# lower them only when a suite is deleted on purpose.
+#
+# This exists because a green run is not the same as a complete one: GUT does
+# not fail a test it never collected, so a test that stops being discovered
+# reports as silence rather than as red.
+#
+# The prompt was a `String(Variant)` that took a whole file out of discovery,
+# 245 tests across 27 scripts becoming 237 across 26 with nothing going red.
+# That particular case is already caught upstream by the "Type and warning
+# check" step, which is worth being precise about -- the near-miss happened
+# while running GUT directly, not while running this script.
+#
+# What the floor covers is everything that leaves a file *parsing correctly*
+# and still uncollected: a test class that no longer extends `GutTest`, a
+# `test_` prefix lost in a rename, a file moved out of `res://tests`, a
+# directory deleted, or `-gdir`/`-ginclude_subdirs` drifting. None of those is
+# a script error, and all of them are silent.
+#
+# The script count matters as much as the test count: deleting one file's worth
+# of tests while adding the same number elsewhere keeps the total flat.
+readonly MIN_TEST_SCRIPTS=26
+readonly MIN_TESTS=228
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly REPO_ROOT
 cd "$REPO_ROOT" || exit 1
@@ -337,14 +361,25 @@ else
 	fi
 	tests_run="$(sed -n 's/^Tests  *\([0-9][0-9]*\).*/\1/p' "$gut_log" | head -1)"
 	[ -n "$tests_run" ] || tests_run=0
+	scripts_run="$(sed -n 's/^Scripts  *\([0-9][0-9]*\).*/\1/p' "$gut_log" | head -1)"
+	[ -n "$scripts_run" ] || scripts_run=0
 
 	if [ "$gut_status" -ne 0 ]; then
 		sed -n '/Run Summary/,$p' "$gut_log" | sed 's/^/      /'
 		fail "test suite ($tests_run test(s) ran)"
 	elif [ "$tests_run" -eq 0 ]; then
 		fail "no tests were discovered under res://tests"
+	elif [ "$scripts_run" -lt "$MIN_TEST_SCRIPTS" ] || [ "$tests_run" -lt "$MIN_TESTS" ]; then
+		printf '      expected at least %d script(s) and %d test(s)\n' \
+			"$MIN_TEST_SCRIPTS" "$MIN_TESTS"
+		printf '      got %d script(s) and %d test(s)\n' "$scripts_run" "$tests_run"
+		printf '      GUT cannot fail a test it never collected. Look for a class that\n'
+		printf '      no longer extends GutTest, a lost test_ prefix, a file moved out\n'
+		printf '      of res://tests, or a deliberate deletion -- if deletion, lower the\n'
+		printf '      floor in this script in the same commit.\n'
+		fail "fewer tests ran than the floor; see the note above the floor in this script"
 	else
-		pass "$tests_run test(s)"
+		pass "$tests_run test(s) across $scripts_run script(s)"
 	fi
 	rm -f "$gut_log"
 fi
