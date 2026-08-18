@@ -4,6 +4,18 @@ Use this sheet to turn saved screenshots into design evidence. Keep each note
 specific: **Borrow** names a structural idea, **Don't borrow** names a mismatch,
 and **Test** names something the Neon Kitchen greybox can prove or reject.
 
+> **Status: research input. The brief half is superseded, 2026-08-17.**
+>
+> The frame notes below are durable — they are the analysis the shipping screen
+> was derived from, and the best account of *why* it is shaped as it is.
+>
+> The **first greybox brief** section is not. It described an experiment beside
+> an older screen; that experiment became the game's screen (DEC-043) and the
+> older screen was deleted (DEC-046). Its five-second recall test was withdrawn
+> (DEC-044) and is struck through in place.
+>
+> **For the screen as it is, read [[Kitchen Screen]].**
+
 > **The screenshots are not committed.** They are copyrighted frames from
 > commercial games, kept locally as working evidence in a public repository. Each
 > is cited below by game, scene, and local filename so the same frame can be

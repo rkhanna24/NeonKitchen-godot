@@ -1,7 +1,19 @@
 # Godot greybox implementation ideas
 
-> **Status:** Working implementation hypothesis for the first greybox, not an
-> approved final layout. Visual evidence and test questions live in
+> **Status: research input. Superseded on layout, 2026-08-17.**
+>
+> This was the implementation hypothesis for a time-boxed greybox built beside
+> an older screen. The experiment was adopted as the game's screen (DEC-043) and
+> the older screen deleted (DEC-046), so nothing here describes the current
+> build. Two parts were superseded outright: the flat `PantryFlow` below became
+> four positioned stations (#44), and the five-second recall test was withdrawn
+> (DEC-044).
+>
+> **For the screen as it is, read [[Kitchen Screen]].** This document is kept
+> for its reasoning — the seam, the input plan, the motion sequencing, and the
+> scope ladder are all still the argument behind what shipped.
+>
+> Visual evidence and test questions live in
 > [Frame notes and first greybox brief](frame-notes-and-greybox-brief.md). The
 > alternative camera framings were explored in a local working note that is not
 > committed; this document records the framing that survived them.

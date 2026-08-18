@@ -28,12 +28,19 @@ project knowledge that governs *Neon Kitchen*.
   evidence, risks, and milestone context.
 - [[adr/README|Architecture Decision Records]] — accepted technical decisions
   and the template for new ADRs.
+- [[Kitchen Screen]] — the game's screen: two views, the worktop, the ticket,
+  what the screen may not do, and the decision trail behind it.
 
 ## Systems of Record
 
 | Concern | Canonical location |
 |---|---|
 | Game design | [[Neon Kitchen - Game Design Document]] |
+| The game's screen | [[Kitchen Screen]] |
+| Palette and its rules | [[Visual Language]] |
+| How content is written | [[Content Voice]] |
+| Art sourcing | [[Art Asset Brief]] |
+| Reachable dish space | [[Recipe Space Audit]] (generated) |
 | Architecture guidance | [[technical_architecture\|Technical Architecture]] |
 | Accepted architecture decisions | `adr/` |
 | Agent operating definitions | `agents/` |
