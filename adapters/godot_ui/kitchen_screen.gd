@@ -199,9 +199,17 @@ func _ready() -> void:
 	_begin()
 
 
-## Mirrors `KitchenScreen._fail_loudly()`: a content error blanks the screen
-## and says so rather than opening an empty kitchen.
+## A content error blanks the screen and says so rather than opening an empty
+## kitchen.
+##
+## Printed as well as drawn. The label is what a player sees; the `printerr` is
+## what makes this observable in a headless run, which is the only way to check
+## an **exported** build loads its content -- an export rewrites every `.tres`
+## into a `.tres.remap`, and a repository that silently resolved none of them
+## would draw a label nobody was running a display to read.
 func _fail_loudly(problems: PackedStringArray) -> void:
+	for problem: String in problems:
+		printerr("content error: %s" % problem)
 	var label := Label.new()
 	label.text = "Content failed to load:\n\n%s" % "\n".join(problems)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

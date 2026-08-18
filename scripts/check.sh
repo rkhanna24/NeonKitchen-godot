@@ -384,6 +384,28 @@ else
 	rm -f "$gut_log"
 fi
 
+# ----------------------------------------------------------------- export ----
+# Delegated to scripts/verify_export.sh, which explains what it checks and why.
+#
+# In the gate rather than beside it, unlike verify_flavor_model.sh: an export
+# failure is invisible until somebody exports, and the whole reason #46 was
+# filed early is that the last weekend of a project is the worst possible place
+# to discover one. It needs no export templates -- only the committed preset --
+# so CI can run it too.
+#
+# It costs about fifteen seconds, most of it waiting for the exported build to
+# start and load. That is the price of the one check that runs the game the way
+# a player would get it.
+step "Export"
+if [ ! -x "scripts/verify_export.sh" ]; then
+	fail "scripts/verify_export.sh is missing or not executable"
+elif export_out="$(./scripts/verify_export.sh 2>&1)"; then
+	printf '%s\n' "$export_out" | grep -a 'PASS' | sed 's/^ *//; s/^/    /'
+else
+	printf '%s\n' "$export_out" | sed 's/^/      /'
+	fail "the exported build is broken; run ./scripts/verify_export.sh"
+fi
+
 # ---------------------------------------------------------------- summary ----
 printf '\n'
 if [ "$failures" -eq 0 ]; then
