@@ -51,9 +51,21 @@
 ## stop being list headings and become **where a thing lives**; their unequal
 ## sizes (2/2/3/5) are what make them read as places rather than as cells.
 ##
-## Both views paint a ground. Without one the panels floated on the window's
-## clear colour, and in the customer view the city strip read as a black bar
-## rather than as a darker street seen past a warmer interior.
+## Both views paint a ground, and not the same one. The preparation view is
+## `background` so the `surface` panels standing on it have something to stand
+## against -- painting it `surface` was why no station, ticket, or pass
+## boundary was visible at all. The customer view keeps a `surface` interior,
+## because that framing looks out through the service window and the warm
+## inside has to read against the darker street beyond it.
+##
+## ## The ticket is a reminder, not a replacement (DEC-044)
+##
+## The brief made a five-second recall of the preparation view the load-bearing
+## exit test: could a player state the whole order from the ticket alone. The
+## owner rejected the premise -- speed is not the goal, moving between the two
+## views is fine, and some of what a customer says will never condense into a
+## ticket at all. So the full request stays reachable throughout preparation,
+## and the ticket carries what fits rather than everything.
 class_name GreyboxKitchenScreen
 extends Control
 
@@ -166,6 +178,7 @@ var _ingredient_blocks: Array[GreyboxIngredientBlock] = []
 
 var _dish_place_labels: Array[Label] = []
 var _serve_button: Button = null
+var _read_request_button: Button = null
 
 var _notice_label: Label = null
 
@@ -322,11 +335,17 @@ func _build_placeholder_block(
 ## workspace, just an abstraction": a worktop has locations, and that had rows.
 ## Rewritten from scratch rather than adjusted, per #44.
 func _build_preparation_view(parent: Control) -> void:
-	# A worktop needs a ground. Without one the panels floated on the window's
-	# own clear colour, which is most of what made this read as controls on
-	# nothing rather than objects on a surface.
+	# `background`, not `surface`. The first version painted this ground with the
+	# same token the panels use, so a `surface` panel sat on a `surface` ground
+	# and no station, ticket, or pass boundary was visible anywhere on screen --
+	# the blocks were the only thing with an edge, and they had no border either.
+	# Dark worktop, lit surfaces standing on it.
+	#
+	# The customer view keeps its lighter `surface` interior: that framing looks
+	# out through the service window, where the warm inside has to read against
+	# the darker street, and this one looks down at the worktop.
 	var worktop_ground := ColorRect.new()
-	worktop_ground.color = theme.get_color("surface", "Tokens")
+	worktop_ground.color = theme.get_color("background", "Tokens")
 	worktop_ground.set_anchors_preset(Control.PRESET_FULL_RECT)
 	parent.add_child(worktop_ground)
 
@@ -364,6 +383,18 @@ func _build_ticket(parent: Control) -> void:
 	_ticket_avoid_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	ticket_column.add_child(_ticket_avoid_label)
 
+	# The ticket is a reminder, not a replacement (DEC-044). Some of what a
+	# customer says will never condense -- a standing love of noodles is not a
+	# flavour target -- so the full request stays reachable for the whole of
+	# preparation instead of being sealed behind the confirm.
+	#
+	# Screen-only, like the confirm it mirrors: `current_dish` is untouched, so
+	# looking costs the player nothing they have already chosen.
+	_read_request_button = Button.new()
+	_read_request_button.text = "Read the full request"
+	_read_request_button.pressed.connect(_on_read_request_pressed)
+	ticket_column.add_child(_read_request_button)
+
 
 ## Reference text, so it sits with the ticket rather than over the worktop.
 func _build_inspection(parent: Control) -> void:
@@ -398,6 +429,7 @@ func _build_pass(parent: Control) -> void:
 	_dish_place_labels = []
 	for _place: int in range(Flavor.MAX_DISH_SIZE):
 		var place := PanelContainer.new()
+		place.theme_type_variation = &"DishPlace"
 		place.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		place.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		places.add_child(place)
@@ -489,9 +521,11 @@ func _link_focus_chain() -> void:
 		if index > 0:
 			block.focus_previous = _ingredient_blocks[index - 1].get_path()
 		else:
-			block.focus_previous = _serve_button.get_path()
-	_serve_button.focus_next = _ingredient_blocks[0].get_path()
+			block.focus_previous = _read_request_button.get_path()
+	_serve_button.focus_next = _read_request_button.get_path()
 	_serve_button.focus_previous = _ingredient_blocks[last].get_path()
+	_read_request_button.focus_next = _ingredient_blocks[0].get_path()
+	_read_request_button.focus_previous = _serve_button.get_path()
 
 
 func _ingredient_block(ingredient: IngredientDefinition) -> GreyboxIngredientBlock:
@@ -541,6 +575,18 @@ func _on_ingredient_inspect(ingredient: IngredientDefinition) -> void:
 ## `BUILDING_DISH` and has nothing left to accept here.
 func _on_confirm_pressed() -> void:
 	_set_view(View.PREPARATION)
+
+
+## Screen-only, the mirror of `_on_confirm_pressed`. No `KitchenSession` call:
+## the domain is in `BUILDING_DISH` either way and has nothing to accept here,
+## and the tray survives because `current_dish` was never touched.
+func _on_read_request_pressed() -> void:
+	# "Okay" is what you say the first time you hear an order. Coming back to
+	# re-read one, the same button is on its way somewhere else, and a control
+	# whose label does not match the trip is how a player loses track of which
+	# way they are going.
+	_confirm_button.text = "Back to the worktop"
+	_set_view(View.REQUEST)
 
 
 func _on_serve_pressed() -> void:
@@ -602,6 +648,8 @@ func _render_customer(customer_id: StringName) -> void:
 			EncounterText.translate(customer.request_key)
 		]
 	)
+	# A new customer, so the next confirm is a first hearing again.
+	_confirm_button.text = "Okay"
 	var avoid: String = _avoid_line(customer)
 	_dialogue_avoid_label.text = avoid
 	# Header is who, body is what. The header read `ticket_key` while that field
@@ -709,6 +757,7 @@ func _sync_pantry_interactivity() -> void:
 	for block: GreyboxIngredientBlock in _ingredient_blocks:
 		block.disabled = not active
 	_serve_button.disabled = not active
+	_read_request_button.disabled = not active
 
 
 func _focus_view_entry_point() -> void:

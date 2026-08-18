@@ -104,6 +104,36 @@ arithmetic rather than by inspecting a picture. This matters because the art doe
 not exist yet: "check it against a placeholder" cannot prove anything about the
 image that eventually ships, and this can.
 
+#### Every surface carries a border (DEC-045)
+
+The alpha floor guarantees the *text* on a panel is readable. It says nothing
+about whether the panel's **edge** is findable, and those are different
+questions with different answers.
+
+The failure was visible the first time the worktop rendered: `surface` panels on
+a `surface` ground, and ingredient blocks falling through to Godot's default
+button stylebox because this theme had never defined `Button/styles/normal`. No
+station, ticket, or pass boundary could be seen on screen at all, and the owner's
+report was that the blocks "blend in with the background."
+
+- **Panels** carry a 1px `disabled_surface` border. Structure, not decoration.
+- **Buttons** carry a 2px `text_muted` border over an *opaque* `surface` fill, so
+  an ingredient reads as an object standing on the worktop rather than a slightly
+  different shade of it.
+- **Hover and focus** raise the border to `accent`, focus at 3px rather than a
+  different hue — a keyboard user and a mouse user should not be told two
+  unrelated stories about the same state.
+- **Corner radius 4** everywhere, which is what makes a block read as a thing
+  rather than as a region.
+
+No new colour. Rule 3 is untouched: these are weights and radii drawn from the
+eight ratified tokens.
+
+The paired rule is that a **ground must never be painted the token its panels
+use.** `background` for the worktop, `surface` for what stands on it. That is
+figure and ground, and painting both the same is how the first version managed
+to have no visible boundaries anywhere.
+
 ### 3. The food is the most saturated thing on screen
 
 This palette deliberately holds chroma in reserve. Ingredient art will be warm

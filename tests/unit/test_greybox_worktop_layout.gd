@@ -121,10 +121,19 @@ func test_the_focus_chain_is_explicit_and_closes_through_serve() -> void:
 	var last: GreyboxIngredientBlock = blocks[blocks.size() - 1]
 	assert_eq(last.focus_next, _screen._serve_button.get_path(), "the last block reaches Serve")
 	assert_eq(
-		_screen._serve_button.focus_next, blocks[0].get_path(), "Serve wraps back to the pantry"
+		_screen._serve_button.focus_next,
+		_screen._read_request_button.get_path(),
+		"Serve hands on to the request button"
 	)
 	assert_eq(
-		blocks[0].focus_previous, _screen._serve_button.get_path(), "and backwards from the first"
+		_screen._read_request_button.focus_next,
+		blocks[0].get_path(),
+		"which wraps back to the pantry"
+	)
+	assert_eq(
+		blocks[0].focus_previous,
+		_screen._read_request_button.get_path(),
+		"and backwards from the first"
 	)
 
 
@@ -162,3 +171,28 @@ func test_every_preparation_zone_stays_within_the_view() -> void:
 	var view := Rect2(0.0, 0.0, 1.0, 1.0)
 	for zone: Rect2 in _all_zones():
 		assert_true(view.encloses(zone), "%s is outside the view" % zone)
+
+
+## Not layout, but it belongs beside the scene it names and the other file is
+## at the 20-public-method cap.
+##
+## This screen is now the game's main scene. A `main_scene` pointing at a path
+## that no longer exists fails only when somebody launches the game, and a
+## `main_scene` pointing at the *old* screen fails even more quietly -- it just
+## runs the wrong one. Both are caught here.
+func test_the_project_launches_this_screen() -> void:
+	# `get_setting` returns Variant, and `String(Variant)` is a parse error under
+	# warnings-as-errors -- which took the whole file out of the run rather than
+	# failing one test, so GUT reported 237 passing instead of 245.
+	var setting: Variant = ProjectSettings.get_setting("application/run/main_scene")
+	var main_scene: String = str(setting)
+	assert_eq(
+		main_scene,
+		"res://adapters/godot_ui/greybox/greybox_kitchen_screen.tscn",
+		"the project's main scene is this screen"
+	)
+	var packed: PackedScene = load(main_scene)
+	assert_not_null(packed, "and that path still resolves to a scene")
+	var instance: Node = packed.instantiate()
+	add_child_autofree(instance)
+	assert_true(instance is GreyboxKitchenScreen)

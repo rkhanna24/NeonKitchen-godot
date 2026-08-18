@@ -3,23 +3,141 @@
 ; file only carries them.
 ;
 ; Rule 3: no UI element may be more saturated than `accent`. New colours are
-; proposed against that rule, not added beside it.
-[gd_resource type="Theme" load_steps=4 format=3]
+; proposed against that rule, not added beside it. Every colour below is one of
+; the eight ratified tokens -- the borders added in DEC-045 introduce weights
+; and radii, not new hues.
+[gd_resource type="Theme" load_steps=8 format=3]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_surface"]
 ; `surface` overlay, rule 2: alpha 0.92, never below the 0.80 floor -- holds
 ; AA for `text_primary` against any backdrop, not just this palette's own
 ; `background`.
+;
+; The 1px `disabled_surface` border is structural, not decorative: without it a
+; `surface` panel on a `surface` ground is invisible, which is exactly what
+; happened -- no station, ticket, or pass panel could be seen on screen.
 bg_color = Color(0.117647, 0.133333, 0.098039, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.203922, 0.227451, 0.172549, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_normal"]
+; Opaque `surface` with a `text_muted` border, so an ingredient reads as a
+; solid object standing on the worktop rather than as a slightly different
+; shade of it. Godot's default button stylebox was being used before this
+; existed, which is why the blocks blended into the ground.
+bg_color = Color(0.117647, 0.133333, 0.098039, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.556863, 0.580392, 0.509804, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
+; `accent` marks what is actionable right now, which is what pointing at an
+; ingredient means. Never the only carrier (rule 1) -- selection is still the
+; `[x]` text marker, which survives greyscale and survives this.
+bg_color = Color(0.117647, 0.133333, 0.098039, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.752941, 0.541176, 0.278431, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_focus"]
+; Thicker than hover rather than a different hue, so a keyboard user and a
+; mouse user are not told two unrelated stories about the same state.
+bg_color = Color(0.117647, 0.133333, 0.098039, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.752941, 0.541176, 0.278431, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_primary_button_normal"]
 bg_color = Color(0.752941, 0.541176, 0.278431, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 16.0
+content_margin_top = 12.0
+content_margin_right = 16.0
+content_margin_bottom = 12.0
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_disabled"]
 ; `disabled_surface` -- fills and borders of inactive controls (rule 4). Kept
 ; distinct from `surface` so an unavailable ingredient stays a recognisably
 ; different fill, not merely dim.
 bg_color = Color(0.203922, 0.227451, 0.172549, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.203922, 0.227451, 0.172549, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dish_place"]
+; A place on the pass, empty or filled. Recessed rather than raised: it is
+; `background` cut into the worktop, not another object standing on it, so the
+; three places read as somewhere a dish goes even while nothing is there. The
+; previous version drew nothing at all, leaving the centre of the screen -- the
+; largest region in the view -- as a void.
+bg_color = Color(0.070588, 0.078431, 0.058824, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.203922, 0.227451, 0.172549, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
 
 [resource]
 
@@ -39,6 +157,10 @@ Tokens/font_sizes/label = 13
 Button/colors/font_color = Color(0.929412, 0.909804, 0.850980, 1)
 Button/colors/font_disabled_color = Color(0.419608, 0.450980, 0.376471, 1)
 Button/font_sizes/font_size = 16
+Button/styles/normal = SubResource("StyleBoxFlat_button_normal")
+Button/styles/hover = SubResource("StyleBoxFlat_button_hover")
+Button/styles/pressed = SubResource("StyleBoxFlat_button_hover")
+Button/styles/focus = SubResource("StyleBoxFlat_button_focus")
 Button/styles/disabled = SubResource("StyleBoxFlat_button_disabled")
 
 PrimaryButton/base_type = &"Button"
@@ -50,6 +172,7 @@ Label/font_sizes/font_size = 16
 
 GroupHeading/base_type = &"Label"
 GroupHeading/font_sizes/font_size = 13
+GroupHeading/colors/font_color = Color(0.556863, 0.580392, 0.509804, 1)
 
 RichTextLabel/colors/default_color = Color(0.929412, 0.909804, 0.850980, 1)
 RichTextLabel/font_sizes/normal_font_size = 16
@@ -59,6 +182,9 @@ RequestText/font_sizes/normal_font_size = 20
 
 Panel/styles/panel = SubResource("StyleBoxFlat_surface")
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_surface")
+
+DishPlace/base_type = &"PanelContainer"
+DishPlace/styles/panel = SubResource("StyleBoxFlat_dish_place")
 
 HBoxContainer/constants/separation = 24
 VBoxContainer/constants/separation = 24

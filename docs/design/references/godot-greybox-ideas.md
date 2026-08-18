@@ -189,10 +189,11 @@ Run these cases before adding art:
 - Longest request and description
 - Select, remove, revise, and serve
 - Constraint violation visible before and after serving
-- Five-second recall, **run per view** — no single view holds all of it now:
-  request view (who, what they want, what to avoid) and preparation view (what
-  the ticket says, what to avoid, where the ingredients are, how to commit).
-  A combined recall would be unpassable by construction
+- ~~Five-second recall, run per view~~ — **withdrawn, 2026-08-17 (DEC-044).**
+  Speed was never the goal, moving between the views is fine, and some of what
+  a customer says will not condense onto a docket at all. Replaced by: the full
+  request stays reachable during preparation, and the round trip costs the
+  player nothing they have already chosen
 
 The 24-item test can use layout-only mock blocks; it does not need to modify the real pantry data.
 

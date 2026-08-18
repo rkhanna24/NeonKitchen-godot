@@ -348,3 +348,32 @@ func test_the_pantry_still_offers_every_ingredient_at_the_hypothesis_minimum_siz
 	assert_eq(_screen._ingredient_blocks.size(), 12)
 
 	root_window.size = original_size
+
+
+## DEC-044: the ticket is a reminder, not a replacement, so the full request
+## stays reachable during preparation. The tray has to survive the trip --
+## a player who looks something up and loses two chosen ingredients will stop
+## looking things up, which defeats the affordance.
+func test_reading_the_full_request_during_preparation_keeps_the_tray() -> void:
+	_screen._confirm_button.pressed.emit()
+	_find_block(&"ingredient.mushrooms").pressed.emit()
+	_find_block(&"ingredient.chili_crisp").pressed.emit()
+
+	_screen._read_request_button.pressed.emit()
+
+	assert_true(_screen._customer_view.visible, "the request is readable again")
+	assert_false(_screen._preparation_view.visible)
+	assert_string_contains(
+		_screen._dialogue_request_label.text,
+		String(TranslationServer.translate(&"customer.block_boss.request")),
+		"and it is the full request, not the ticket"
+	)
+
+	_screen._confirm_button.pressed.emit()
+
+	assert_true(_screen._preparation_view.visible)
+	assert_eq(_screen._session.state().current_dish.size(), 2, "both choices survived")
+	assert_string_contains(
+		_screen._dish_place_labels[0].text,
+		String(TranslationServer.translate(&"ingredient.mushrooms.name"))
+	)

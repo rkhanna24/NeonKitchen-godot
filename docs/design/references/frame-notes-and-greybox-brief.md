@@ -156,15 +156,21 @@ only input.
 - Use the longest shipped request, constraint, ingredient description, and
   feedback strings rather than placeholder copy.
 - Complete one encounter with mouse only and one with keyboard only.
-- Run five-second recall **per view**, since no single view now holds all of it:
-  - *Request view:* who is this, what do they want, what must they avoid?
-  - *Preparation view:* what does the ticket say they want, what must they
-    avoid, where are the ingredients, how do I commit?
+- ~~Run five-second recall **per view**~~ — **withdrawn, 2026-08-17 (DEC-044).**
+  The premise was that the ticket had to carry the whole order alone, so a
+  player who could not recall it from the preparation view had been failed by
+  the design. The owner rejected that after playing it: *"Why do we need the
+  speed? In fact I'm okay going back and forth between the customer screen and
+  see their full request and the prep screen."*
 
-  The second is the load-bearing one. It is the direct test of whether the
-  ticket carries the request into preparation, which is the whole claim of the
-  two-view design. A single combined recall would be unpassable by construction
-  and would report the design working as a defect.
+  It also assumed everything a customer says can be condensed. Some of it
+  cannot — a standing love of noodles is not a flavour target and does not fit
+  on a docket — so a ticket that passed a strict recall test would be a ticket
+  that had thrown that away.
+
+  **Replaced by:** the full request stays reachable throughout preparation, and
+  the test is that moving between the views costs the player nothing they have
+  already chosen. The ticket is a reminder, not a replacement.
 - Compare a version with only the customer view's city slice against one with a
   separate establishing image. Keep the establishing image only if it changes
   what a tester understands.
