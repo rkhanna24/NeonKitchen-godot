@@ -26,15 +26,27 @@ var content_id: StringName = &""
 var _display_name: String = ""
 
 
-## Configures this block for one ingredient. `min_width` is presentation-only
+## Configures this block for one ingredient. `silhouette` is presentation-only
 ## (docs/design/references/godot-greybox-ideas.md §3): it must never be added
 ## to `IngredientDefinition` without a separate content-design decision, so it
 ## is supplied by the caller rather than read from the ingredient itself.
-func setup(ingredient: IngredientDefinition, min_width: float) -> void:
+##
+## It is the block's **minimum**, not its size, so a station's container may
+## still stretch it. The shape varies by station -- wide and low on the staple
+## shelf, tall for a carton, squat for a jar -- while the name stays visible on
+## every one of them, which is Pekoe's don't-borrow note followed rather than
+## admired: a shelf that relies on silhouette alone is not a readable pantry.
+##
+## The caller owns the interaction floor
+## (`GreyboxKitchenScreen.MIN_INTERACTION_TARGET`) and it is not enforced here,
+## because a clamp in this function would make the test that asserts the floor
+## unable to fail.
+func setup(ingredient: IngredientDefinition, silhouette: Vector2) -> void:
 	content_id = ingredient.content_id
 	_display_name = String(TranslationServer.translate(ingredient.name_key))
 	text = _display_name
-	custom_minimum_size = Vector2(min_width, 0)
+	custom_minimum_size = silhouette
+	clip_text = false
 	focus_mode = Control.FOCUS_ALL
 
 

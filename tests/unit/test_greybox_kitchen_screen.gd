@@ -30,12 +30,9 @@ func before_each() -> void:
 
 
 func _find_block(ingredient_id: StringName) -> GreyboxIngredientBlock:
-	for child: Node in _screen._pantry_flow.get_children():
-		if (
-			child is GreyboxIngredientBlock
-			and (child as GreyboxIngredientBlock).content_id == ingredient_id
-		):
-			return child as GreyboxIngredientBlock
+	for block: GreyboxIngredientBlock in _screen._ingredient_blocks:
+		if block.content_id == ingredient_id:
+			return block
 	return null
 
 
@@ -61,7 +58,7 @@ func test_the_scene_launches_headless() -> void:
 	var instance: Node = packed.instantiate()
 	add_child_autofree(instance)
 	assert_true(instance is GreyboxKitchenScreen)
-	assert_eq((instance as GreyboxKitchenScreen)._pantry_flow.get_child_count(), 12)
+	assert_eq((instance as GreyboxKitchenScreen)._ingredient_blocks.size(), 12)
 
 
 ## The request view's five-second recall (frame-notes brief): who is this,
@@ -128,7 +125,7 @@ func test_confirming_the_request_pins_a_ticket_that_carries_it_into_preparation(
 		_screen._ticket_avoid_label.text,
 		String(TranslationServer.translate(&"customer.block_boss.constraint.smoked")),
 	)
-	assert_eq(_screen._pantry_flow.get_child_count(), 12, "every ingredient is offered")
+	assert_eq(_screen._ingredient_blocks.size(), 12, "every ingredient is offered")
 	assert_false(_screen._serve_button.disabled, "commit is reachable")
 
 
@@ -140,13 +137,15 @@ func test_pressing_an_ingredient_marks_it_and_fills_the_tray() -> void:
 
 	assert_string_contains(block.text, "[x]")
 	assert_string_contains(
-		_screen._tray_labels[0].text,
+		_screen._dish_place_labels[0].text,
 		String(TranslationServer.translate(&"ingredient.mushrooms.name"))
 	)
 
 	block.pressed.emit()
 	assert_false(block.text.contains("[x]"), "pressing it again reverses the selection")
-	assert_eq(_screen._tray_labels[0].text, "(empty)")
+	# An unused place renders empty rather than announcing "(empty)" -- a place
+	# that labels its own emptiness is a form field, not a surface (#44).
+	assert_eq(_screen._dish_place_labels[0].text, "")
 
 
 ## Both mouse and keyboard land on `_on_ingredient_inspect` (plan section 3).
@@ -255,9 +254,8 @@ func test_the_night_ends_with_a_summary_and_nothing_left_to_press() -> void:
 	)
 	assert_false(_screen._next_customer_button.visible)
 	assert_false(_screen._confirm_button.visible)
-	for child: Node in _screen._pantry_flow.get_children():
-		if child is Button:
-			assert_true((child as Button).disabled)
+	for block: GreyboxIngredientBlock in _screen._ingredient_blocks:
+		assert_true(block.disabled)
 
 
 ## Cheap test from the plan's section 7: the reusable block scales to 6, 12,
@@ -274,7 +272,7 @@ func test_the_ingredient_block_scales_to_6_12_and_24_items() -> void:
 			mock.name_key = StringName("ingredient.mock_%d.name" % index)
 			mock.group = &"staple"
 			var block := GreyboxIngredientBlock.new()
-			block.setup(mock, 160.0)
+			block.setup(mock, Vector2(160.0, 56.0))
 			flow.add_child(block)
 		assert_eq(flow.get_child_count(), count, "%d mock blocks were laid out" % count)
 
@@ -347,6 +345,6 @@ func test_the_pantry_still_offers_every_ingredient_at_the_hypothesis_minimum_siz
 	root_window.size = Vector2i(GreyboxKitchenScreen.HYPOTHESIS_MIN_SIZE)
 	await wait_process_frames(1)
 
-	assert_eq(_screen._pantry_flow.get_child_count(), 12)
+	assert_eq(_screen._ingredient_blocks.size(), 12)
 
 	root_window.size = original_size
