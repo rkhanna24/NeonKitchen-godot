@@ -258,23 +258,17 @@ func test_the_night_ends_with_a_summary_and_nothing_left_to_press() -> void:
 		assert_true(block.disabled)
 
 
-## Cheap test from the plan's section 7: the reusable block scales to 6, 12,
-## and 24 items without touching real pantry content. Synthetic
-## `IngredientDefinition`s, laid out in a scratch flow container -- this does
-## not exercise `_screen` at all, only the reusable block/container pair.
-func test_the_ingredient_block_scales_to_6_12_and_24_items() -> void:
-	for count: int in [6, 12, 24]:
-		var flow := HFlowContainer.new()
-		add_child_autofree(flow)
-		for index: int in range(count):
-			var mock := IngredientDefinition.new()
-			mock.content_id = StringName("ingredient.mock_%d" % index)
-			mock.name_key = StringName("ingredient.mock_%d.name" % index)
-			mock.group = &"staple"
-			var block := IngredientBlock.new()
-			block.setup(mock, Vector2(160.0, 56.0))
-			flow.add_child(block)
-		assert_eq(flow.get_child_count(), count, "%d mock blocks were laid out" % count)
+## Withdrawn and replaced. The original built mock blocks in a scratch
+## `HFlowContainer` and asserted the container held them, which exercised
+## nothing about the four-station worktop the game renders -- it could not have
+## failed if a station clipped every block it was given.
+##
+## The real question is not the total but the **distribution**: four stations
+## with fixed zones, and #24 tripling a pantry whose split between them is not
+## knowable from here. `test_worktop_layout.gd` covers overflow, uneven splits,
+## and that a station holds its zone.
+func test_the_pantry_offers_every_shipped_ingredient() -> void:
+	assert_eq(_screen._ingredient_blocks.size(), 12, "see test_worktop_layout.gd for scaling")
 
 
 ## GDD section 5.1. The screen decides nothing about scoring or constraints;

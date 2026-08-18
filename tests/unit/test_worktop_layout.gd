@@ -12,10 +12,34 @@ extends GutTest
 
 var _screen: KitchenScreen = null
 
+## Every assertion here is about rendered geometry, so the viewport has to be a
+## real size. GUT's default root is far smaller than the recorded minimum, and
+## at that size every control collapses to its own minimum -- which would make
+## a rendered-size assertion measure the harness rather than the layout.
+var _original_window_size: Vector2i = Vector2i.ZERO
+
 
 func before_each() -> void:
 	_screen = KitchenScreen.new()
 	add_child_autofree(_screen)
+	var window: Window = _screen.get_viewport() as Window
+	if window != null:
+		_original_window_size = window.size
+		window.size = Vector2i(KitchenScreen.HYPOTHESIS_MIN_SIZE)
+
+
+func after_each() -> void:
+	var window: Window = _screen.get_viewport() as Window
+	if window != null and _original_window_size != Vector2i.ZERO:
+		window.size = _original_window_size
+
+
+## The preparation view starts hidden, and a hidden `Control` is not laid out --
+## every rendered-size assertion here read 0.0 until this existed, which would
+## have made them pass or fail for reasons unrelated to the layout.
+func _enter_preparation() -> void:
+	_screen._confirm_button.pressed.emit()
+	await wait_process_frames(2)
 
 
 func _find_block(ingredient_id: StringName) -> IngredientBlock:
@@ -34,24 +58,55 @@ func _find_block(ingredient_id: StringName) -> IngredientBlock:
 ## `_GROUP_SILHOUETTE` table, so a station whose container squeezes a block
 ## below the floor is caught too, not only a bad constant.
 func test_every_ingredient_block_meets_the_interaction_floor() -> void:
-	var floor_size: float = KitchenScreen.MIN_INTERACTION_TARGET
+	# Asserted against the size a block is actually **given**, not the minimum
+	# it requests. `custom_minimum_size` is clamped in `_ingredient_block`, so
+	# checking it would only re-read the clamp; a station container squeezing a
+	# block below the floor is the failure worth catching, and only the rendered
+	# rect can show it.
+	await _enter_preparation()
+	var floor_size: float = IngredientBlock.MIN_INTERACTION_TARGET
 	for block: IngredientBlock in _screen._ingredient_blocks:
 		assert_gte(
-			block.custom_minimum_size.x,
+			block.size.x,
 			floor_size,
-			(
-				"%s is %d wide, under the %d floor"
-				% [block.content_id, block.custom_minimum_size.x, floor_size]
-			)
+			"%s renders %d wide, under the %d floor" % [block.content_id, block.size.x, floor_size]
 		)
 		assert_gte(
-			block.custom_minimum_size.y,
+			block.size.y,
 			floor_size,
-			(
-				"%s is %d tall, under the %d floor"
-				% [block.content_id, block.custom_minimum_size.y, floor_size]
-			)
+			"%s renders %d tall, under the %d floor" % [block.content_id, block.size.y, floor_size]
 		)
+
+
+## The clamp itself, separately from the layout. An authored silhouette below
+## the floor must be raised rather than trusted -- the table is data, and data
+## is where a too-small target would come from.
+func test_a_silhouette_below_the_floor_is_raised_to_it() -> void:
+	var tiny := IngredientDefinition.new()
+	tiny.content_id = &"ingredient.tiny"
+	tiny.name_key = &"ingredient.tiny.name"
+	var block := IngredientBlock.new()
+	add_child_autofree(block)
+
+	block.setup(tiny, Vector2(8.0, 4.0))
+
+	var floor_size: float = IngredientBlock.MIN_INTERACTION_TARGET
+	assert_eq(block.custom_minimum_size.x, floor_size, "an 8px width is raised to the floor")
+	assert_eq(block.custom_minimum_size.y, floor_size, "a 4px height is raised to the floor")
+
+
+## The shape survives the clamp. A floor that flattened every block to a square
+## would satisfy the hit target and destroy the variation it exists to protect.
+func test_the_clamp_does_not_flatten_a_legal_silhouette() -> void:
+	var wide := IngredientDefinition.new()
+	wide.content_id = &"ingredient.wide"
+	wide.name_key = &"ingredient.wide.name"
+	var block := IngredientBlock.new()
+	add_child_autofree(block)
+
+	block.setup(wide, Vector2(180.0, 56.0))
+
+	assert_eq(block.custom_minimum_size, Vector2(180.0, 56.0), "a legal shape passes through")
 
 
 ## Silhouettes must actually differ, or the "varied to look at" half of the
@@ -194,3 +249,86 @@ func test_the_project_launches_this_screen() -> void:
 	var instance: Node = packed.instantiate()
 	add_child_autofree(instance)
 	assert_true(instance is KitchenScreen)
+
+
+## Refills the real worktop with `count` synthetic ingredients in `group`,
+## through the same `_ingredient_block` path the game uses, so what is measured
+## is the shipping station rather than a scratch container.
+func _restock(group: StringName, count: int) -> void:
+	var slot: HFlowContainer = _screen._station_slots[group]
+	for child: Node in slot.get_children():
+		slot.remove_child(child)
+		child.queue_free()
+	for index: int in range(count):
+		var mock := IngredientDefinition.new()
+		mock.content_id = StringName("ingredient.mock_%d" % index)
+		mock.name_key = StringName("ingredient.mock_%d.name" % index)
+		mock.group = group
+		slot.add_child(_screen._ingredient_block(mock))
+
+
+## The zones are sized for today's 2/2/3/5 split, and #24 triples the pantry
+## without saying how it lands. A station given far more than it was drawn for
+## must **scroll**, not clip and not push its neighbours off the worktop.
+##
+## 20 into `heat_and_ferment` is the worst case on purpose: it is the narrowest
+## station, 0.15 of the width, so its blocks wrap one per row and the overflow
+## is entirely vertical.
+func test_a_station_scrolls_rather_than_clipping_when_overstocked() -> void:
+	await _enter_preparation()
+	_restock(&"heat_and_ferment", 20)
+	await wait_process_frames(2)
+
+	var slot: HFlowContainer = _screen._station_slots[&"heat_and_ferment"]
+	var scroll: ScrollContainer = slot.get_parent() as ScrollContainer
+	assert_not_null(scroll, "the station's items sit inside a ScrollContainer")
+	assert_eq(slot.get_child_count(), 20, "every block is present, not dropped")
+	assert_gt(
+		slot.size.y,
+		scroll.size.y,
+		"the content is taller than its station, so there is something to scroll"
+	)
+	assert_gt(scroll.get_v_scroll_bar().max_value, scroll.size.y, "and it is scrollable")
+
+
+## An uneven distribution, which is the shape a tripled pantry is most likely to
+## arrive in: one station carrying almost everything while others hold one item.
+## Every block must still be reachable and still meet the interaction floor.
+func test_an_uneven_distribution_keeps_every_block_reachable() -> void:
+	await _enter_preparation()
+	_restock(&"staple", 1)
+	_restock(&"broth_and_fat", 1)
+	_restock(&"heat_and_ferment", 2)
+	_restock(&"fresh_and_cured", 20)
+	await wait_process_frames(2)
+
+	var floor_size: float = IngredientBlock.MIN_INTERACTION_TARGET
+	var total: int = 0
+	for group: StringName in IngredientDefinition.GROUPS:
+		var slot: HFlowContainer = _screen._station_slots[group]
+		total += slot.get_child_count()
+		for child: Node in slot.get_children():
+			var block := child as IngredientBlock
+			assert_not_null(block, "every child of a station is a block")
+			assert_gte(block.size.x, floor_size, "%s stays hittable" % block.content_id)
+			assert_gte(block.size.y, floor_size, "%s stays hittable" % block.content_id)
+	assert_eq(total, 24, "1/1/2/20 all present")
+
+
+## Stations must not grow to fit their contents. The zones are the layout, and a
+## station that expanded would overrun the pass and its neighbours -- which is
+## the failure the ScrollContainer exists to prevent, so it is worth asserting
+## rather than assuming.
+func test_an_overstocked_station_does_not_grow_past_its_zone() -> void:
+	await _enter_preparation()
+	var before: Vector2 = (
+		(_screen._station_slots[&"staple"].get_parent().get_parent().get_parent() as Control).size
+	)
+
+	_restock(&"staple", 20)
+	await wait_process_frames(2)
+
+	var after: Vector2 = (
+		(_screen._station_slots[&"staple"].get_parent().get_parent().get_parent() as Control).size
+	)
+	assert_eq(after, before, "the station kept its zone")

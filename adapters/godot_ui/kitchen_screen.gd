@@ -11,11 +11,28 @@
 ## Some comments below still argue against choices only that file made, which
 ## is deliberate -- the reasoning is why this one is shaped as it is.
 ##
-## Renders only from `DomainEvent`/`CommandResult`: nothing here imports
-## `Evaluator`, `FlavourScorer` or `ConstraintChecker`, and no flavour value
+## ## What this screen may read
+##
+## "Renders only from `DomainEvent`/`CommandResult`" was too absolute: the
+## screen also reads `state()` and `content()`, and must. Three sources, with
+## different rules:
+##
+## 1. **Authored content**, via `content()` -- names, descriptions, requests,
+##    tickets, constraint explanations. Static, and free to read.
+## 2. **Current session state**, via `state()` -- `current_dish` and the phase.
+##    Read-only: `CommandHandler` is the only thing permitted to write it, and
+##    the screen holds a reference rather than a copy so its rendering cannot
+##    go stale against one.
+## 3. **Evaluated facts**, only from events -- score, band, strongest match,
+##    largest miss, constraint outcome, reaction. Never recomputed, never
+##    derived.
+##
+## The line that matters is the third. Nothing here imports `Evaluator`,
+## `FlavourScorer` or `ConstraintChecker`, and no flavour value
 ## (`FlavorProfile`, `IngredientSelected.dish_profile`,
-## `IngredientRemoved.dish_profile`) is ever read for display -- ruled out on
-## #35, and enforced by `tests/unit/test_kitchen_screen.gd`.
+## `IngredientRemoved.dish_profile`) is read for display -- ruled out on #35,
+## and source-scanned by `tests/unit/test_kitchen_screen.gd` rather than
+## trusted.
 ##
 ## ## Presentation-only view state
 ##
@@ -24,7 +41,7 @@
 ## `BUILDING_DISH` the moment a customer is presented, before the player has
 ## seen the request at all (`core/application/command_handler.gd`). The
 ## request-to-ticket moment is therefore a presentation-only substate the
-## screen alone tracks (`_view`), exactly as the plan document specifies in
+## screen alone tracks (`_state`), exactly as the plan document specifies in
 ## its section 4: "The screen controller owns which view is visible and when
 ## the preparation controls become active." No domain phase, event, or
 ## command is added for it.
@@ -61,6 +78,17 @@
 ## because that framing looks out through the service window and the warm
 ## inside has to read against the darker street beyond it.
 ##
+## ## The transition is a placeholder, not a decision
+##
+## Confirming the request swaps container visibility, so the change of place
+## reads as an **instant cut**. That is the current behaviour and it was never
+## chosen -- the brief asked for an instant cut, a slide and a short spatial pan
+## to be compared before an animation was picked, and that comparison has not
+## happened. See #50; the doc records the candidates.
+##
+## Nothing here should be read as "the cut is right". It is what a screen does
+## when nobody has yet said otherwise.
+##
 ## ## The ticket is a reminder, not a replacement (DEC-044)
 ##
 ## The brief made a five-second recall of the preparation view the load-bearing
@@ -72,10 +100,20 @@
 class_name KitchenScreen
 extends Control
 
-## The presentation-only substates `BUILDING_DISH` covers, plus the two
-## `SessionState.Phase` values that map onto a view one-for-one
-## (`SHOWING_RESULT` -> `RESULT`, `ENDED` -> `ENDED`).
-enum View { REQUEST, PREPARATION, RESULT, ENDED }
+## The four presentation states, which are **not** the two spatial views.
+##
+## There are two containers -- `_customer_view` and `_preparation_view` -- and
+## four states rendered through them. `RESULT` and `ENDED` both reuse the
+## customer side, because the customer is who a result belongs to and who the
+## night ends with. Naming this `View` conflated the two and made the model read
+## as four screens.
+##
+##     REQUEST -> PREPARATION -> RESULT -> ENDED
+##       rendered through: CustomerView <-> PreparationView
+##
+## `REQUEST` and `PREPARATION` are presentation-only substates of the domain's
+## single `BUILDING_DISH` phase; `SHOWING_RESULT` and `ENDED` map one-to-one.
+enum ScreenState { REQUEST, PREPARATION, RESULT, ENDED }
 
 const INGREDIENT_DIR: String = "res://content/base/ingredients"
 const CUSTOMER_DIR: String = "res://content/base/customers"
@@ -89,18 +127,6 @@ const THEME_PATH: String = "res://assets/themes/solarpunk_tempered.tres"
 ## a time-boxed experiment scoped to this one screen. Tests size the harness
 ## against this constant instead.
 const HYPOTHESIS_MIN_SIZE: Vector2 = Vector2(1280, 720)
-
-## Every block's smallest permitted dimension, in pixels.
-##
-## Silhouettes vary in shape but never below this floor. Pekoe's don't-borrow
-## note names the failure mode of a shelf of varied objects exactly -- "tiny
-## unequal click targets" -- so the rule here is **varied to look at, uniform
-## to hit**, with the name always visible on top of both.
-##
-## Deliberately not clamped in `_ingredient_block`: a clamp would make
-## `test_every_ingredient_block_meets_the_interaction_floor` incapable of
-## failing, which is worse than no test at all.
-const MIN_INTERACTION_TARGET: float = 44.0
 
 ## Presentation-only block shapes per `IngredientDefinition.group` (plan
 ## section 3: "keep this size mapping in the presentation prototype; do not add
@@ -131,15 +157,6 @@ const _STATION_ZONE: Dictionary[StringName, Rect2] = {
 	&"fresh_and_cured": Rect2(0.27, 0.78, 0.70, 0.17),
 }
 
-## The jars stack in their narrow right-hand column; every other station runs
-## along its edge.
-const _STATION_IS_COLUMN: Dictionary[StringName, bool] = {
-	&"staple": false,
-	&"broth_and_fat": false,
-	&"heat_and_ferment": true,
-	&"fresh_and_cured": false,
-}
-
 ## The dish surface. Sized to be the largest single region of the view, because
 ## it is the record of every choice the player has made -- the thing that was
 ## previously three small labels reading "(empty)".
@@ -153,7 +170,7 @@ const _INSPECTION_ZONE: Rect2 = Rect2(0.03, 0.46, 0.21, 0.49)
 const _SERVE_MIN_HEIGHT: float = 64.0
 
 var _session: KitchenSession = null
-var _view: View = View.REQUEST
+var _state: ScreenState = ScreenState.REQUEST
 
 var _customer_view: Control = null
 var _dialogue_request_label: RichTextLabel = null
@@ -172,7 +189,7 @@ var _ticket_avoid_label: Label = null
 var _inspection_label: RichTextLabel = null
 
 ## The item container of each station, keyed by `IngredientDefinition.group`.
-var _station_slots: Dictionary[StringName, BoxContainer] = {}
+var _station_slots: Dictionary[StringName, HFlowContainer] = {}
 
 ## Every block, flattened in `IngredientDefinition.GROUPS` order. The stations
 ## own the blocks' layout; this owns their order, which is what the focus chain
@@ -479,14 +496,23 @@ func _build_stations(parent: Control) -> void:
 		heading.theme_type_variation = &"GroupHeading"
 		column.add_child(heading)
 
-		var is_column: bool = _STATION_IS_COLUMN[group]
-		var items: BoxContainer = null
-		if is_column:
-			items = VBoxContainer.new()
-		else:
-			items = HBoxContainer.new()
-		items.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		column.add_child(items)
+		# A station is a shelf: it holds what fits, wraps to the next row, and
+		# scrolls past that. The zones are sized for today's 2/2/3/5 split, and
+		# without this a station given twenty ingredients would push its
+		# siblings off the worktop or clip them silently -- #24 triples the
+		# pantry, and the split it arrives in is not knowable from here.
+		#
+		# `HFlowContainer` for every station, including the narrow jar column:
+		# at 0.15 of the width a 124px block wraps to one per row on its own, so
+		# the old is-this-a-column flag was describing an outcome the layout
+		# already produced.
+		var scroll := ScrollContainer.new()
+		scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		column.add_child(scroll)
+		var items := HFlowContainer.new()
+		items.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		scroll.add_child(items)
 		_station_slots[group] = items
 
 
@@ -585,7 +611,7 @@ func _on_ingredient_inspect(ingredient: IngredientDefinition) -> void:
 ## substate transition the class doc describes -- the domain is already in
 ## `BUILDING_DISH` and has nothing left to accept here.
 func _on_confirm_pressed() -> void:
-	_set_view(View.PREPARATION)
+	_set_state(ScreenState.PREPARATION)
 
 
 ## Screen-only, the mirror of `_on_confirm_pressed`. No `KitchenSession` call:
@@ -597,7 +623,7 @@ func _on_read_request_pressed() -> void:
 	# whose label does not match the trip is how a player loses track of which
 	# way they are going.
 	_confirm_button.text = "Back to the worktop"
-	_set_view(View.REQUEST)
+	_set_state(ScreenState.REQUEST)
 
 
 func _on_serve_pressed() -> void:
@@ -627,10 +653,10 @@ func _rejection_text(result: CommandResult) -> String:
 func _render(event: DomainEvent) -> void:
 	if event is CustomerPresented:
 		_render_customer((event as CustomerPresented).customer_id)
-		_set_view(View.REQUEST)
+		_set_state(ScreenState.REQUEST)
 	elif event is DishSubmitted:
 		_render_served_dish((event as DishSubmitted).ingredient_ids)
-		_set_view(View.RESULT)
+		_set_state(ScreenState.RESULT)
 	elif event is DishEvaluated:
 		_render_evaluation((event as DishEvaluated).evaluation)
 	elif event is CustomerReacted:
@@ -638,7 +664,7 @@ func _render(event: DomainEvent) -> void:
 		_feedback_label.append_text("\n\n%s" % EncounterText.translate(key))
 	elif event is SessionEnded:
 		_render_summary((event as SessionEnded).results)
-		_set_view(View.ENDED)
+		_set_state(ScreenState.ENDED)
 	# IngredientSelected/IngredientRemoved: no per-event rendering. `_apply`
 	# already calls `_refresh_dish()` after every accepted result, which reads
 	# `current_dish` directly rather than either event's `dish_profile` --
@@ -751,30 +777,30 @@ func _refresh_dish() -> void:
 ## the per-view primary buttons is offered, and where keyboard focus lands on
 ## arrival -- plan section 5's "call `grab_focus()` on the first pantry item"
 ## when preparation begins, generalised to every view's own entry control.
-func _set_view(view: View) -> void:
-	_view = view
-	_customer_view.visible = view != View.PREPARATION
-	_preparation_view.visible = view == View.PREPARATION
-	_confirm_button.visible = view == View.REQUEST
-	_served_dish_panel.visible = view == View.RESULT
-	_next_customer_button.visible = view == View.RESULT
-	_feedback_panel.visible = view == View.RESULT or view == View.ENDED
+func _set_state(state: ScreenState) -> void:
+	_state = state
+	_customer_view.visible = state != ScreenState.PREPARATION
+	_preparation_view.visible = state == ScreenState.PREPARATION
+	_confirm_button.visible = state == ScreenState.REQUEST
+	_served_dish_panel.visible = state == ScreenState.RESULT
+	_next_customer_button.visible = state == ScreenState.RESULT
+	_feedback_panel.visible = state == ScreenState.RESULT or state == ScreenState.ENDED
 	_sync_pantry_interactivity()
-	_focus_view_entry_point()
+	_focus_state_entry_point()
 
 
 func _sync_pantry_interactivity() -> void:
-	var active: bool = _view == View.PREPARATION
+	var active: bool = _state == ScreenState.PREPARATION
 	for block: IngredientBlock in _ingredient_blocks:
 		block.disabled = not active
 	_serve_button.disabled = not active
 	_read_request_button.disabled = not active
 
 
-func _focus_view_entry_point() -> void:
-	if _view == View.REQUEST:
+func _focus_state_entry_point() -> void:
+	if _state == ScreenState.REQUEST:
 		_confirm_button.grab_focus()
-	elif _view == View.RESULT:
+	elif _state == ScreenState.RESULT:
 		_next_customer_button.grab_focus()
-	elif _view == View.PREPARATION and not _ingredient_blocks.is_empty():
+	elif _state == ScreenState.PREPARATION and not _ingredient_blocks.is_empty():
 		_ingredient_blocks[0].grab_focus()

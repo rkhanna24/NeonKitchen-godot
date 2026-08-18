@@ -14,6 +14,16 @@
 class_name IngredientBlock
 extends Button
 
+## The smallest dimension any block may render at, in pixels.
+##
+## Enforced here rather than by the caller, because this is the thing that has
+## to be hittable and a guarantee is worth more where it cannot be forgotten.
+## Silhouettes vary in shape -- wide and low on the staple shelf, tall for a
+## carton, squat for a jar -- but never below this: Pekoe's don't-borrow note
+## names "tiny unequal click targets" as the failure mode of a shelf of varied
+## objects. Varied to look at, uniform to hit.
+const MIN_INTERACTION_TARGET: float = 44.0
+
 ## Prefix marking a selected block. ASCII rather than a check-glyph so the
 ## marker cannot silently disappear on a font with a missing glyph.
 const _SELECTED_PREFIX: String = "[x] "
@@ -37,15 +47,16 @@ var _display_name: String = ""
 ## every one of them, which is Pekoe's don't-borrow note followed rather than
 ## admired: a shelf that relies on silhouette alone is not a readable pantry.
 ##
-## The caller owns the interaction floor
-## (`KitchenScreen.MIN_INTERACTION_TARGET`) and it is not enforced here,
-## because a clamp in this function would make the test that asserts the floor
-## unable to fail.
+## `silhouette` is raised to `MIN_INTERACTION_TARGET` in both dimensions. An
+## earlier version left the floor to the caller and unenforced, reasoning that a
+## clamp would make the test asserting it unable to fail. That was backwards: a
+## guard is falsified by removing the guard, and a guarantee nothing enforces is
+## a comment.
 func setup(ingredient: IngredientDefinition, silhouette: Vector2) -> void:
 	content_id = ingredient.content_id
 	_display_name = String(TranslationServer.translate(ingredient.name_key))
 	text = _display_name
-	custom_minimum_size = silhouette
+	custom_minimum_size = silhouette.max(Vector2(MIN_INTERACTION_TARGET, MIN_INTERACTION_TARGET))
 	clip_text = false
 	focus_mode = Control.FOCUS_ALL
 
