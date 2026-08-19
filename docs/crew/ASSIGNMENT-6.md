@@ -30,7 +30,8 @@ becomes a lookup table.
 
 ## The loop
 
-`tools/ger_loop.sh` is generic over two hooks and knows nothing about Godot:
+`tools/ger_loop.sh` is generic over two hooks and knows nothing about Godot
+([full documentation](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/tools/ger/README.md)):
 
 ```
 GENERATOR <brief> <defect> <attempt>   0 = continue, non-zero = hard stop
@@ -79,6 +80,7 @@ Branch [`content/ger-pipeline`](https://github.com/rkhanna24/NeonKitchen-godot/t
 
 | Artifact | Role |
 |---|---|
+| [`tools/ger/README.md`](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/tools/ger/README.md) | **how the pipeline works** |
 | [`tools/ger_loop.sh`](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/tools/ger_loop.sh) | driver + circuit breaker |
 | [`tools/ger/evaluate_recipe_space.sh`](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/tools/ger/evaluate_recipe_space.sh) | Evaluator |
 | [`tools/ger/generate_via_crew.sh`](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/tools/ger/generate_via_crew.sh) | Generator |

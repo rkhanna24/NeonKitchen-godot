@@ -409,3 +409,23 @@ Checked in both directions against the live corpus, then reverted:
 - The `MISLOCATED` and ranking-tie-break spikes above are the same kind of
   proof applied to the two pieces of machinery that had no live case in the
   current tree to exercise them.
+
+## `ger_loop.sh` and `ger/`
+
+A Generate → Evaluate → Refine loop with a circuit breaker, used to add
+ingredients and customers without breaking the puzzle. The driver is generic over
+two hooks and knows nothing about the game; the shipped hooks dispatch the
+content crew and read the recipe-space audit's verdict.
+
+```bash
+./tools/ger_loop.sh --brief "<a design brief in plain English>"
+./tools/ger/selftest.sh          # 17 checks, no API key and no Godot
+```
+
+Full documentation, including why ERROR is a separate verdict from REVISE and
+what each breaker trip is for: **[`tools/ger/README.md`](ger/README.md)**.
+
+Unlike `verify_flavor_model.sh`, the loop is not wired into `scripts/check.sh` —
+it mutates content and calls an agent, neither of which belongs in a gate. The
+gate's stake in it is `bootstrap/audit_recipe_space.gd`, which the loop's
+evaluator reads and which the gate independently drift-checks.
