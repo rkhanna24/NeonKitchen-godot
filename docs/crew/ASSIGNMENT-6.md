@@ -11,11 +11,14 @@ the puzzle. Twelve ingredients and eight customers make 298 legal dishes and
 **Rule enforced:** GDD §2.4, quoted below, plus ADR 0004 §5's requirement that a
 constraint actually constrain.
 
+All links point at the [`content/ger-pipeline`](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/README.md) branch, which is
+fixed at the state this document describes.
+
 ---
 
 ## Pre-Build Declaration
 
-Full text with the timing note: [`ASSIGNMENT-6-PRE-BUILD.md`](ASSIGNMENT-6-PRE-BUILD.md).
+Full text with the timing note: [`ASSIGNMENT-6-PRE-BUILD.md`](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/docs/crew/ASSIGNMENT-6-PRE-BUILD.md).
 
 **1. What content does your game generate manually, inconsistently, or not at all?**
 Ingredients and customers. A crew already generates them, but nothing bounded
@@ -179,7 +182,7 @@ Measured rather than argued. Restoring `block_boss`'s old `FORBID_TAG(raw)`:
 FORBID_TAG(raw)    123 dishes engaged    64 bands changed    load-bearing
 ```
 
-[ASSIGNMENT-4.md](ASSIGNMENT-4.md) reports that same constraint as **"0 of 120
+[ASSIGNMENT-4.md](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/docs/crew/ASSIGNMENT-4.md) reports that same constraint as **"0 of 120
 dishes changed — inert"**, which is the contribution test, not the outcome test.
 The correction it justified may still have been right for other reasons —
 `block_boss` weighted savory/comfort then and weights savory/spicy now — but the
@@ -219,12 +222,30 @@ with `git checkout . && git clean -fd`.
 
 ## Files
 
-| Path | What it is |
+### The pipeline
+
+| Artifact | What it is |
 |---|---|
-| `tools/ger_loop.sh` | the driver — generic over its two hooks; the breaker lives here |
-| `tools/ger/evaluate_recipe_space.sh` | the Evaluator — GDD §2.4 and ADR 0004 §5 |
-| `tools/ger/generate_via_crew.sh` | the Generator — pantry-keeper then health-inspector |
-| `tools/ger/selftest.sh` | 17 scripted checks over every breaker path |
-| `bootstrap/audit_recipe_space.gd` | the enumeration the Evaluator reads |
-| `docs/design/Recipe Space Audit.md` | its report, drift-checked by the gate |
-| `docs/crew/README.md` | the crew the loop wraps |
+| [`tools/ger_loop.sh`](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/tools/ger_loop.sh) | **the driver** — generic over its two hooks; the circuit breaker lives here |
+| [`tools/ger/evaluate_recipe_space.sh`](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/tools/ger/evaluate_recipe_space.sh) | **the Evaluator** — GDD §2.4 and ADR 0004 §5 |
+| [`tools/ger/generate_via_crew.sh`](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/tools/ger/generate_via_crew.sh) | **the Generator** — pantry-keeper then health-inspector |
+| [`tools/ger/selftest.sh`](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/tools/ger/selftest.sh) | 17 scripted checks over every breaker path, no API key and no Godot |
+
+### What judges the content
+
+| Artifact | What it is |
+|---|---|
+| [`bootstrap/audit_recipe_space.gd`](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/bootstrap/audit_recipe_space.gd) | enumerates every dish through the real `Evaluator`; the rule lives here |
+| [`docs/design/Recipe Space Audit.md`](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/docs/design/Recipe%20Space%20Audit.md) | its report, drift-checked by the gate |
+| [`content/content_validator.gd`](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/content/content_validator.gd) | rejects malformed ids, out-of-range values, vacuous constraints |
+| [`core/domain/rules/evaluator.gd`](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/core/domain/rules/evaluator.gd) | scores a dish against a customer |
+| [`scripts/check.sh`](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/scripts/check.sh) | the project gate, 228 tests |
+
+### The rule, in its source
+
+| Artifact | What it is |
+|---|---|
+| [Game Design Document](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/docs/design/Neon%20Kitchen%20-%20Game%20Design%20Document.md) | §2.4 is the rule the Evaluator enforces |
+| [ADR 0004](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/docs/adr/0004-phase-1-contracts.md) | §3 the scoring formula, §5 constraints |
+| [`docs/crew/README.md`](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/docs/crew/README.md) | the crew the loop wraps |
+| [`ASSIGNMENT-4.md`](https://github.com/rkhanna24/NeonKitchen-godot/blob/content/ger-pipeline/docs/crew/ASSIGNMENT-4.md) | the pipeline this builds on |
