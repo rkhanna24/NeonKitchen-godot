@@ -24,9 +24,9 @@ including at least two that do not depend on the same central ingredient. No
 single recipe should satisfy more than half of the customer roster."
 
 **3. What does failure look like, concretely?**
-A customer sits down and no dish in the pantry reaches SATISFIED. The player can
-only fail them. Or one recipe satisfies five of eight customers, and the pantry
-becomes a lookup table.
+A customer sits down and no dish in the twelve-ingredient pantry reaches
+SATISFIED. The player can only fail them. Or one recipe satisfies five of eight
+customers, and the pantry stops being a puzzle and becomes a lookup table.
 
 ## The loop
 

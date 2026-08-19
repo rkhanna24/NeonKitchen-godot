@@ -10,6 +10,30 @@ add ingredients and customers to *Neon Kitchen* without breaking the puzzle.
 ./tools/ger/selftest.sh          # 17 checks, no API key and no Godot
 ```
 
+## Pre-Build Declaration
+
+The crew this loop wraps predates the assignment; declared here is what it added
+— the bounded loop, the breaker, and the constraint rule.
+
+**1. What content type does your game currently generate manually,
+inconsistently, or not at all?**
+
+Ingredients and customers. A crew already generates them, but nothing bounded its
+refine loop — a human decided when to stop. One run took three revision rounds
+where each fix produced a new violation, and it ended because someone noticed.
+
+**2. What specific rule from your GDD must every piece of that content satisfy?**
+
+GDD §2.4: "Each customer must have at least three satisfying combinations,
+including at least two that do not depend on the same central ingredient. No
+single recipe should satisfy more than half of the customer roster."
+
+**3. What does a failure look like — concretely, in your game's terms?**
+
+A customer sits down and no dish in the twelve-ingredient pantry reaches
+SATISFIED. The player can only fail them. Or one recipe satisfies five of eight
+customers, and the pantry stops being a puzzle and becomes a lookup table.
+
 ## Why this exists
 
 `docs/crew/README.md` describes a four-agent crew that already generates content:
