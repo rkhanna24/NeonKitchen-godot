@@ -91,7 +91,11 @@ Read off `adapters/godot_ui/kitchen_screen.gd`. All figures at the recorded
 minimum window of **1280×720** (`HYPOTHESIS_MIN_SIZE`); source at 2× for
 headroom, since the window is resizable and nothing here is pixel-locked.
 
-### Ingredient art — twelve slots
+### Ingredient art — twelve slots, for the current roster
+
+Twelve is what ships today, not a layout limit: #24 triples the pantry, and
+stations wrap and scroll rather than capping what they hold
+([[Kitchen Screen]] §2). Source for this order; expect to source again.
 
 Blocks are sized per station. These are *minimums*: a station's container may
 stretch a block, and each block already spends 12px horizontal and 8px vertical
@@ -153,7 +157,12 @@ fit.
 | `citrus_herbs` | A fistful of soft herbs torn over citrus zest, bruised to let the oils out | fresh, wide/flat |
 
 **Coverage is reported per `content_id`, never as a percentage.** "Ten of twelve,
-missing `kimchi` and `citrus_chili_paste`" is a usable answer. "83%" is not.
+missing `kimchi` and `citrus_chili_paste`" is a usable answer. "83%" is not — and
+it stops meaning anything the moment the roster grows.
+
+A pack that is **extensible** — a style with a broad catalogue, or one whose
+look could be matched by a later purchase — is worth more than a marginally
+better-fitting closed set, for the same reason.
 
 ## 6. Licence policy — read this before shortlisting
 

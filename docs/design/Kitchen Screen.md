@@ -41,26 +41,29 @@ as four screens. There are **two spatial views** — containers that represent
 places — and **four presentation states** rendered through them:
 
 ```
-    REQUEST  →  PREPARATION  →  RESULT  →  ENDED
-       ↓             ↓            ↓          ↓
-  CustomerView  PreparationView   CustomerView
+  State    REQUEST  →  PREPARATION  →  RESULT   →   ENDED
+              │             │             │           │
+              ▼             ▼             ▼           ▼
+  View     Customer     Preparation    Customer    Customer
 ```
 
-`RESULT` and `ENDED` reuse the customer side, because a result belongs to the
-person who ordered it and the night ends with the last of them. The enum is
-`ScreenState`, not `View`, for exactly this reason.
+**Three of the four states render through `CustomerView`.** A result belongs to
+the person who ordered it, and the night ends with the last of them, so the
+customer side is where the encounter both starts and finishes. Only
+`PREPARATION` uses the other container. The enum is `ScreenState`, not `View`,
+for exactly this reason.
 
 Exactly one spatial view is visible at a time.
 
-| View | What owns the frame | Player can |
+| State | What owns the frame | Player can |
 |---|---|---|
 | `REQUEST` | The customer, a slice of city outside, their spoken request and constraints | Confirm, and move on |
 | `PREPARATION` | The worktop: ticket, inspection, four stations, the pass | Select, remove, inspect, re-read the request, serve |
 | `RESULT` | The customer again, with the served dish and their reaction | Advance to the next customer |
 | `ENDED` | The service summary | Nothing |
 
-They are **distinct player-facing screens, not regions of one layout.** That
-distinction is the whole of DEC-038, and it was arrived at by building the
+The two spatial views are **distinct player-facing screens, not regions of one
+layout.** That distinction is the whole of DEC-038, and it was arrived at by building the
 opposite first: a continuous workspace (DEC-037) that reproduced the column
 split it was meant to escape, because two `EXPAND_FILL` children of an
 `HBoxContainer` *is* a split whatever it is called.
@@ -142,6 +145,19 @@ Every station uses the same `ScrollContainer` → `HFlowContainer` pair, includi
 the narrow jar column. The old "is this station a column" flag was describing an
 outcome the layout already produced: at 0.15 of the width a 124px block wraps to
 one per row on its own.
+
+Focus follows the scroll. `ScrollContainer.follow_focus` defaults to **false**,
+and on an overflowing shelf that default is a trap rather than a missing
+nicety: the focus chain walks every block in pantry order, so it will hand focus
+to one that is scrolled out of sight and the screen will give no sign of where
+the focus went.
+
+**What is proven is reachability, not discoverability.** A keyboard player can
+get to every block and the shelf scrolls to follow them. Whether a *mouse*
+player notices that a station holds more than it is showing is not something a
+headless test can answer — there is no affordance beyond the scrollbar today.
+That belongs on the playtest agenda, and it only becomes a real problem when
+#24 makes overflow the normal case rather than a tested edge.
 
 **The distribution is the risk, not the total.** A previous test claimed the
 pantry scaled to 6, 12 and 24 items — but it built mock blocks in a *scratch*
@@ -316,7 +332,10 @@ nothing on screen.
   fallback for anything the art search cannot cover, so no ingredient can block
   the build for want of a picture.
 - **The transition** between views is an instant cut that nobody chose. See
-  §3a and #50.
+  §4 and #50.
+- **Overflow has no affordance.** A station holding more than it shows says so
+  only with a scrollbar. Nothing is wrong today at 2/2/3/5 — no station
+  overflows — but #24 makes this the normal case.
 - **Feedback** still leads with the number rather than the reaction, and prints
   `Largest miss: Spicy` in the evaluator's vocabulary rather than the
   customer's. #39 owns both.
@@ -372,7 +391,8 @@ priorities bind; layout does not).
   station; every ingredient inside its own station; the pass being the largest
   region; the focus chain closing; no two zones overlapping and none escaping
   the view; overflow at 20 in the narrowest station and an uneven 1/1/2/20; a
-  station holding its zone; and the project launching this screen.
+  station holding its zone; an offscreen block scrolling into view when focused;
+  and the project launching this screen.
 
 Every rendered-geometry assertion sizes the viewport to `HYPOTHESIS_MIN_SIZE`
 and enters preparation first. Both are load-bearing: GUT's default root is far
@@ -380,5 +400,6 @@ smaller than the recorded minimum, and a hidden `Control` is not laid out at
 all — before those were added, every rendered size read `0.0`, which is a test
 measuring its own harness.
 
-What no test can settle is whether it reads as a workspace. That took a person
-looking at it, and it always will.
+What no test can settle is whether it reads as a workspace, or whether a player
+notices a shelf has more on it than it is showing. Those took a person looking
+at it, and they always will.

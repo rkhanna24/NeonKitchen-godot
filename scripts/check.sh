@@ -43,7 +43,7 @@ readonly EXPECTED_GODOT_VERSION="4.7.1.stable.official.a13da4feb"
 # The script count matters as much as the test count: deleting one file's worth
 # of tests while adding the same number elsewhere keeps the total flat.
 readonly MIN_TEST_SCRIPTS=26
-readonly MIN_TESTS=233
+readonly MIN_TESTS=234
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly REPO_ROOT
 cd "$REPO_ROOT" || exit 1
