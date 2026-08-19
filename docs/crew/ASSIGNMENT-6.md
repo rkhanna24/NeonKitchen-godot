@@ -143,13 +143,23 @@ fails the rule.
 It now imports first when the cache is absent, greps for `SCRIPT ERROR`, and
 requires the report's mtime to advance before reading a verdict out of it.
 
-**The same blind spot is live in `scripts/check.sh:329`**, where the gate treats
-exit 0 as "report is current". On a fresh clone that step reports PASS for a run
-that never happened. Left alone deliberately — changing the gate is a separate
-change with its own risk — and recorded here rather than quietly fixed.
+**The gate had a narrower version of the same shape**, and chasing it down
+corrected my own first account of it. The claim "on a fresh clone `check.sh`
+reports PASS for a run that never happened" was wrong: `Headless import`
+(line 121) builds the class cache, and `Type and warning check` (line 131) greps
+every `.gd` file for `SCRIPT ERROR|Parse Error`, the audit included. Those two
+steps cover the fresh-clone case.
 
-This is the project's documented failure shape exactly: *the code was defensible
-and the claim about it was false.*
+What was real is smaller. The audit step inferred "the comparison happened" from
+a zero exit and had no positive evidence it ran, so a *runtime* failure after
+load — which neither earlier step sees — would still read as PASS. The audit now
+prints `CHECK_OK_MARKER` on a successful comparison and the gate requires it.
+Verified by replacing the audit with a stub that exits 0 having compared nothing:
+the gate fails with "the audit exited 0 without comparing anything".
+
+Both halves of this are the project's documented failure shape — *the code was
+defensible and the claim about it was false* — including the first version of
+this paragraph.
 
 ### 2. A number that did not match its claim
 

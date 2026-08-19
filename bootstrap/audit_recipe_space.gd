@@ -30,6 +30,10 @@ const INGREDIENT_DIR: String = "res://content/base/ingredients"
 const CUSTOMER_DIR: String = "res://content/base/customers"
 const REPORT_PATH: String = "res://docs/design/Recipe Space Audit.md"
 
+## Printed on a successful --check comparison and required by scripts/check.sh.
+## Changing this string breaks that step; they are a pair.
+const CHECK_OK_MARKER: String = "audit: report matches the committed copy"
+
 ## Compact band labels for the appendix grid, indexed by `Evaluation.RatingBand`.
 const BAND_LABELS: Array[String] = ["DEL", "SAT", "MIX", "DIS"]
 
@@ -79,6 +83,11 @@ static func _compare_against_committed(report: String) -> int:
 		return 1
 	var committed: String = FileAccess.get_file_as_string(REPORT_PATH)
 	if committed == report:
+		# Positive evidence that the comparison ran, for scripts/check.sh to
+		# require. Godot exits 0 when a script fails to load, and a check that
+		# infers success from an exit code cannot tell "the report matches" from
+		# "nothing happened". Silence is not a result.
+		print(CHECK_OK_MARKER)
 		return 0
 
 	var fresh_lines: PackedStringArray = report.split("\n")

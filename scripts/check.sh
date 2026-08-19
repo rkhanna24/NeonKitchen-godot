@@ -326,8 +326,22 @@ if [ ! -f "bootstrap/audit_recipe_space.gd" ]; then
 	fail "bootstrap/audit_recipe_space.gd is missing"
 else
 	audit_log="$(mktemp)"
-	if "$godot_bin" --headless --path . -s bootstrap/audit_recipe_space.gd -- --check \
-		>"$audit_log" 2>&1; then
+	"$godot_bin" --headless --path . -s bootstrap/audit_recipe_space.gd -- --check \
+		>"$audit_log" 2>&1
+	audit_status=$?
+	# Require positive evidence, not just a zero exit. Godot exits 0 when a
+	# GDScript fails to load, so `if godot ...; then pass` reports "the report is
+	# current" for a run that never compared anything. The type-and-warning step
+	# above catches a parse error in this file first, and the headless import
+	# before it builds the class cache -- but both of those protect this step
+	# rather than being part of it, and a runtime failure after load is caught by
+	# neither. The marker comes from audit_recipe_space.gd's CHECK_OK_MARKER.
+	if ! grep -qF "audit: report matches the committed copy" "$audit_log" \
+		&& [ "$audit_status" -eq 0 ]; then
+		{ grep -aE 'SCRIPT ERROR|Parse Error|Failed to load script' "$audit_log" || true; } \
+			| head -5 | sed 's/^/      /'
+		fail "the audit exited 0 without comparing anything; it did not run"
+	elif [ "$audit_status" -eq 0 ]; then
 		pass "docs/design/Recipe Space Audit.md is current"
 	else
 		# `|| true`: a zero-match grep fails the pipeline under pipefail, which
