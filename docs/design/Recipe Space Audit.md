@@ -62,6 +62,19 @@ No dish satisfies more than 4 of 8 customers.
 
 No ingredient is required by any customer's whole satisfying set.
 
+## Constraint integrity
+
+A constraint is load-bearing when removing it changes some dish's band. One that changes nothing is flavour text in a mechanic's clothes: it reads as a boundary, and the player can never cross it.
+
+| Customer | Constraint | Dishes engaging it | Bands changed | Rule |
+| --- | --- | --- | --- | --- |
+| `block_boss` | FORBID_TAG `smoked` | 67 | 67 | PASS |
+| `night_courier` | FORBID_TAG `fermented` | 123 | 68 | PASS |
+| `old_local` | FORBID_TAG `held` | 67 | 58 | PASS |
+| `scrap_trader` | FORBID_TAG `soy` | 67 | 67 | PASS |
+
+Every constraint changes at least one outcome.
+
 ## Definitions
 
 **Satisfying** — a dish scoring in DELIGHTED or SATISFIED, so at least 65. A constraint violation caps the score at 39, so a satisfying dish always also respects the customer's boundaries.

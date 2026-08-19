@@ -242,6 +242,7 @@ static func _build_report(
 	sections.append(_customer_section(pantry, roster, dishes, scores, bands, centrals))
 	sections.append(_coverage_section(roster, bands, dishes.size()))
 	sections.append(_dominance_section(pantry, roster, dishes, bands))
+	sections.append(_constraint_section(pantry, roster, dishes, bands))
 	sections.append(_definitions_section())
 	sections.append(_appendix(pantry, roster, dishes, scores, bands))
 	return "\n".join(sections)
@@ -542,6 +543,136 @@ static func _load_bearing(
 	if lines.is_empty():
 		return "No ingredient is required by any customer's whole satisfying set."
 	return "\n".join(lines)
+
+
+## Whether each authored constraint actually changes an outcome.
+##
+## ADR 0004 section 5 makes every constraint hard: violating one caps the score
+## at 39. That says what a constraint does when it bites, not whether it ever
+## bites. A constraint naming a real tag can still change nothing, and
+## `ContentValidator` cannot see the difference -- the tag exists and the
+## content is well-formed. What is left is flavour text wearing a mechanic's
+## clothes, and the only way it shows up is by measuring.
+##
+## The test is behavioural on purpose, and deliberately NOT "does the subject
+## contribute to a dimension this customer weights". Constraints never read
+## flavour values (section 5), and `SumAndClampComposer` means an ingredient
+## contributing 0 to every weighted dimension leaves the score untouched -- so
+## it rides along in an otherwise satisfying dish, and forbidding its tag caps
+## that dish from SATISFIED to DISSATISFIED. Reasoning from contribution calls
+## that constraint inert; re-evaluating without it does not.
+##
+## Removal is marginal, one constraint at a time. A customer carrying two
+## constraints that both bite the same dish has one of them doing no work there,
+## and that is exactly what this should report.
+static func _constraint_section(
+	pantry: Array[IngredientDefinition],
+	roster: Array[CustomerDefinition],
+	dishes: Array[PackedInt32Array],
+	bands: PackedInt32Array
+) -> String:
+	var lines: PackedStringArray = []
+	lines.append("## Constraint integrity")
+	lines.append("")
+	lines.append(
+		(
+			"A constraint is load-bearing when removing it changes some dish's band. "
+			+ "One that changes nothing is flavour text in a mechanic's clothes: it "
+			+ "reads as a boundary, and the player can never cross it."
+		)
+	)
+	lines.append("")
+	lines.append("| Customer | Constraint | Dishes engaging it | Bands changed | Rule |")
+	lines.append("| --- | --- | --- | --- | --- |")
+
+	var inert: PackedStringArray = []
+	var total: int = 0
+	for c: int in range(roster.size()):
+		var customer: CustomerDefinition = roster[c]
+		for i: int in range(customer.constraints.size()):
+			total += 1
+			var label: String = _constraint_label(customer.constraints[i])
+			var engaged: int = 0
+			var changed: int = 0
+			var without: CustomerDefinition = _customer_without_constraint(customer, i)
+			var only: CustomerDefinition = _customer_with_only_constraint(customer, i)
+			for d: int in range(dishes.size()):
+				var chosen: Array[IngredientDefinition] = _dish_ingredients(dishes[d], pantry)
+				if not ConstraintChecker.check(chosen, only).satisfied:
+					engaged += 1
+				var relaxed: Evaluation = Evaluator.evaluate(chosen, without)
+				if int(relaxed.band) != bands[d * roster.size() + c]:
+					changed += 1
+			if changed == 0:
+				inert.append("`%s` %s" % [_short(customer.content_id), label])
+			(
+				lines
+				. append(
+					(
+						"| `%s` | %s | %d | %d | %s |"
+						% [
+							_short(customer.content_id),
+							label,
+							engaged,
+							changed,
+							"PASS" if changed > 0 else "**INERT**",
+						]
+					)
+				)
+			)
+
+	lines.append("")
+	if total == 0:
+		lines.append("No customer carries a constraint.")
+	elif inert.is_empty():
+		lines.append("Every constraint changes at least one outcome.")
+	else:
+		lines.append("**Inert constraints:** %s." % ", ".join(inert))
+	lines.append("")
+	return "\n".join(lines)
+
+
+## `FORBID_TAG `smoked`` and friends. Guarded against an out-of-range `kind` for
+## the reason `CustomerConstraint._to_string()` is: `.tres` is editable text and
+## Godot does not clamp an exported enum on load.
+static func _constraint_label(constraint: CustomerConstraint) -> String:
+	var index: int = int(constraint.kind)
+	var names: Array = CustomerConstraint.Kind.keys()
+	var kind: String = "INVALID(%d)" % index
+	if index >= 0 and index < names.size():
+		kind = str(names[index])
+	return "%s `%s`" % [kind, String(constraint.subject)]
+
+
+## A copy of `customer` carrying every constraint except the one at `skip`.
+static func _customer_without_constraint(
+	customer: CustomerDefinition, skip: int
+) -> CustomerDefinition:
+	var kept: Array[CustomerConstraint] = []
+	for i: int in range(customer.constraints.size()):
+		if i != skip:
+			kept.append(customer.constraints[i])
+	return _customer_carrying(customer, kept)
+
+
+## A copy of `customer` carrying only the constraint at `keep`, used to count
+## how many dishes engage that constraint on its own.
+static func _customer_with_only_constraint(
+	customer: CustomerDefinition, keep: int
+) -> CustomerDefinition:
+	var kept: Array[CustomerConstraint] = [customer.constraints[keep]]
+	return _customer_carrying(customer, kept)
+
+
+## `duplicate()` copies the exported `constraints` array by reference, so the
+## replacement is assigned wholesale rather than edited in place -- mutating it
+## would corrupt the roster this audit is in the middle of measuring.
+static func _customer_carrying(
+	customer: CustomerDefinition, constraints: Array[CustomerConstraint]
+) -> CustomerDefinition:
+	var variant: CustomerDefinition = customer.duplicate() as CustomerDefinition
+	variant.constraints = constraints
+	return variant
 
 
 static func _definitions_section() -> String:

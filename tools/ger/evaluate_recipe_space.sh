@@ -5,7 +5,7 @@
 #
 #   tools/ger/evaluate_recipe_space.sh <defect-output-file>
 #
-# This enforces one rule, and the rule is the GDD's, quoted at
+# This enforces the GDD's balance rule, quoted at
 # docs/design/Neon Kitchen - Game Design Document.md section 2.4:
 #
 #   "Each customer must have at least three satisfying combinations, including
@@ -187,6 +187,29 @@ if [ -n "$over_half" ]; then
 		printf 'so the choice the pantry appears to offer is not a real one.\n\n'
 		printf '%s\n\n' "$over_half"
 	} >>"$defects"
+fi
+
+# --- ADR 0004 section 5: a constraint must actually constrain -------------------
+# ContentValidator rejects a constraint naming a tag no ingredient carries. It
+# cannot reject one naming a real tag that changes no outcome, because that is
+# well-formed content. The audit measures it by removing each constraint and
+# re-evaluating; this reads the verdict.
+if grep -q '^\*\*Inert constraints:\*\*' "$REPORT"; then
+	found=1
+	inert="$(grep '^\*\*Inert constraints:\*\*' "$REPORT" \
+		| sed 's/^\*\*Inert constraints:\*\* //; s/\.$//')"
+	{
+		printf '## Inert constraints (ADR 0004 section 5)\n\n'
+		printf 'These constraints change no dish band. They read to the player as a\n'
+		printf 'boundary and cannot be crossed, so they are flavour text in a\n'
+		printf "mechanic's clothes: **%s**.\n\n" "$inert"
+		printf 'Their rows, with the dishes that engage them:\n\n'
+		grep '| \*\*INERT\*\* |' "$REPORT" | sed 's/^/    /'
+		printf '\n'
+	} >>"$defects"
+elif ! grep -qE '^(Every constraint changes at least one outcome\.|No customer carries a constraint\.)$' "$REPORT"; then
+	echo "evaluator: no constraint-integrity sentinel in $REPORT; the audit's output shape changed" >&2
+	exit 2
 fi
 
 if [ "$found" -eq 1 ]; then
