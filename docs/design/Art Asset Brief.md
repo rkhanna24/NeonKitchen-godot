@@ -3,8 +3,8 @@ type: design-guidance
 display-name: Art Asset Brief
 status: active
 phase: phase-3
-version: 1.5
-updated: 2026-08-20
+version: 1.6
+updated: 2026-08-21
 governed-by: "[[Neon Kitchen - Game Design Document]]"
 tags:
   - neon-kitchen
@@ -59,6 +59,9 @@ else.
 containers, worktop, shelf and vessels are *built* from theme tokens, not
 sourced — three passes established that stock supplies objects and cannot supply
 a room. Do not search for kitchen furniture, containers, or set dressing.
+[[Kitchen Screen Visual Production Plan]] is the whole-screen inventory; this
+brief remains the narrower sourcing packet and should not absorb constructed or
+custom-drawn work.
 
 The per-round scope — which slots, which `content_id`s, which question the round
 exists to answer — lives on the **GitHub issue**, per DEC-014. The Kitchen Lead
@@ -90,9 +93,9 @@ of: the interior is the room you are in, and the city is what is visible past it
 ### The screen is phased, and every slot belongs to one view
 
 DEC-038 superseded the continuous workspace with **two views, one active at a
-time inside the same truck**. `kitchen_screen.gd` carries them as
-`enum View { REQUEST, PREPARATION, RESULT, ENDED }`; the first two are the ones
-that hold art.
+time inside the same truck**. `kitchen_screen.gd` carries them as two containers
+and four `ScreenState` values — `REQUEST`, `PREPARATION`, `RESULT`, `ENDED`; the
+first two are the ones that introduce distinct art slots.
 
 | View | What the player sees | Slots sourced for it |
 |---|---|---|
@@ -211,6 +214,9 @@ and will read as a random crop at 11:1.
 
 - Worktop or station textures. The stations are lit surfaces on a dark ground
   and that reads; texture is a Week 5 nicety, not a sourcing requirement.
+- Container art. Issue #52 proved the first vessel can be constructed from
+  themed layers. A future hand-drawn pan texture is an optional authored
+  replacement through the same seam, not an Asset Scout target.
 - Icons for UI actions. Serve is a labelled button and should stay one.
 - Audio. Deferred by GDD §5.1.
 
@@ -411,6 +417,11 @@ At `1280×115` it may be cheaper to compose from a handful of small elements —
 signage, silhouetted structures, rain — than to find a strip that crops well.
 Worth deciding before searching for a background, since they are different
 searches.
+
+[[Kitchen Screen Visual Production Plan]] now recommends a bespoke drawn strip:
+the `11:1` frame is the wrong shape for a normal background, and the ingredient
+round already showed that stock objects do not assemble into a coherent room.
+That recommendation is **not yet a human decision**.
 
 ## 10. What a finished shortlist looks like
 

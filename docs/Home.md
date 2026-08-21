@@ -30,6 +30,8 @@ project knowledge that governs *Neon Kitchen*.
   and the template for new ADRs.
 - [[Kitchen Screen]] — the game's screen: two views, the worktop, the ticket,
   what the screen may not do, and the decision trail behind it.
+- [[Kitchen Screen Visual Production Plan]] — the per-component routing for
+  constructed, sourced and custom-drawn visual work.
 
 ## Systems of Record
 
@@ -37,6 +39,7 @@ project knowledge that governs *Neon Kitchen*.
 |---|---|
 | Game design | [[Neon Kitchen - Game Design Document]] |
 | The game's screen | [[Kitchen Screen]] |
+| Screen visual production | [[Kitchen Screen Visual Production Plan]] |
 | Palette and its rules | [[Visual Language]] |
 | How content is written | [[Content Voice]] |
 | Art sourcing | [[Art Asset Brief]] |

@@ -2,9 +2,9 @@
 type: agent-worklog
 agent-id: kitchen-lead
 status: active
-phase: phase-1
+phase: phase-3
 created: 2026-07-30
-last-updated: 2026-07-31
+last-updated: 2026-08-21
 agent-definition: "[[Kitchen Lead]]"
 governed-by: "[[Neon Kitchen - Game Design Document]]"
 repository: "https://github.com/rkhanna24/NeonKitchen-godot"
@@ -13,7 +13,7 @@ tags:
   - neon-kitchen
   - worklog
   - persistent-memory
-  - phase-1
+  - phase-3
 ---
 
 # Kitchen Lead Worklog
@@ -32,10 +32,12 @@ tags:
 
 ## Current Project Snapshot
 
-**Last reviewed:** 2026-07-30  
-**Current phase:** Phase 1 — primitive headless GDScript recipe prototype  
-**Human-facing persistent agent:** Kitchen Lead  
-**Current objective:** Approve the smallest long-term architecture slice, then build a GDScript prototype that tests whether composing recipes for customer preferences is understandable and enjoyable.
+**Last reviewed:** 2026-08-21
+**Current phase:** Phase 3 — locked Kitchen Screen, art pipeline and visual production
+**Human-facing persistent agent:** Kitchen Lead
+**Current objective:** Turn the locked two-view Kitchen Screen from a functional
+greybox into a coherent food-truck workspace while preserving the validated
+recipe loop, accessibility, theme swapping and asset fallbacks.
 
 ### Authority Order
 
@@ -102,9 +104,10 @@ tags:
 | DEC-051 | **A station's scroll follows focus.** `ScrollContainer.follow_focus` defaults to false, and on an overflowing shelf that default is a trap rather than a missing nicety: the focus chain walks every block in pantry order, so it hands focus to one scrolled out of sight and the screen gives no sign of where the focus went. Raised in review as "overflow is structurally tested, but not quite proven reachable" -- correct, and the gap was a real defect rather than a missing test. What is proven now is **reachability**; **discoverability** is still open, since nothing but a scrollbar tells a mouse player a station holds more than it shows. Recorded as a placeholder rather than fixed: no station overflows at today's 2/2/3/5, so the affordance has nothing to attach to until #24 makes overflow normal. | Approved | Human |
 | DEC-052 | **Sourced art is never committed; it is git-ignored locally and ships inside the exported binary, so the licence test becomes *may I embed this* rather than *may I redistribute the source files*.** The repository is public until the class ends and private afterwards, and AS-01 found the public-repo constraint closed the paid tier as a class rather than pack by pack: six of six commercial marketplaces (Unity, CraftPix, GameDev Market, Envato Elements, Freepik, Pixabay) permit shipping art inside a built game while forbidding distribution of the source files. Ignoring `assets/sprites/` satisfies that clause instead of violating it — an exported `.pck` is exactly the embedded case those licences are written for — and reopens the entire market the survey had just closed. The repository keeps the provenance and loses only the pixels: licence text, attribution, and a register naming every file all commit as ordinary text. This follows the precedent already set for reference screenshots, ignored on the same reasoning. Three consequences. The rule must land **before the first download**, because git history is permanent and going private later does not un-publish what was public. The whole subtree is ignored including `.import` and `.uid` sidecars, since a committed sidecar pointing at an absent source is a dangling reference rather than plumbing — a deliberate scoped exception to AGENTS.md rule 11, which is unconditional as written and wants a one-line amendment. And the art binding must treat *absent* as the normal case, which turns DEC-039's shape-and-type fallback from a degraded branch into the continuously-tested default, since CI runs on a clone that has no art at all. `assets/themes/` and `assets/fonts/` still commit: the first is ours, and OFL permits redistribution outright. Supersedes the licence policy in Art Asset Brief §6 v1.0 and the disqualifications in `asset-licence-survey.md` §3. | Approved | Human |
 | DEC-053 | **Asset coverage is judged as adaptability, not literal match, and substitution is distinguished from cuisine-as-aesthetic.** The label stays visible on every block (Art Asset Brief §4), so identity is carried by the name and the art is a visual anchor — form, vessel, colour, texture — at roughly 124×28. Nothing needs to be a literal picture of `citrus_chili_paste`; a red jar is a correct answer. Sourcing therefore searches for a **vocabulary of forms** (jars, bowls, bottles, bundles, piles, fillets, leaves) that stretches across twelve, not for twelve named foods, which widens the usable market by far more than any licence change did. Coverage is reported in four states per `content_id` per source — `direct`, `adaptable`, `absent`, `excluded` — with `adaptable` the expected currency and **required to name its adaptation**, since an adaptation nobody can name is the failure mode this rule invites. Two consequences. **Modification rights become a first-class licence field**: CC-BY-ND permits embedding and forbids the derivatives this depends on, is plausible on exactly the free art worth adapting, and must be quoted separately from the embedding clause because they are different permissions. And §7 is sharpened rather than relaxed: a neutral vessel standing in for a specific ingredient makes no cultural claim and is *safer* than art attempting the specific thing and missing, while art that **performs** a cuisine — lanterns, neon kanji as decor, takeout-carton shorthand — still fails GDD §5.5's live stereotype risk. The test is whether the art makes a claim about a culture or is merely a container. | Approved | Human |
-| DEC-054 | **The kitchen set is built, not bought; sourcing is for ingredient identity only.** Three Asset Scout passes (AS-01 licence terrain, AS-02 coverage, AS-03 verification by sight) established that licence-clean stock art can supply *objects* and cannot supply a *room* — no quantity of correct icons assembles into a workspace, which is why every pass improved coverage and none improved the screen. The containers, worktop, shelf and vessels are therefore **constructed from theme tokens** rather than sourced: a gastronorm prep pan is a rounded body, a flared rim, a vertical gradient and one specular band — light on a simple form, which is the class of thing you construct rather than paint. A CSS proof at true block sizes was accepted by the human as the Godot reference. This buys zero licence surface, zero attribution, total control, and re-skinning for free when the theme changes, which is what DEC-034 required themes to be able to do. It also **changes how the work schedules**: DEC-040 moved art earlier because sourcing is *lead time* and cannot be compressed, whereas building is *effort* and can — so this lowers schedule risk while raising workload. Commissioning stays out of scope (#43) for containers; it remains open for anything construction cannot reach. Nothing from AS-01..03 is discarded — the licence terrain map stands, and the sourced glyphs stay in use as ingredient identity inside the built containers. | Approved | Human |
+| DEC-054 | **The kitchen set is built, not bought; sourcing is for ingredient identity only.** Three Asset Scout passes (AS-01 licence terrain, AS-02 coverage, AS-03 verification by sight) established that licence-clean stock art can supply *objects* and cannot supply a *room* — no quantity of correct icons assembles into a workspace, which is why every pass improved coverage and none improved the screen. The containers, worktop, shelf and vessels are therefore **constructed from theme tokens** rather than sourced: a gastronorm prep pan is a rounded body, a flared rim, a vertical gradient and one specular band — light on a simple form, which is the class of thing you construct rather than paint. A CSS proof at true block sizes was accepted by the human as the Godot reference. This buys zero licence surface, zero attribution, total control, and re-skinning for free when the theme changes, which is what DEC-034 required themes to be able to do. It also **changes how the work schedules**: DEC-040 moved art earlier because sourcing is *lead time* and cannot be compressed, whereas building is *effort* and can — so this lowers schedule risk while raising workload. Commissioning stays out of scope (#43) for containers; it remains open for anything construction cannot reach. Nothing from AS-01..03 is discarded — the licence terrain map stands, and the sourced glyphs stay in use as ingredient identity inside the built containers. **The construction rule stands; DEC-057 amends the untested gradient/specular recipe after the Godot proof.** | Approved | Human |
 | DEC-055 | **Register is a required field of any art brief: what the art is a picture *of*.** Three registers exist — **the ingredient** (a pile of kimchi), **the vessel** (the jar it lives in), and **the symbol** (the kimchi glyph). The Art Asset Brief specified world, palette, size, licence and forbidden motifs and never specified this, so §5 told the Scout to search the *descriptions* — which describe the ingredient — while the strongest candidate set, game-icons.net, is almost entirely symbols. The search matched on subject and never once checked register. That is the root cause of a 10-of-12 result that the human rejected on sight as "menu options, not ingredients in a kitchen", and it was invisible to coverage scoring by construction: every cell can be correct while the whole set is in the wrong language. Register is a **per-round** property, not per-ingredient, and belongs in the packet before searching begins. A second instance of the same failure appears one level down and is recorded here as the live tension: a rendered container (lit, shaded, material) holding flat unlit glyphs puts two visual languages in one object, which reads as comic. The candidate resolution is to **flatten the container toward the glyph** rather than light the glyph — which is also what `StyleBoxFlat` prefers, so the engine constraint and the aesthetic fix point the same way. Untested. | Approved | Human |
 | DEC-056 | **How an ingredient fills its container is keyed to physical state, not identity.** A single centred glyph reads as *one mushroom*; a prep pan holds *a quantity*, and no amount of scaling fixes that — the failure is semantic, not dimensional. Three fill states cover the twelve, and §5's descriptions already encode which applies because they were written to say what each thing *is*: **scattered solid** (`mushrooms`, `rooftop_lettuce`, `pickled_cucumber`, `smoked_fish`, `citrus_herbs`, `chickpeas`) — many seeded instances settled toward the base, larger and brighter nearer the front; **poured liquid** (`soy_broth`, `coconut_milk`) — a still surface and one specular arc, **carrying no glyph at all**, since a bottle floating in broth is the same category error the round began with, and which incidentally solves `soy_broth`, for which no icon ever fit; **spooned paste** (`chili_crisp`, `citrus_chili_paste`, `kimchi`) — a mounded off-centre mass with the form barely legible in it. Repetition is what lets a pictogram do a job it is actually suited to: a unit of stuff rather than a portrait. Two gaps survive this and every prior treatment — **`kimchi` still has no form** at all, and **`thick_wheat_noodles` fits none of the three states** and is currently faked as a scatter, which may mean the set needs a fourth. | Approved | Human |
+| DEC-057 | **The first constructed-vessel proof keeps silhouette and value planes, not CSS material effects.** Issue #52 built the `152×48` fresh gastronorm pan as non-interactive themed child layers behind the existing `IngredientBlock`, preserving one hit target, name, selection marker, accessible name and a seam for a future `TextureRect`. `StyleBoxFlat` retained rim, well, face, edge and rounded silhouette; it did not retain the CSS proof's smooth gradient, blurred reflection or continuous flare. A near-white rounded specular band was implemented, read by the human as an unexplained UI pill, and removed with its token and StyleBox. Future constructed vessels carry material through silhouette and attached value planes; soft light requires an authored texture or shader. The wide pan does not justify stretching one component across all four station ratios. [[Kitchen Screen Visual Production Plan]] records the resulting whole-screen routing. | Approved | Human |
 
 ### Phase 1 Scope
 
@@ -173,7 +176,7 @@ Kitchen Lead maintains these artifacts during Phase 1 without pretending to be a
 | Q-010 | **Does `coconut_milk` keep a glyph?** The human liked `rihlsul/milk-carton`; DEC-056 gives liquids no glyph. A stated preference and a ratified decision conflict. | `asset-icon-shortlist.md` |
 | Q-011 | **Does `thick_wheat_noodles` need a fourth fill state?** It is neither scattered, poured nor spooned, and is currently faked as a scatter. | DEC-056's completeness |
 | Q-012 | **Is rotation an acceptable production step?** Three `fresh_and_cured` anchors need rotating off their native diagonal, not merely cropping. Permitted by CC BY 3.0. | The prep pipeline |
-| Q-013 | **Does the 112×96 broth pan want a different vessel?** At a near-square footprint the insert geometry reads as a bowl. | The `GastronormPan` component spec |
+| Q-013 | **Does the 112×96 broth station use a distinct deep vessel?** The wide-pan proof confirms that directly stretching its geometry is the wrong default; at a near-square footprint the insert reads as a bowl. | The broth vessel work package |
 
 Every question opened during Phase 1 design has a recorded resolution below.
 New questions are added here as they arise.
@@ -192,18 +195,17 @@ New questions are added here as they arise.
 
 ### Next Actions
 
-1. **[#52 — Build one gastronorm prep pan at 152×48](https://github.com/rkhanna24/NeonKitchen-godot/issues/52)**
-   — the first real test of how much of the accepted CSS proof survives
-   `StyleBoxFlat`. Service Cook, propose-and-stop: it is **blocked on the human
-   ratifying ~5 new steel theme tokens**, which the Cook proposes and may not add
-   itself (Visual Language: no hex outside the theme resource).
-2. **Resolve Q-010 and Q-011** — both are small, both block finishing the
-   ingredient set, and both are the human's call.
-3. **[#51 — AS-02 coverage probe](https://github.com/rkhanna24/NeonKitchen-godot/issues/51)**
+1. **Review [[Kitchen Screen Visual Production Plan]].** It inventories every
+   current screen component as construct, import, draw or blocked, and proposes
+   the production order. Rows marked recommended are not yet human decisions.
+2. **Resolve Q-009 through Q-013.** They decide the kimchi gap, liquid glyph,
+   noodle fill, rotation step and broth vessel before the remaining ingredient
+   work packages can be written cleanly.
+3. **Answer Q-008 (the customer)** before any `REQUEST`-view art round is
+   dispatched. The Asset Scout is instructed not to search that slot without it.
+4. **[#51 — AS-02 coverage probe](https://github.com/rkhanna24/NeonKitchen-godot/issues/51)**
    is complete through AS-03; close it against `asset-coverage-verified.md` and
    `asset-icon-shortlist.md`.
-4. **Answer Q-008 (the customer)** before any `REQUEST`-view art round is
-   dispatched. The Asset Scout is instructed not to search that slot without it.
 5. **Land a committed `CREDITS`** with the CC BY 3.0 attribution before any
    sourced glyph ships. Text commits; the art stays ignored per DEC-052.
 
@@ -226,7 +228,8 @@ New questions are added here as they arise.
 | [ADR 0003](../adr/0003-test-framework.md) | GUT v9.7.1 as the headless test framework, fetched not vendored | Accepted |
 | [ADR 0004](../adr/0004-phase-1-contracts.md) | Commands, events, evaluator, fixtures, and playtest protocol | Accepted |
 | [NeonKitchen-godot](https://github.com/rkhanna24/NeonKitchen-godot) | Implementation repository and issue tracker. **Public until the class ends, private after** — DEC-052 depends on this | Active |
-| [[Art Asset Brief]] | Standing context packet for any art round: world, palette, sizes, register, licence, motifs, sourcing rule | Active v1.5 |
+| [[Art Asset Brief]] | Standing context packet for any art round: world, palette, sizes, register, licence, motifs, sourcing rule | Active v1.6 |
+| [[Kitchen Screen Visual Production Plan]] | Whole-screen construct/import/draw inventory and production sequence | Proposed v1.0 |
 | [[Asset Scout]] | Task-scoped sourcing role; two-pass sight protocol | Active |
 | [[Visual Language]] | Palette tokens and the four binding rules | Active |
 | `docs/design/asset-licence-survey.md` | AS-01 — licence terrain, superseded §3 | Reference |
@@ -1087,6 +1090,75 @@ including a shared contract suite both repositories must pass.
 **Next**
 
 #8 authors the Phase 1 fixtures, then #9 implements the evaluator.
+
+### 2026-08-21 — Session 013: First vessel proof and visual production map
+
+**Summary**
+
+Completed issue #52's `152×48` fresh gastronorm pan, reviewed it twice at the
+shipping `1280×720` frame, removed a specular treatment that read as UI rather
+than metal, and converted the result into a whole-screen construct/import/draw
+plan.
+
+**Human-approved decisions**
+
+- Use non-interactive themed child layers behind `IngredientBlock`; keep the
+  existing Button as the sole hit target, label, selection and accessibility
+  object.
+- Ratify four vessel roles — rim, face, well and edge. The initially proposed
+  specular role was removed after the rendered cue failed by sight.
+- A future hand-drawn pan may replace the internal layers through a
+  `TextureRect`; it does not require a different interaction component.
+- Record DEC-057: small constructed vessels carry material through silhouette
+  and attached value planes, not a floating highlight.
+
+**Recommendations or provisional assumptions**
+
+- Construct all kitchen structure, repeated vessels, stateful UI and
+  combinatorial dish presentation.
+- Import one OFL font family and the already-shortlisted ingredient identity
+  glyphs.
+- Draw the unusual `1280×115` city strip rather than crop a generic scene.
+- Keep customer production blocked on Q-008; source the chosen register first
+  and draw only if no coherent cast survives that round.
+
+**Work completed**
+
+- Commits `036bffc` and `ee535bd` implement and revise the pan proof.
+- [[Kitchen Screen]] now records what survived `StyleBoxFlat`.
+- [[Kitchen Screen Visual Production Plan]] inventories every current screen
+  component and every ingredient treatment.
+- [[Art Asset Brief]] remains sourcing-only and points to the whole-screen plan
+  rather than absorbing constructed or custom-drawn work.
+
+**Evidence**
+
+- `./scripts/check.sh`: 240 tests across 27 scripts and the exported-build check
+  passed after both the original build and the highlight removal.
+- The source-colour and inherited-theme tests were proven in the failing
+  direction before restoration.
+- The first `1280×720` screenshot exposed an incorrectly anchored specular band;
+  the corrected band then read to the human as an unexplained near-white pill.
+  The final capture without it retained the pan silhouette and readable names.
+
+**Risks or limitations**
+
+- `StyleBoxFlat` cannot reproduce the CSS reference's gradient, blur or soft
+  reflection; texture or shader work is the explicit fidelity boundary.
+- The production map is proposed, not silently approved. In particular the
+  city strip, font round and customer branch remain recommendations.
+- One wide vessel does not establish a scalable four-size component. Q-013
+  remains open for the near-square broth station.
+
+**Open questions**
+
+- Q-008 through Q-013 remain the human's calls.
+
+**Next**
+
+Review the proposed production map, resolve the six blocking visual decisions,
+then write separate work packages for remaining vessels, fill primitives,
+ingredient integration and the REQUEST view.
 
 ---
 

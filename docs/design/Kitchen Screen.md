@@ -3,8 +3,8 @@ type: design-guidance
 display-name: Kitchen Screen
 status: active
 phase: phase-3
-version: 1.0
-updated: 2026-08-17
+version: 1.1
+updated: 2026-08-21
 governed-by: "[[Neon Kitchen - Game Design Document]]"
 tags:
   - neon-kitchen
@@ -197,6 +197,27 @@ The tests do three separate jobs, because one assertion could not do all three:
    `custom_minimum_size` cannot tell you, since a station container squeezing a
    block is a failure the clamp does not prevent.
 
+### The first constructed vessel proof
+
+Issue #52 built the `fresh_and_cured` block as a `152×48` gastronorm pan from
+child `Control` layers styled entirely by the Theme. The `IngredientBlock`
+remains the only interactive and accessible object, so a future Aseprite pan can
+replace the internal layers with a `TextureRect` without changing the input or
+gameplay seam.
+
+The proof kept the silhouette, rim, well, face and edge. It did **not** keep the
+CSS mock's smooth vertical gradient, soft reflection or continuous flare.
+`StyleBoxFlat` turns those into hard value planes. A near-white rounded
+specular band was tried and removed after the human read it as an unexplained UI
+pill rather than light on metal.
+
+The reusable lesson is that small constructed vessels carry material through
+**silhouette and attached value planes**, not through floating highlights. Test
+them at their shipping size in the full `1280×720` frame; headless geometry can
+protect the hit rectangle and label, but a person still decides what the object
+looks like. The complete inventory and production routing lives in
+[[Kitchen Screen Visual Production Plan]].
+
 ### The pass
 
 The dish surface is the largest single region of the view, with Serve attached
@@ -328,9 +349,9 @@ nothing on screen.
 - **The city** is a flat `1280×115` strip of `background`. The brief's cheap
   city hypothesis — visible exterior, cold/warm contrast — is expressed by
   colour alone today.
-- **Ingredients** are typographic blocks. Shape-and-type is also the permanent
-  fallback for anything the art search cannot cover, so no ingredient can block
-  the build for want of a picture.
+- **Ingredients** have no fill treatment yet. The five `fresh_and_cured` blocks
+  now sit in constructed pans; the other station vessels remain plain buttons,
+  and every ingredient still uses its name as the continuously tested fallback.
 - **The transition** between views is an instant cut that nobody chose. See
   §4 and #50.
 - **Overflow has no affordance.** A station holding more than it shows says so
@@ -339,6 +360,11 @@ nothing on screen.
 - **Feedback** still leads with the number rather than the reaction, and prints
   `Largest miss: Spicy` in the evaluator's vocabulary rather than the
   customer's. #39 owns both.
+
+[[Kitchen Screen Visual Production Plan]] assigns every placeholder and finished
+component to construction, sourced import, custom drawing, or a named human
+decision. It is the current production inventory; this section remains the
+short list of what a player would notice as unfinished.
 
 ## 8. Where the design came from
 
@@ -373,6 +399,10 @@ Read in order, in [[Kitchen Lead Worklog]]. The reversals are the useful part.
 | DEC-044 | The ticket is a reminder; the recall test is withdrawn |
 | DEC-045 | Every surface carries a border; a ground is never its panels' token |
 | DEC-046 | The old screen deleted, the greybox name dropped |
+| DEC-054 | The kitchen set is constructed; sourcing covers ingredient identity |
+| DEC-055 | Register is required before any art round |
+| DEC-056 | Ingredient fills follow physical state |
+| DEC-057 | The first constructed vessel proof and its `StyleBoxFlat` limits |
 
 Related contracts: ADR 0002 §2 (dependency direction), ADR 0004 §7a (the phase
 contract this screen must not amend), and GDD Art Direction §1 (information
@@ -393,6 +423,11 @@ priorities bind; layout does not).
   the view; overflow at 20 in the narrowest station and an uneven 1/1/2/20; a
   station holding its zone; an offscreen block scrolling into view when focused;
   and the project launching this screen.
+- `tests/unit/test_gastronorm_pan.gd` — the first vessel: fresh blocks receive
+  the pan without changing their hit rectangles; other stations do not; visual
+  layers cannot take input or focus; accessible names and selection prefixes
+  stay intact; a different Theme path changes the well; no colour is authored
+  in the component script.
 
 Every rendered-geometry assertion sizes the viewport to `HYPOTHESIS_MIN_SIZE`
 and enters preparation first. Both are load-bearing: GUT's default root is far
