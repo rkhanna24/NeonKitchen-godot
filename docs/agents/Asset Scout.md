@@ -156,10 +156,16 @@ In this order, because each step is cheaper than the one after it.
 4. **Saturation.** Rule 3. The ingredients must be the most saturated thing on
    screen, so backgrounds, city strip, and truck interior all sit below them. A
    pack whose whole appeal is neon glow fights this on every frame.
-5. **Coverage.** Per `content_id`, against the twelve descriptions in brief §5.
-   Search the descriptions, not the ids — `smoked_fish` is a search for
-   *salt-cured fillets smoked to deep amber*, and the id will find you nothing.
-6. **The interior.** Brief §2. The truck interior is the half a generic
+5. **Coverage, judged as adaptability rather than literal match.** Brief §4 is
+   the governing point: the label carries identity, so the art does not have to.
+   A red jar is a correct answer for `citrus_chili_paste`. Ask whether a pack's
+   *vocabulary of forms* — jars, bowls, bottles, bundles, piles, fillets, leaves
+   — stretches across twelve, not whether it contains twelve named foods. Report
+   what adaptation each match needs. Search the descriptions, not the ids.
+6. **Modification rights.** Because coverage is adaptability, a licence that
+   forbids derivatives (CC-BY-ND) is worth far less than its coverage suggests.
+   Quote the modification clause separately from the embedding clause.
+7. **The interior.** Brief §2. The truck interior is the half a generic
    cyberpunk pack will not contain, and it is the more important half. A
    candidate that delivers only the city has not delivered the contrast.
 

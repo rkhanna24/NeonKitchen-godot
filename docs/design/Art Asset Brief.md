@@ -3,7 +3,7 @@ type: design-guidance
 display-name: Art Asset Brief
 status: active
 phase: phase-3
-version: 1.1
+version: 1.4
 updated: 2026-08-18
 governed-by: "[[Neon Kitchen - Game Design Document]]"
 tags:
@@ -35,6 +35,37 @@ packet either way.
 
 ---
 
+## 0. Standing method, and the current round
+
+This document is the Asset Scout's context packet. Most of it is **standing
+method** — true of any asset search for this game, and reusable unchanged for the
+next batch of ingredients, and later for customers and scenery:
+
+| Section | Standing |
+|---|---|
+| §1 World context, §2 visual contrast, §3 palette | The game does not change between rounds |
+| §5 coverage states | The four-state rubric applies to any asset class |
+| §6 licence policy | DEC-052. The embedding test is not ingredient-specific |
+| §7 forbidden motifs | DEC-053 |
+| §8 sourcing rule | DEC-039 |
+| §10 what a finished shortlist looks like | The output contract |
+
+**Round-specific** is §4's size tables, §5's list of twelve, and §9's open
+decisions. A future round swaps those and keeps everything else.
+
+The per-round scope — which slots, which `content_id`s, which question the round
+exists to answer — lives on the **GitHub issue**, per DEC-014. The Kitchen Lead
+assembles a dispatch packet by combining this document with that issue; neither
+is authored twice, so neither can drift.
+
+**This is a seam, not a framework.** It is marked because the ingredient round is
+about to prove which parts genuinely generalise. Splitting this into a method
+document and per-round packets before that evidence exists would be abstracting
+over exactly one real case. The customer and scenery rounds are expected to
+reshape §4 and §9 substantially, and that reshaping is the input to any split.
+
+---
+
 ## 1. World context
 
 A nomad food truck in a cyberpunk city. The player cooks for people who come to
@@ -48,6 +79,36 @@ planters.** Solarpunk at community scale, inside cyberpunk at city scale.
 The player is *inside* the truck looking out. That is the framing the whole
 screen is built on, and it decides what any purchased asset has to be a picture
 of: the interior is the room you are in, and the city is what is visible past it.
+
+### The screen is phased, and every slot belongs to one view
+
+DEC-038 superseded the continuous workspace with **two views, one active at a
+time inside the same truck**. `kitchen_screen.gd` carries them as
+`enum View { REQUEST, PREPARATION, RESULT, ENDED }`; the first two are the ones
+that hold art.
+
+| View | What the player sees | Slots sourced for it |
+|---|---|---|
+| `REQUEST` | The customer at the window, the street past them | The customer (§4), the city strip (§4) |
+| `PREPARATION` | The worktop and its four stations | The twelve ingredient blocks (§4, §5) |
+| `RESULT`, `ENDED` | Reaction and end of service | None. Text, per §4's *not needed* |
+
+Continuity comes from **the ticket carrying the request across the cut**, not
+from both regions sharing the frame — which is what makes the ticket load-bearing
+rather than a convenience, and is the reason DEC-044 split the recall test per
+view.
+
+Two consequences for sourcing, and they are why a round can be scoped to one
+slot at a time:
+
+**The slots are never on screen together.** Ingredient art and the customer are
+in different views, so they must cohere in *style* but never have to compose into
+a single image. A pack that dresses the worktop well is not weakened by having
+nothing for the window.
+
+**So the views can be sourced independently, in any order.** This round covers
+`PREPARATION` only. `REQUEST` waits on §9's unanswered casting question, and
+nothing about that blocks the worktop.
 
 ## 2. The visual contrast to buy for
 
@@ -116,6 +177,17 @@ behind it. A pack of 128×128 square item icons does not fit these shapes withou
 being cropped or letterboxed, which is worth checking before falling in love
 with one.
 
+**A consequence worth stating plainly, because it widens the search enormously:
+the label carries identity, so the art does not have to.** Nothing needs to be a
+literal picture of citrus chili paste. A red jar is a correct answer. At ~124×28
+with a name across it, the art is a visual anchor — form, vessel, colour,
+texture — and the word beside it does the identifying. Search for a *vocabulary
+of forms* (jars, bowls, bottles, bundles, piles, fillets, leaves) that can be
+stretched across twelve, not for twelve specific foods.
+
+This raises the value of **modification rights**: if a pack may be recoloured and
+adjusted, its usable coverage is far larger than its literal coverage. See §6.
+
 ### The customer — one slot, reused eight times
 
 `307×288` at 1280×720 (the `_build_placeholder_block` zone, currently a grey
@@ -158,12 +230,25 @@ fit.
 | `citrus_herbs` | A fistful of soft herbs torn over citrus zest, bruised to let the oils out | fresh, wide/flat |
 
 **Coverage is reported per `content_id`, never as a percentage.** "Ten of twelve,
-missing `kimchi` and `citrus_chili_paste`" is a usable answer. "83%" is not — and
-it stops meaning anything the moment the roster grows.
+missing `kimchi` and `citrus_chili_paste`" is a usable answer. "83%" is not — the
+next question is always *which two*, and a percentage has deleted exactly that.
+It also stops meaning anything the moment the roster grows.
 
 A pack that is **extensible** — a style with a broad catalogue, or one whose
 look could be matched by a later purchase — is worth more than a marginally
 better-fitting closed set, for the same reason.
+
+Coverage is judged in four states, per `content_id` per source. §4 is why
+`adaptable` rather than `direct` is the expected currency:
+
+| State | Meaning |
+|---|---|
+| `direct` | The thing itself, recognisably |
+| `adaptable` | A plausible anchor at block size. **Must name the adaptation** — recolour, crop, scale, material swap. An adaptation you cannot name is not one |
+| `absent` | Nothing in the source's vocabulary of forms serves |
+| `excluded` | Present, but performs cuisine as aesthetic (§7), or the licence forbids the modification the match needs (§6) |
+
+Report `direct` and `adaptable` as a split, never as one total.
 
 ## 6. Licence policy — read this before shortlisting
 
@@ -202,6 +287,7 @@ carry which terms; it is no longer the record of which are usable.
 | Licence | Why |
 |---|---|
 | CC-BY-SA | Share-alike is arguably viral on a game that embeds it. Not worth the argument |
+| CC-BY-ND | **No derivatives.** Permits embedding, forbids the recolouring and adaptation §4 depends on. Plausible on exactly the free art worth adapting, so check for it deliberately |
 | CC-BY-NC | Fine for coursework, a landmine the day the game is sold. The repo goes private after the class; the licence lasts longer |
 | Forbids embedding in a distributed product | The one clause that still eliminates outright. Rare |
 | Unclear or absent licence | An unstated licence is a refusal. Unchanged, and still the most common failure |
@@ -212,9 +298,16 @@ Extended / Enterprise, Standard / Extended — and the tier governs seat count a
 commercial scope, not redistribution. A candidate recorded as "paid, $18" has not
 been recorded; the tier name is the part that binds.
 
+**Modification rights are a first-class field, not a footnote.** §4 establishes
+that art is adapted rather than found literally, so a licence permitting
+embedding but forbidding derivatives is much less useful than its coverage
+suggests. Quote the modification clause separately from the embedding clause —
+they are different permissions and a licence may grant one without the other.
+
 Record for every candidate: **source URL, licence name, licence tier, licence
-text location, the quoted clause bearing on embedding, attribution requirement,
-and price.** A shortlist without those is not a shortlist.
+text location, the quoted clause bearing on embedding, the quoted clause bearing
+on modification, attribution requirement, and price.** A shortlist without those
+is not a shortlist.
 
 ## 7. Forbidden motifs
 
@@ -233,6 +326,20 @@ and price.** A shortlist without those is not a shortlist.
   cyberpunk pack.
 - **Cluttered detail at these sizes.** A `152×48` block does not hold an
   illustration.
+
+**Substitution is not the same as cuisine-as-aesthetic, and only the second is
+forbidden.** A neutral vessel standing in for a specific ingredient — a plain red
+jar for `citrus_chili_paste` — is fine, expected, and what §4 asks for. A generic
+vessel makes no cultural claim at all, which is if anything *safer* than art that
+tries to depict the specific thing and gets it wrong.
+
+What fails is art that **performs** a cuisine: lanterns, neon kanji as decor,
+chopstick-and-takeout-carton shorthand, a pack whose whole selling point is
+"Asian street food vibes." That is set dressing standing in for specificity, and
+it is the failure the ingredient descriptions were written to avoid.
+
+The test: does the art make a claim about a culture, or is it just a container?
+Containers are fine.
 
 ## 8. The sourcing rule
 

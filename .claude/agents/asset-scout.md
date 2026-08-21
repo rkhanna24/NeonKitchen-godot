@@ -59,8 +59,14 @@ question.
    is square. Record native aspect ratio, not just pixel size.
 4. **Saturation** — Visual Language rule 3: the food is the most saturated thing
    on screen. Everything bought sits below it.
-5. **Coverage** — search the *descriptions* in brief §5, not the ids.
-6. **The interior** — the truck half is the one a cyberpunk pack won't have, and
+5. **Coverage as adaptability, not literal match** — brief §4: the label carries
+   identity, so the art need not. A red jar is a correct answer for
+   `citrus_chili_paste`. Judge whether a pack's *vocabulary of forms* stretches
+   across twelve; say what adaptation each match needs. Search the descriptions,
+   not the ids.
+6. **Modification rights** — coverage is adaptability, so CC-BY-ND is worth far
+   less than its coverage suggests. Quote the modification clause separately.
+7. **The interior** — the truck half is the one a cyberpunk pack won't have, and
    it's the more important half.
 
 ## One pack over many, and it is a constraint
