@@ -27,10 +27,11 @@ So that is what follows, in that order. Everything in the size tables is read
 off the shipping screen rather than proposed, so a candidate can be judged
 against the game that exists rather than against an intention.
 
-**The Asset Scout is defined in GDD §4.1 and has never been activated.** It has
-no agent definition in `.claude/agents/`, so today this brief is read by a
-person. It is written as a packet anyway, because the moment the agent exists
-this is what it should be handed.
+**The Asset Scout is defined in GDD §4.1 and was activated on 2026-08-18.** Its
+role definition is [[Asset Scout]], dispatched from `.claude/agents/asset-scout.md`,
+and this brief is its context packet — it is handed this document in full rather
+than a summary of it. A person can still read it directly; it was written as a
+packet either way.
 
 ---
 
