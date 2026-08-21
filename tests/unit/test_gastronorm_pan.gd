@@ -62,8 +62,7 @@ func test_pan_layers_cannot_take_input_or_focus_from_the_button() -> void:
 		assert_not_null(layer, "every pan layer is a Control")
 		assert_eq(layer.mouse_filter, Control.MOUSE_FILTER_IGNORE)
 		assert_eq(layer.focus_mode, Control.FOCUS_NONE)
-	var specular := pan.get_node("Specular") as Panel
-	assert_eq(specular.size.y, 6.0, "the highlight remains a narrow band")
+	assert_false(pan.has_node("Specular"), "no floating highlight reads as a UI pill")
 
 
 func test_accessible_name_stays_stable_when_selection_prefix_appears() -> void:

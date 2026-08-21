@@ -20,7 +20,6 @@ func _init() -> void:
 	_add_layer(&"Face", &"PrepPanFace", 6.0, 13.0, -6.0, -2.0)
 	_add_layer(&"Rim", &"PrepPanRim", 0.0, 2.0, 0.0, -11.0)
 	_add_layer(&"Well", &"PrepPanWell", 6.0, 6.0, -6.0, -15.0)
-	_add_layer(&"Specular", &"PrepPanSpecular", 20.0, 4.0, -20.0, -38.0)
 
 
 func _add_layer(
