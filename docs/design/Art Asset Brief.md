@@ -3,8 +3,8 @@ type: design-guidance
 display-name: Art Asset Brief
 status: active
 phase: phase-3
-version: 1.4
-updated: 2026-08-18
+version: 1.5
+updated: 2026-08-20
 governed-by: "[[Neon Kitchen - Game Design Document]]"
 tags:
   - neon-kitchen
@@ -44,14 +44,21 @@ next batch of ingredients, and later for customers and scenery:
 | Section | Standing |
 |---|---|
 | §1 World context, §2 visual contrast, §3 palette | The game does not change between rounds |
+| §5 register | DEC-055. Decide it per round, before searching |
 | §5 coverage states | The four-state rubric applies to any asset class |
 | §6 licence policy | DEC-052. The embedding test is not ingredient-specific |
 | §7 forbidden motifs | DEC-053 |
 | §8 sourcing rule | DEC-039 |
 | §10 what a finished shortlist looks like | The output contract |
 
-**Round-specific** is §4's size tables, §5's list of twelve, and §9's open
-decisions. A future round swaps those and keeps everything else.
+**Round-specific** is §4's size tables, §5's list of twelve, §5's register
+answer, and §9's open decisions. A future round swaps those and keeps everything
+else.
+
+**Scope, per DEC-054.** This brief covers **ingredient identity only**. The
+containers, worktop, shelf and vessels are *built* from theme tokens, not
+sourced — three passes established that stock supplies objects and cannot supply
+a room. Do not search for kitchen furniture, containers, or set dressing.
 
 The per-round scope — which slots, which `content_id`s, which question the round
 exists to answer — lives on the **GitHub issue**, per DEC-014. The Kitchen Lead
@@ -228,6 +235,32 @@ fit.
 | `pickled_cucumber` | Cucumbers sliced thin in vinegar brine, translucent, snapping clean in half | fresh, wide/flat |
 | `smoked_fish` | Fillets salt-cured then hung over smouldering wood until deep glossy amber | fresh, wide/flat |
 | `citrus_herbs` | A fistful of soft herbs torn over citrus zest, bruised to let the oils out | fresh, wide/flat |
+
+### Register — decide this before searching (DEC-055)
+
+**What is the art a picture *of*?** Three answers, and they are three different
+searches with almost no overlap:
+
+| Register | Example | Where it is found |
+|---|---|---|
+| **The ingredient** | a pile of kimchi | Almost nothing licence-clean at these shapes |
+| **The vessel** | the jar kimchi lives in | Most of what stock actually contains |
+| **The symbol** | the kimchi glyph | Icon sets — correct as signage, wrong as an object on a worktop |
+
+This was missing from v1.0–v1.4, and its absence cost three search passes. §5's
+descriptions describe *the ingredient*, so a search told to "search the
+descriptions" will match on subject and never notice it is returning symbols. A
+coverage table can be correct in every cell while the whole set is in the wrong
+language.
+
+**Register is a per-round property.** It belongs in the packet, decided by the
+human, before searching begins — like §9's casting question and for the same
+reason.
+
+Current answer for the twelve, per DEC-054 and DEC-056: the **containers are
+built, not sourced**, and sourced art supplies **symbols** used as ingredient
+identity *inside* those containers — repeated to read as a quantity, not placed
+singly as a portrait.
 
 **Coverage is reported per `content_id`, never as a percentage.** "Ten of twelve,
 missing `kimchi` and `citrus_chili_paste`" is a usable answer. "83%" is not — the

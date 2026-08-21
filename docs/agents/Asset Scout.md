@@ -186,16 +186,21 @@ In this order, because each step is cheaper than the one after it.
 4. **Saturation.** Rule 3. The ingredients must be the most saturated thing on
    screen, so backgrounds, city strip, and truck interior all sit below them. A
    pack whose whole appeal is neon glow fights this on every frame.
-5. **Coverage, judged as adaptability rather than literal match.** Brief §4 is
+5. **Register** (DEC-055) — *what is this art a picture of?* The ingredient, the
+   vessel, or a symbol? Your packet names the round's answer. A candidate in the
+   wrong register fails whatever its coverage, and coverage scoring cannot see
+   this: every cell can be right while the set is in the wrong language. Check it
+   before you score anything.
+6. **Coverage, judged as adaptability rather than literal match.** Brief §4 is
    the governing point: the label carries identity, so the art does not have to.
    A red jar is a correct answer for `citrus_chili_paste`. Ask whether a pack's
    *vocabulary of forms* — jars, bowls, bottles, bundles, piles, fillets, leaves
    — stretches across twelve, not whether it contains twelve named foods. Report
    what adaptation each match needs. Search the descriptions, not the ids.
-6. **Modification rights.** Because coverage is adaptability, a licence that
+7. **Modification rights.** Because coverage is adaptability, a licence that
    forbids derivatives (CC-BY-ND) is worth far less than its coverage suggests.
    Quote the modification clause separately from the embedding clause.
-7. **The interior.** Brief §2. The truck interior is the half a generic
+8. **The interior.** Brief §2. The truck interior is the half a generic
    cyberpunk pack will not contain, and it is the more important half. A
    candidate that delivers only the city has not delivered the contrast.
 
