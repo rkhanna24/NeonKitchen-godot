@@ -126,9 +126,39 @@ written from its product blurb is the single worst thing you can produce here,
 because it is indistinguishable from a real observation until someone pays for
 it.
 
-Where you *have* seen the art — a preview image you fetched, a sample sheet —
-say which images you saw and how many. "Four preview tiles" and "the full sheet"
-support very different conclusions about coverage.
+Where you *have* seen the art, say which images you saw and how many. "Four
+preview tiles" and "the full sheet" support very different conclusions about
+coverage.
+
+#### How sight actually happens
+
+**You cannot fetch an image.** `WebFetch` converts a page to text and reads it
+with a non-visual model; `Read` renders an image but only from the local
+filesystem, and you have no shell to download with. This was tested in AS-02, not
+assumed — asked to describe the same icon twice, `WebFetch` once answered
+honestly that it could not see it and once returned a confident *"rounded cap and
+a thin stem."* That description happened to be **correct**, which is precisely
+why it is unusable: a lucky guess and an observation are indistinguishable in
+your report, and the reader cannot tell them apart either.
+
+So sight is staged for you, in two passes:
+
+**Pass A — search.** You find candidates and read their licences. You will see no
+art. Mark every coverage judgement `listing text only, art not seen`, once and
+globally rather than in every cell, and end your report with a **preview
+manifest**: the image URLs you need looked at, grouped by candidate, each with
+what you expect it to settle. The manifest is a required output, not a courtesy —
+it is what makes the next pass mechanical instead of a repeat search.
+
+**Pass B — sight.** The Kitchen Lead stages those images into a local directory
+and gives you the path. You `Read` them and judge coverage by what you actually
+see, revising Pass A's guesses where they were wrong. **Say which guesses
+changed.** A Pass A entry that survives contact with the image is worth more than
+one that was never tested, and one that does not survive is the most useful line
+in the report.
+
+If a dispatch gives you no staged directory, you are in Pass A. Do not narrate
+this as a failure; produce the manifest and hand back.
 
 ### 3. Coverage is per `content_id`, never a percentage
 

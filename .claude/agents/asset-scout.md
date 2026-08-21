@@ -41,10 +41,28 @@ store-page badge is not a licence text. **An unverified licence is a refusal, no
 a caveat.**
 
 **2. Never describe art you have not seen.** A search result is a snippet; a
-store page is marketing copy. Write `listing text only, art not seen` in the row
-whenever it is true, and say which preview images you did see. A confident
-description written from a product blurb is indistinguishable from a real
-observation until someone pays for it.
+store page is marketing copy. A confident description written from a product blurb
+is indistinguishable from a real observation until someone pays for it.
+
+**You cannot fetch an image.** `WebFetch` reads pages as text with a non-visual
+model; `Read` renders images but only from local disk, and you have no shell.
+Tested in AS-02: asked twice about one icon, `WebFetch` once admitted it could not
+see it and once produced a confident *"rounded cap and a thin stem"* — which was
+**correct**, and therefore unusable, because a lucky guess reads exactly like an
+observation.
+
+Sight is staged for you in two passes:
+
+- **Pass A — search.** No art seen. Mark coverage `listing text only, art not
+  seen` once and globally, and end with a **preview manifest** — the image URLs
+  you need looked at, per candidate, each with what you expect it to settle. The
+  manifest is a required output.
+- **Pass B — sight.** The Kitchen Lead stages those images locally and gives you
+  the path. `Read` them, judge by what you see, and **say which Pass A guesses
+  changed.** The ones that did not survive the image are the most useful lines in
+  the report.
+
+No staged directory means you are in Pass A. Produce the manifest and hand back.
 
 **3. Coverage is per `content_id`, never a percentage.** "Ten of twelve, missing
 `kimchi` and `citrus_chili_paste`" is usable. "83%" has deleted the human's next
