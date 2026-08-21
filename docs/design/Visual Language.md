@@ -3,8 +3,8 @@ type: design-guidance
 display-name: Visual Language
 status: active
 phase: phase-3
-version: 1.0
-updated: 2026-08-14
+version: 1.1
+updated: 2026-08-20
 governed-by: "[[Neon Kitchen - Game Design Document]]"
 tags:
   - neon-kitchen
@@ -54,6 +54,16 @@ grounds, warm cream text, one warm signal held back.
 | `signal` | `#9DB4A0` | muted sage; selection and rating band |
 | `disabled_surface` | `#343A2C` | fills and borders of inactive controls |
 | `disabled_text` | `#6B7360` | text on inactive controls |
+| `vessel_specular` | `#C3C5BC` | the narrow highlight on a built vessel |
+| `vessel_rim` | `#92978E` | the lit top plane of a vessel |
+| `vessel_face` | `#687068` | the exterior body of a vessel |
+| `vessel_well` | `#414943` | the recessed interior of a vessel |
+| `vessel_edge` | `#282E2A` | the darkest vessel seam and outline |
+
+The five `vessel_*` roles were human-ratified for issue #52 after DEC-054 made
+containers constructed theme elements rather than sourced art. They form a
+material-value ramp, stay less saturated than `accent`, and carry no gameplay
+meaning by colour alone.
 
 ### Names are roles, not colours
 
@@ -127,7 +137,7 @@ report was that the blocks "blend in with the background."
   rather than as a region.
 
 No new colour. Rule 3 is untouched: these are weights and radii drawn from the
-eight ratified tokens.
+ratified interface tokens.
 
 The paired rule is that a **ground must never be painted the token its panels
 use.** `background` for the worktop, `surface` for what stands on it. That is

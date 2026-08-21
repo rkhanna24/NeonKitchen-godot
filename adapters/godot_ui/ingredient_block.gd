@@ -56,6 +56,10 @@ func setup(ingredient: IngredientDefinition, silhouette: Vector2) -> void:
 	content_id = ingredient.content_id
 	_display_name = String(TranslationServer.translate(ingredient.name_key))
 	text = _display_name
+	# Keep the assistive name stable when `set_selected()` adds its visual
+	# marker. The marker must stay visible in greyscale, but it is state rather
+	# than part of the ingredient's name.
+	accessibility_name = _display_name
 	custom_minimum_size = silhouette.max(Vector2(MIN_INTERACTION_TARGET, MIN_INTERACTION_TARGET))
 	clip_text = false
 	focus_mode = Control.FOCUS_ALL

@@ -4,9 +4,9 @@
 ;
 ; Rule 3: no UI element may be more saturated than `accent`. New colours are
 ; proposed against that rule, not added beside it. Every colour below is one of
-; the eight ratified tokens -- the borders added in DEC-045 introduce weights
-; and radii, not new hues.
-[gd_resource type="Theme" load_steps=8 format=3]
+; the ratified palette tokens. DEC-045's borders introduce weights and radii,
+; while issue #52's human-ratified vessel roles add the steel range below.
+[gd_resource type="Theme" load_steps=15 format=3]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_surface"]
 ; `surface` overlay, rule 2: alpha 0.92, never below the 0.80 floor -- holds
@@ -139,6 +139,94 @@ content_margin_top = 12.0
 content_margin_right = 12.0
 content_margin_bottom = 12.0
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_prep_pan_button_normal"]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.156863, 0.180392, 0.164706, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_prep_pan_button_hover"]
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.752941, 0.541176, 0.278431, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_prep_pan_button_focus"]
+draw_center = false
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.752941, 0.541176, 0.278431, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_prep_pan_face"]
+bg_color = Color(0.407843, 0.439216, 0.407843, 1)
+border_width_left = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.156863, 0.180392, 0.164706, 1)
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_prep_pan_rim"]
+bg_color = Color(0.572549, 0.592157, 0.556863, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.156863, 0.180392, 0.164706, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_prep_pan_well"]
+bg_color = Color(0.254902, 0.286275, 0.262745, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.156863, 0.180392, 0.164706, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_prep_pan_specular"]
+bg_color = Color(0.764706, 0.772549, 0.737255, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
 [resource]
 
 Tokens/colors/background = Color(0.070588, 0.078431, 0.058824, 1)
@@ -149,6 +237,11 @@ Tokens/colors/accent = Color(0.752941, 0.541176, 0.278431, 1)
 Tokens/colors/signal = Color(0.615686, 0.705882, 0.627451, 1)
 Tokens/colors/disabled_surface = Color(0.203922, 0.227451, 0.172549, 1)
 Tokens/colors/disabled_text = Color(0.419608, 0.450980, 0.376471, 1)
+Tokens/colors/vessel_specular = Color(0.764706, 0.772549, 0.737255, 1)
+Tokens/colors/vessel_rim = Color(0.572549, 0.592157, 0.556863, 1)
+Tokens/colors/vessel_face = Color(0.407843, 0.439216, 0.407843, 1)
+Tokens/colors/vessel_well = Color(0.254902, 0.286275, 0.262745, 1)
+Tokens/colors/vessel_edge = Color(0.156863, 0.180392, 0.164706, 1)
 Tokens/constants/spacing_unit = 8
 Tokens/font_sizes/request = 20
 Tokens/font_sizes/body = 16
@@ -162,6 +255,24 @@ Button/styles/hover = SubResource("StyleBoxFlat_button_hover")
 Button/styles/pressed = SubResource("StyleBoxFlat_button_hover")
 Button/styles/focus = SubResource("StyleBoxFlat_button_focus")
 Button/styles/disabled = SubResource("StyleBoxFlat_button_disabled")
+
+PrepPanButton/base_type = &"Button"
+PrepPanButton/styles/normal = SubResource("StyleBoxFlat_prep_pan_button_normal")
+PrepPanButton/styles/hover = SubResource("StyleBoxFlat_prep_pan_button_hover")
+PrepPanButton/styles/pressed = SubResource("StyleBoxFlat_prep_pan_button_hover")
+PrepPanButton/styles/focus = SubResource("StyleBoxFlat_prep_pan_button_focus")
+
+PrepPanFace/base_type = &"Panel"
+PrepPanFace/styles/panel = SubResource("StyleBoxFlat_prep_pan_face")
+
+PrepPanRim/base_type = &"Panel"
+PrepPanRim/styles/panel = SubResource("StyleBoxFlat_prep_pan_rim")
+
+PrepPanWell/base_type = &"Panel"
+PrepPanWell/styles/panel = SubResource("StyleBoxFlat_prep_pan_well")
+
+PrepPanSpecular/base_type = &"Panel"
+PrepPanSpecular/styles/panel = SubResource("StyleBoxFlat_prep_pan_specular")
 
 PrimaryButton/base_type = &"Button"
 PrimaryButton/colors/font_color = Color(0.070588, 0.078431, 0.058824, 1)

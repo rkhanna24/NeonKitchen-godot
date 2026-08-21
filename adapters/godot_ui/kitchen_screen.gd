@@ -579,6 +579,9 @@ func _ingredient_block(ingredient: IngredientDefinition) -> IngredientBlock:
 	if _GROUP_SILHOUETTE.has(ingredient.group):
 		silhouette = _GROUP_SILHOUETTE[ingredient.group]
 	block.setup(ingredient, silhouette)
+	if ingredient.group == &"fresh_and_cured":
+		block.theme_type_variation = GastronormPan.THEME_VARIATION
+		block.add_child(GastronormPan.new())
 	block.pressed.connect(_on_ingredient_pressed.bind(ingredient.content_id))
 	block.mouse_entered.connect(_on_ingredient_inspect.bind(ingredient))
 	block.focus_entered.connect(_on_ingredient_inspect.bind(ingredient))

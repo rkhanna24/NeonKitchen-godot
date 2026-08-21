@@ -1,0 +1,11 @@
+[gd_resource type="Theme" load_steps=2 format=3]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_alternate_pan_well"]
+bg_color = Color(0.752941, 0.541176, 0.278431, 1)
+
+[resource]
+
+Tokens/colors/vessel_well = Color(0.752941, 0.541176, 0.278431, 1)
+
+PrepPanWell/base_type = &"Panel"
+PrepPanWell/styles/panel = SubResource("StyleBoxFlat_alternate_pan_well")
