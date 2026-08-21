@@ -59,6 +59,29 @@ __pycache__/
 /docs/design/references/source-index.md
 /docs/design/references/README.md
 
+# Sourced art. Licensed third-party sprites and models live here locally and are
+# never committed. The commercial licences that cover them permit embedding art
+# in a *built game* while forbidding redistribution of the source files, and a
+# public repository is redistribution -- see docs/design/asset-licence-survey.md.
+#
+# This is the same move already made for reference screenshots above: the
+# durable artefact is the decision record, not the bytes. What IS committed is
+# the licence text, the attribution, and the register naming every file, so the
+# provenance survives even though the pixels do not.
+#
+# The export packs these in (export_filter="all_resources", no exclusion on
+# assets/), which is the embedded-in-a-binary case every such licence permits.
+# So the shipped game is complete and the public repo carries no art.
+#
+# The whole subtree is ignored, sidecars included -- a committed .import or .uid
+# pointing at a source file that is not in the repo is a dangling reference, not
+# plumbing. This is a deliberate, scoped exception to AGENTS.md rule 11 and
+# wants a one-line amendment there to stay honest.
+#
+# Not ignored: assets/themes/ (ours, authored) and assets/fonts/ (OFL permits
+# redistribution outright, so fonts are committed with their licence file).
+/assets/sprites/
+
 # Exported desktop builds. The README builds into these; the artifacts are
 # hundreds of megabytes and are reproducible from the committed export presets.
 /build/

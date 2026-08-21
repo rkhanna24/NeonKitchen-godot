@@ -332,3 +332,34 @@ func test_an_overstocked_station_does_not_grow_past_its_zone() -> void:
 		(_screen._station_slots[&"staple"].get_parent().get_parent().get_parent() as Control).size
 	)
 	assert_eq(after, before, "the station kept its zone")
+
+
+## Overflow is only usable if an offscreen block can be *reached*. The focus
+## chain walks every block in pantry order, so on an overstocked shelf it will
+## hand focus to one that is scrolled out of sight -- and `ScrollContainer`
+## does not follow focus unless told to, which makes the default a silent trap
+## rather than a missing nicety.
+func test_focusing_an_offscreen_ingredient_scrolls_it_into_view() -> void:
+	await _enter_preparation()
+	_restock(&"heat_and_ferment", 20)
+	await wait_process_frames(2)
+
+	var slot: HFlowContainer = _screen._station_slots[&"heat_and_ferment"]
+	var scroll: ScrollContainer = slot.get_parent() as ScrollContainer
+	assert_eq(scroll.scroll_vertical, 0, "the shelf starts at the top")
+
+	var last := slot.get_child(slot.get_child_count() - 1) as IngredientBlock
+	assert_gt(
+		last.position.y,
+		scroll.size.y,
+		"the last block really is below the fold, or this test proves nothing"
+	)
+
+	last.grab_focus()
+	await wait_process_frames(2)
+
+	assert_gt(scroll.scroll_vertical, 0, "the shelf scrolled to follow focus")
+	var visible_top: float = float(scroll.scroll_vertical)
+	var visible_bottom: float = visible_top + scroll.size.y
+	assert_gte(last.position.y, visible_top, "the focused block is not above the fold")
+	assert_lte(last.position.y + last.size.y, visible_bottom, "nor below it")

@@ -29,7 +29,12 @@ assets/
     └── backgrounds/
 ```
 
-Deferred folders are created when their first real file exists — the same rule
+`sprites/` is git-ignored in full and will never appear in the repository at all
+— sourced art lives there locally and ships inside the export. What is committed
+in its place is the licence text, the attribution, and the register naming every
+file. `fonts/` is committed normally: OFL permits redistribution outright.
+
+Other deferred folders are created when their first real file exists — the same rule
 ADR 0002 §6 applies everywhere else, and `scripts/check.sh` fails on an empty
 directory, so creating them early is not merely untidy but red.
 

@@ -108,8 +108,11 @@ extends Control
 ## night ends with. Naming this `View` conflated the two and made the model read
 ## as four screens.
 ##
-##     REQUEST -> PREPARATION -> RESULT -> ENDED
-##       rendered through: CustomerView <-> PreparationView
+##     state   REQUEST  ->  PREPARATION  ->  RESULT  ->  ENDED
+##     view    Customer      Preparation     Customer    Customer
+##
+## Three of the four render through `CustomerView`: a result belongs to whoever
+## ordered it, and the night ends with the last of them.
 ##
 ## `REQUEST` and `PREPARATION` are presentation-only substates of the domain's
 ## single `BUILDING_DISH` phase; `SHOWING_RESULT` and `ENDED` map one-to-one.
@@ -509,6 +512,11 @@ func _build_stations(parent: Control) -> void:
 		var scroll := ScrollContainer.new()
 		scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		# Defaults to false, and the default is a bug once a shelf overflows:
+		# the focus chain walks every block in pantry order, so without this a
+		# keyboard player tabs to an ingredient that is scrolled out of sight and
+		# the screen gives no sign of where the focus went.
+		scroll.follow_focus = true
 		column.add_child(scroll)
 		var items := HFlowContainer.new()
 		items.size_flags_horizontal = Control.SIZE_EXPAND_FILL
