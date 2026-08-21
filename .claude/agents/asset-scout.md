@@ -29,13 +29,16 @@ You may write **exactly one file**, at the path your packet names. Absent one,
 
 ## The three rules that matter most
 
-**1. The licence filter runs first, not last.** The repo is public, and that
-eliminates more packs than quality does. Many commercial licences allow shipping
-art inside a *built game* while forbidding redistribution of the source files —
-committing those PNGs to a public repo violates that even though shipping the
-same bytes in an exported binary would not. So fetch the licence text and quote
-the clause, with its URL. A store-page badge is not a licence text. **An
-unverified licence is a refusal, not a caveat.**
+**1. The licence filter runs first, not last.** **The test is embedding, not
+redistribution** — sourced art is git-ignored and never committed, reaching
+players only inside the exported binary, which is the case most commercial
+licences are written to permit. Do not apply the older public-repo test; brief §6
+superseded it, and `asset-licence-survey.md` §3 went with it. What still
+eliminates: share-alike, non-commercial, an outright bar on embedding, and most
+often **silence**. Fetch the licence text and quote the clause, with its URL and
+its **tier** — paid marketplaces license by tier and the tier is what binds. A
+store-page badge is not a licence text. **An unverified licence is a refusal, not
+a caveat.**
 
 **2. Never describe art you have not seen.** A search result is a snippet; a
 store page is marketing copy. Write `listing text only, art not seen` in the row

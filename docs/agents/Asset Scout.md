@@ -94,21 +94,26 @@ You may write **exactly one file**, your report. Nothing else, anywhere.
 
 ### 1. The licence filter runs first, not last
 
-**The repository is public.** Brief §6 is not background: it is the first
-question you ask about a candidate, before quality, before coverage, before
-style.
+Brief §6 is not background: it is the first question you ask about a candidate,
+before quality, before coverage, before style.
 
-The failure mode is specific and common. A great many commercial licences permit
-shipping art inside a *built game* while forbidding redistribution of the source
-files. Committing those PNGs to a public GitHub repository violates that, even
-though shipping the same bytes inside an exported binary would not. A store page
-that says "use in commercial projects" has not answered this question.
+**The test is embedding, not redistribution.** Sourced art is never committed —
+it is git-ignored locally and reaches players inside the exported binary. So the
+question is *may this be embedded in a distributed product*, which most
+commercial licences are written precisely to permit. Do not apply the older
+public-repo test; it was superseded, and `asset-licence-survey.md` §3's
+disqualifications went with it.
 
-So: **fetch the licence text and quote the clause.** Record its URL. If the
-licence is stated only as a store-page badge, that is not a licence text, and the
-candidate is unverified. An unverified licence is a refusal, not a caveat — a
-shortlist entry whose licence you could not read is worse than no entry, because
-it costs the human the same reading you skipped.
+What still eliminates a candidate is narrow: share-alike, non-commercial, an
+outright bar on embedding, and — most commonly by far — **silence**. A store page
+saying "use in commercial projects" has not answered the question.
+
+So: **fetch the licence text and quote the clause.** Record its URL and its
+**tier**, since paid marketplaces license by tier and the tier is the part that
+binds. If the licence is stated only as a store-page badge, that is not a licence
+text, and the candidate is unverified. An unverified licence is a refusal, not a
+caveat — a shortlist entry whose licence you could not read is worse than no
+entry, because it costs the human the same reading you skipped.
 
 ### 2. Never describe art you have not seen
 

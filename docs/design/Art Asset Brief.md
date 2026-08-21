@@ -3,8 +3,8 @@ type: design-guidance
 display-name: Art Asset Brief
 status: active
 phase: phase-3
-version: 1.0
-updated: 2026-08-17
+version: 1.1
+updated: 2026-08-18
 governed-by: "[[Neon Kitchen - Game Design Document]]"
 tags:
   - neon-kitchen
@@ -167,31 +167,54 @@ better-fitting closed set, for the same reason.
 
 ## 6. Licence policy — read this before shortlisting
 
-**This repository is public.** That constraint eliminates more packs than
-quality does, and it is the first filter, not the last.
+**Sourced art is never committed.** It lives locally under `assets/sprites/`,
+which is git-ignored, and reaches players inside the exported binary. The
+repository carries the licence text, the attribution, and a register naming
+every file — the provenance, not the pixels.
 
-Many commercial asset licences permit shipping art inside a *built game* while
-forbidding redistribution of the source files. Committing those PNGs to a public
-GitHub repository violates that, even though shipping the same bytes inside an
-exported binary would not.
+That decision changes the question you ask of a licence:
 
-| Acceptable | Notes |
+| | Old test (superseded) | **Current test** |
+|---|---|---|
+| Question | May I redistribute the **source files**? | **May I embed this in a distributed binary?** |
+| Because | The repo is public and carried the art | The repo carries no art; the export does |
+
+The old test closed nearly every commercial marketplace, since their standard
+clause permits shipping art inside a built game while forbidding distribution of
+the source files. **That clause is now satisfied rather than violated** — an
+exported `.pck` is exactly the embedded case those licences are written for.
+
+So the disqualifications in `asset-licence-survey.md` §3 were correct against the
+old test and are **superseded**. That survey remains the record of which sources
+carry which terms; it is no longer the record of which are usable.
+
+### Acceptable
+
+| Licence | Notes |
 |---|---|
-| CC0 / public domain | No attribution required; still record the source |
-| CC-BY | Fine. Attribution must land in-repo, not in a submission form |
-| OFL (fonts) | Fine, with the licence file committed alongside |
-| Commercial, redistribution permitted | Read the actual text, not the store's summary |
+| CC0 / public domain | No attribution required; record the source anyway |
+| CC-BY | Fine. Attribution lands in the committed `CREDITS` — text, not art, so it commits normally |
+| OFL (fonts) | Fine, and fonts **are** committed, with the licence file alongside — OFL permits redistribution outright |
+| Commercial, embedding permitted | Now the largest category. **Record the tier**, not just the price |
 
-| Not acceptable | Why |
+### Not acceptable
+
+| Licence | Why |
 |---|---|
-| "Cannot be redistributed in source form" | The repo is public |
-| CC-BY-NC | This is coursework, but the licence is a legal constraint and the repo is open |
-| CC-BY-SA | Viral terms against a repo that is not licensed to match |
-| Unclear or absent licence | An unstated licence is a refusal |
+| CC-BY-SA | Share-alike is arguably viral on a game that embeds it. Not worth the argument |
+| CC-BY-NC | Fine for coursework, a landmine the day the game is sold. The repo goes private after the class; the licence lasts longer |
+| Forbids embedding in a distributed product | The one clause that still eliminates outright. Rare |
+| Unclear or absent licence | An unstated licence is a refusal. Unchanged, and still the most common failure |
 
-Record for every candidate: **source URL, licence name, licence text location,
-attribution requirement, and price.** A shortlist without those is not a
-shortlist.
+**Paid is a price, not a licence.** Kenney charges pay-what-you-want for CC0; the
+two are orthogonal. What paid marketplaces do have is **tiers** — Regular /
+Extended / Enterprise, Standard / Extended — and the tier governs seat count and
+commercial scope, not redistribution. A candidate recorded as "paid, $18" has not
+been recorded; the tier name is the part that binds.
+
+Record for every candidate: **source URL, licence name, licence tier, licence
+text location, the quoted clause bearing on embedding, attribution requirement,
+and price.** A shortlist without those is not a shortlist.
 
 ## 7. Forbidden motifs
 
