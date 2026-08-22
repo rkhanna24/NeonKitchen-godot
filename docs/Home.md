@@ -32,6 +32,8 @@ project knowledge that governs *Neon Kitchen*.
   what the screen may not do, and the decision trail behind it.
 - [[Kitchen Screen Visual Production Plan]] — the per-component routing for
   constructed, sourced and custom-drawn visual work.
+- [[Asset Format Guidance]] — format-neutral evaluation, transformation,
+  sizing and Godot integration guidance for visual assets.
 
 ## Systems of Record
 
@@ -43,6 +45,7 @@ project knowledge that governs *Neon Kitchen*.
 | Palette and its rules | [[Visual Language]] |
 | How content is written | [[Content Voice]] |
 | Art sourcing | [[Art Asset Brief]] |
+| Asset formats and transformation | [[Asset Format Guidance]] |
 | Reachable dish space | [[Recipe Space Audit]] (generated) |
 | Architecture guidance | [[technical_architecture\|Technical Architecture]] |
 | Accepted architecture decisions | `adr/` |

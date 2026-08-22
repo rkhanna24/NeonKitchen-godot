@@ -229,6 +229,7 @@ New questions are added here as they arise.
 | [ADR 0004](../adr/0004-phase-1-contracts.md) | Commands, events, evaluator, fixtures, and playtest protocol | Accepted |
 | [NeonKitchen-godot](https://github.com/rkhanna24/NeonKitchen-godot) | Implementation repository and issue tracker. **Public until the class ends, private after** — DEC-052 depends on this | Active |
 | [[Art Asset Brief]] | Standing context packet for any art round: world, palette, sizes, register, licence, motifs, sourcing rule | Active v1.6 |
+| [[Asset Format Guidance]] | Format-neutral vector, pixel-art and raster evaluation and transformation method | Active v1.0 |
 | [[Kitchen Screen Visual Production Plan]] | Whole-screen construct/import/draw inventory and production sequence | Proposed v1.0 |
 | [[Asset Scout]] | Task-scoped sourcing role; two-pass sight protocol | Active |
 | [[Visual Language]] | Palette tokens and the four binding rules | Active |
@@ -1159,6 +1160,44 @@ plan.
 Review the proposed production map, resolve the six blocking visual decisions,
 then write separate work packages for remaining vessels, fill primitives,
 ingredient integration and the REQUEST view.
+
+### 2026-08-21 — Session 014: Format-neutral asset guidance
+
+**Summary**
+
+Added a format-neutral production guide before testing a pixel-art counter
+candidate. It separates register, style, editable source, runtime asset and
+packaging so the available file format does not silently choose the game's art
+direction.
+
+**Human-approved decisions**
+
+- Do not select vector or pixel art merely from marketplace availability; keep
+  the guidance generic while representative candidates are tested by sight.
+
+**Work completed**
+
+- [[Asset Format Guidance]] records common acceptance rules, vector, pixel and
+  smooth-raster tradeoffs, sizing, semantic palette transformation, sprite-sheet
+  handling, Godot integration and DEC-052 licence boundaries.
+- [[Home]] and the Canonical Artifact Index link the new guide.
+
+**Evidence**
+
+- The guide was checked against the current [[Art Asset Brief]],
+  [[Visual Language]] and [[Kitchen Screen Visual Production Plan]].
+
+**Risks or limitations**
+
+- No visual style changed. The sourced-kitchen experiments remain candidate
+  proofs and do not yet amend DEC-054.
+- Format guidance cannot make mismatched perspective, outline density or light
+  direction coherent; those still require review at the shipping size.
+
+**Next**
+
+- Slice, scale and recolour the L-shaped counter from the supplied pixel-art
+  sheet as the first representative pixel candidate.
 
 ---
 
